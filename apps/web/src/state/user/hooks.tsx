@@ -52,7 +52,6 @@ export function useUserSlippageTolerance(): [
     return state.user.userSlippageTolerance
   })
 
-  // TODO(WEB-1985): Keep `userSlippageTolerance` as Percent in Redux store and remove this conversion
   const userSlippageTolerance = useMemo(
     () =>
       userSlippageToleranceRaw === SlippageTolerance.Auto
@@ -195,7 +194,7 @@ export function useTrackedTokenPairs(): [Token, Token][] {
     () =>
       chainId && popularTokens?.topTokens
         ? popularTokens.topTokens.flatMap((gqlToken) => {
-            if (!gqlToken) {
+            if (!gqlToken || !gqlToken.address) {
               return []
             }
             const token = gqlToCurrency(gqlToken)

@@ -278,11 +278,13 @@ export enum DappRequestAction {
 export type CardLoggingName = OnboardingCardLoggingName | DappRequestCardLoggingName
 
 export enum OnboardingCardLoggingName {
-  WelcomeWallet = 'welcome_wallet',
   FundWallet = 'fund_wallet',
   RecoveryBackup = 'recovery_backup',
   ClaimUnitag = 'claim_unitag',
   BridgingBanner = 'bridging_banner',
+  UnichainBannerCold = 'unichain_banner_cold',
+  UnichainBannerWarm = 'unichain_banner_warm',
+  EnablePushNotifications = 'enable_push_notifications',
 }
 
 export enum DappRequestCardLoggingName {
@@ -292,14 +294,30 @@ export enum DappRequestCardLoggingName {
 export type FORAmountEnteredProperties = ITraceContext & {
   source: 'chip' | 'textInput' | 'changeAsset' | 'maxButton'
   amountUSD?: number
+  amount?: number
+  chainId?: number
+  cryptoCurrency?: string
+  fiatCurrency?: string
+  isTokenInputMode?: boolean
 }
 
-export type FORTokenSelectedProperties = ITraceContext & { token: string; isUnsupported?: boolean }
+export type FORTokenSelectedProperties = ITraceContext & { token: string; isUnsupported?: boolean; chainId?: number }
+
+export type FORUnsupportedTokenSelectedProperties = ITraceContext & { token?: string }
 
 export type FORTransactionUpdatedProperties = {
   status: string
   externalTransactionId: string
   serviceProvider: string
+}
+
+export type OfframpSendTransactionProperties = ITraceContext & {
+  cryptoCurrency: string
+  currencyAmount: number
+  serviceProvider: string
+  chainId: string
+  externalTransactionId: Maybe<string>
+  amountUSD?: number
 }
 
 export type FORWidgetOpenedProperties = ITraceContext & {
@@ -310,6 +328,9 @@ export type FORWidgetOpenedProperties = ITraceContext & {
   fiatCurrency: string
   preselectedServiceProvider?: string
   serviceProvider: string
+  chainId?: number
+  currencyAmount?: number
+  amountUSD?: number
 }
 
 type DappRequestCardEventProperties = ITraceContext & {
@@ -329,9 +350,12 @@ export type LiquidityAnalyticsProperties = ITraceContext & {
   chain_id?: UniverseChainId
   baseCurrencyId: string
   quoteCurrencyId: string
-  token0AmountUSD: number
-  token1AmountUSD: number
+  token0AmountUSD?: number
+  token1AmountUSD?: number
   transaction_hash: string
+  // for debugging Linear ticket DS-172:
+  currencyInfo0Decimals: number
+  currencyInfo1Decimals: number
 }
 
 // Please sort new values by EventName type!
@@ -364,10 +388,11 @@ export type UniverseEventProperties = {
   }
   [FiatOffRampEventName.FiatOffRampAmountEntered]: FORAmountEnteredProperties
   [FiatOffRampEventName.FiatOffRampTokenSelected]: FORTokenSelectedProperties
-  [FiatOffRampEventName.FiatOffRampTransactionUpdated]: FORTransactionUpdatedProperties
+  [FiatOffRampEventName.FiatOffRampUnsupportedTokenBack]: FORUnsupportedTokenSelectedProperties
+  [FiatOffRampEventName.FiatOffRampUnsupportedTokenSwap]: FORUnsupportedTokenSelectedProperties
   [FiatOffRampEventName.FiatOffRampWidgetOpened]: FORWidgetOpenedProperties
-  [FiatOffRampEventName.FiatOffRampWidgetCompleted]: undefined
-  [FiatOffRampEventName.FiatOffRampFundsSent]: undefined
+  [FiatOffRampEventName.FiatOffRampWidgetCompleted]: OfframpSendTransactionProperties
+  [FiatOffRampEventName.FiatOffRampFundsSent]: OfframpSendTransactionProperties
   [FiatOnRampEventName.FiatOnRampAmountEntered]: FORAmountEnteredProperties
   [FiatOnRampEventName.FiatOnRampTokenSelected]: FORTokenSelectedProperties
   [FiatOnRampEventName.FiatOnRampTransactionUpdated]: FORTransactionUpdatedProperties

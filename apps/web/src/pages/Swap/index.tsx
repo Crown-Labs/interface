@@ -104,6 +104,8 @@ export default function SwapPage({ className }: { className?: string }) {
           initialIndependentField={initialField}
           initialCurrencyLoading={initialCurrencyLoading}
           syncTabToUrl={true}
+          hideHeader
+          hideFooter
         />
       </PageWrapper>
       {location.pathname === '/swap' && <SwitchLocaleLink />}
@@ -163,7 +165,7 @@ export function Swap({
   const input = currencyToAsset(initialInputCurrency)
   const output = currencyToAsset(initialOutputCurrency)
 
-  const { isSwapTokenSelectorOpen } = useUniswapContext()
+  const { isSwapTokenSelectorOpen, swapOutputChainId } = useUniswapContext()
 
   const prefilledState = useSwapPrefilledState({
     input,
@@ -171,6 +173,8 @@ export function Swap({
     exactAmountToken: initialTypedValue ?? '',
     exactCurrencyField: initialIndependentField ?? CurrencyField.INPUT,
     selectingCurrencyField: isSwapTokenSelectorOpen ? CurrencyField.OUTPUT : undefined,
+    selectingCurrencyChainId: swapOutputChainId,
+    skipFocusOnCurrencyField: isMobileWeb,
   })
 
   // TODO(WEB-5078): Remove this once we upgrade swap e2e tests to use the new swap flow
@@ -334,27 +338,30 @@ function UniversalSwapFlow({
         </Flex>
       )}
       {currentTab === SwapTab.Swap && (
-        <Flex gap="$spacing16">
-          <SwapFlow
-            settings={[Slippage, Deadline, ProtocolPreference]}
-            hideHeader={hideHeader}
-            hideFooter={hideFooter}
-            onClose={noop}
-            swapRedirectCallback={swapRedirectCallback}
-            onCurrencyChange={onCurrencyChange}
-            swapCallback={swapCallback}
-            wrapCallback={wrapCallback}
-            prefilledState={prefilledState}
-            tokenColor={tokenColor}
-          />
-          <SwapBottomCard />
-        </Flex>
+        <>
+          <h1>Swap</h1>
+          <Flex gap="$spacing16">
+            <SwapFlow
+              settings={[Slippage, Deadline, ProtocolPreference]}
+              hideHeader={hideHeader}
+              hideFooter={hideFooter}
+              onClose={noop}
+              swapRedirectCallback={swapRedirectCallback}
+              onCurrencyChange={onCurrencyChange}
+              swapCallback={swapCallback}
+              wrapCallback={wrapCallback}
+              prefilledState={prefilledState}
+              tokenColor={tokenColor}
+            />
+            <SwapBottomCard />
+          </Flex>
+        </>
       )}
-      {currentTab === SwapTab.Limit && <LimitFormWrapper onCurrencyChange={onCurrencyChange} />}
-      {currentTab === SwapTab.Send && (
+      {currentTab === SwapTab.Limit && !hideHeader && <LimitFormWrapper onCurrencyChange={onCurrencyChange} />}
+      {currentTab === SwapTab.Send && !hideHeader && (
         <SendForm disableTokenInputs={disableTokenInputs} onCurrencyChange={onCurrencyChange} />
       )}
-      {currentTab === SwapTab.Buy && <BuyForm disabled={disableTokenInputs} />}
+      {currentTab === SwapTab.Buy && !hideHeader && <BuyForm disabled={disableTokenInputs} />}
     </Flex>
   )
 }

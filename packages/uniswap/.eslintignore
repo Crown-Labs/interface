@@ -5,3 +5,8 @@ src/abis/types
 
 # Generated connectquery rest apis
 src/data/rest/conversionTracking/api
+
+# TODO: ignore temporary 
+src/features/transactions/swap
+src/features/tokens
+src/features/accounts

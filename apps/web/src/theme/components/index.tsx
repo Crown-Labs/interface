@@ -1,19 +1,19 @@
-import { TextStyle } from '@tamagui/core'
+import { isTouchable, TextStyle } from '@tamagui/core'
 import { InterfaceEventName } from '@uniswap/analytics-events'
 import { ReactComponent as TooltipTriangle } from 'assets/svg/tooltip_triangle.svg'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import styled, { css, keyframes } from 'lib/styled-components'
 import React, {
+  forwardRef,
   HTMLProps,
   PropsWithChildren,
   ReactNode,
-  forwardRef,
   useCallback,
   useImperativeHandle,
   useRef,
   useState,
 } from 'react'
-import { AlertTriangle, ArrowLeft, CheckCircle, Copy, Icon, X } from 'react-feather'
+import { AlertTriangle, CheckCircle, Copy, Icon, X } from 'react-feather'
 import { Trans } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Z_INDEX } from 'theme/zIndex'
@@ -324,7 +324,7 @@ export const CopyHelper = forwardRef<CopyHelperRefType, CopyHelperProps>(
 
     // Copy-helpers w/ left icon always show icon & display "Copied!" in copied state
     // Copy-helpers w/ right icon show icon on hover & do not change text
-    const showIcon = Boolean(iconPosition === 'left' || isHover || isCopied)
+    const showIcon = Boolean(iconPosition === 'left' || isHover || isTouchable || isCopied)
     const Icon = isCopied ? CopiedIcon : showIcon ? InitialIcon : null
     const offset = showIcon ? gap + iconSize : 0
     return (
@@ -368,18 +368,6 @@ const Spinner = styled.img`
 export const SpinnerSVG = styled.svg`
   ${SpinnerCss}
 `
-
-export const BackArrowIcon = styled(ArrowLeft)`
-  color: ${({ theme }) => theme.neutral1};
-`
-
-export function BackArrowLink({ to }: { to: string }) {
-  return (
-    <StyledInternalLink to={to}>
-      <BackArrowIcon />
-    </StyledInternalLink>
-  )
-}
 
 export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
   height: ${({ size }) => size};

@@ -34,9 +34,9 @@ export const CustomButtonFrame = styled(XStack, {
   backgroundColor: '$background',
   borderColor: '$borderColor',
   focusStyle: {
-    outlineWidth: 1,
-    outlineOffset: 2,
-    outlineStyle: 'solid',
+    // outlineWidth: 1,
+    // outlineOffset: 2,
+    // outlineStyle: 'solid',
   },
   pressStyle: {
     scale: PRESS_SCALE,

@@ -1,7 +1,7 @@
 import { opacifyRaw } from 'ui/src/theme/color/utils'
 
 const accentColors = {
-  pinkLight: '#FEF4FF',
+  pinkLight: '#E1CCFE',
   pinkPastel: '#FDAFF0',
   pinkBase: '#FC74FE',
   pinkVibrant: '#F50DB4',
@@ -72,6 +72,10 @@ export const colors = {
   white: '#FFFFFF',
   black: '#000000',
   scrim: 'rgba(0,0,0,0.60)',
+  blue1: '#CDAAFE',
+  blue2: '#B48DFF',
+  blue3: '#A57DDE',
+  blue4: '#C0A4E8',
 
   ...accentColors,
 
@@ -91,7 +95,7 @@ export const DEP_accentColors = {
   green400: '#209853',
   magenta100: '#FAD8F8',
   magenta50: '#FFF1FE',
-  magentaVibrant: '#FC72FF',
+  magentaVibrant: '#B48DFF',
   red200: '#FEA79B',
   red300: '#FD766B',
   red400: '#FA2B39',
@@ -182,10 +186,10 @@ const sporeLight = {
   surface4: 'rgba(255,255,255,0.64)',
   surface5: 'rgba(0,0,0,0.04)',
 
-  accent1: '#FC72FF',
-  accent1Hovered: '#FD3CFE',
-  accent2: '#FEF4FF',
-  accent2Hovered: '#FEEBFC',
+  accent1: colors.blue1,
+  accent1Hovered: colors.blue2,
+  accent2: '#E1CCFE',
+  accent2Hovered: '#EDE4FA',
   accent3: '#222222',
   accent3Hovered: colors.black,
 
@@ -229,10 +233,10 @@ const sporeDark = {
   surface4: 'rgba(255,255,255,0.20)',
   surface5: 'rgba(0,0,0,0.04)',
 
-  accent1: '#FC72FF',
-  accent1Hovered: '#FD3CFE',
+  accent1: colors.blue1,
+  accent1Hovered: colors.blue2,
   accent2: '#361A37',
-  accent2Hovered: '#510D43',
+  accent2Hovered: '#EDE4FA',
   accent3: colors.white,
   accent3Hovered: '#F5F5F5',
 
@@ -314,6 +318,7 @@ export const colorsLight = {
   DEP_fiatBanner: colors.fiatOnRampBanner,
 
   chain_1: sporeLight.neutral1,
+  chain_130: networkColors.unichain.light,
   chain_10: networkColors.optimism.light,
   chain_137: networkColors.polygon.light,
   chain_42161: networkColors.arbitrum.light,
@@ -330,7 +335,7 @@ export const colorsLight = {
   // Testnets
   chain_11155111: networkColors.ethereum.light,
   chain_1301: networkColors.unichain.light,
-  chain_41454: networkColors.monad.light,
+  chain_10143: networkColors.monad.light,
 
   pinkThemed: colors.pinkLight,
 }
@@ -400,6 +405,7 @@ export const colorsDark = {
   DEP_fiatBanner: colors.fiatOnRampBanner,
 
   chain_1: sporeDark.neutral1,
+  chain_130: networkColors.unichain.dark,
   chain_10: networkColors.optimism.dark,
   chain_137: networkColors.polygon.dark,
   chain_42161: networkColors.arbitrum.dark,
@@ -416,7 +422,7 @@ export const colorsDark = {
   // Testnets
   chain_11155111: networkColors.ethereum.dark,
   chain_1301: networkColors.unichain.dark,
-  chain_41454: networkColors.monad.dark,
+  chain_10143: networkColors.monad.dark,
 
   pinkThemed: colors.pinkDark,
 }

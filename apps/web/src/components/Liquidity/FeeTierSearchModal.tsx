@@ -3,6 +3,7 @@ import { FeePoolSelectAction, LiquidityEventName } from '@uniswap/analytics-even
 import { useAllFeeTierPoolData } from 'components/Liquidity/hooks'
 import { calculateTickSpacingFromFeeAmount, isDynamicFeeTier } from 'components/Liquidity/utils'
 import { StyledPercentInput } from 'components/PercentInput'
+import { ZERO_ADDRESS } from 'constants/misc'
 import ms from 'ms'
 import { useCreatePositionContext } from 'pages/Pool/Positions/create/CreatePositionContext'
 import { NumericalInputMimic, NumericalInputSymbolContainer } from 'pages/Swap/common/shared'
@@ -64,6 +65,7 @@ export function FeeTierSearchModal() {
     protocolVersion,
     currencies: derivedPositionInfo.currencies,
     withDynamicFeeTier,
+    hook: hook ?? ZERO_ADDRESS,
   })
 
   const showCreateModal = !withDynamicFeeTier && (createModeEnabled || !hasExistingFeeTiers)
@@ -291,7 +293,7 @@ export function FeeTierSearchModal() {
                 alignSelf="stretch"
                 backgroundColor="$transparent"
                 borderRadius={0}
-                borderWidth={0}
+                borderWidth="$none"
                 textAlign="left"
                 value={searchValue}
                 fontFamily="$subHeading"
@@ -325,7 +327,7 @@ export function FeeTierSearchModal() {
                 }}
               />
             </Flex>
-            <Flex width="100%" gap="$gap4" maxHeight={350} overflow="scroll">
+            <Flex width="100%" gap="$gap4" maxHeight={350} overflow="scroll" className="scrollbar-hidden">
               {Object.values(feeTierData)
                 .filter((data) => data.formattedFee.includes(searchValue) || (data.id && searchValue.includes(data.id)))
                 .map((pool) => (
@@ -333,7 +335,7 @@ export function FeeTierSearchModal() {
                     row
                     alignItems="center"
                     gap="$spacing24"
-                    key={pool.id}
+                    key={pool.id + pool.formattedFee}
                     py="$padding12"
                     px="$padding16"
                     justifyContent="space-between"
