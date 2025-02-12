@@ -1,16 +1,7 @@
 /* eslint-disable complexity */
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  ColorTokens,
-  DeprecatedButton,
-  Flex,
-  SpinningLoader,
-  Text,
-  getHoverCssFilter,
-  useIsDarkMode,
-  useIsShortMobileDevice,
-} from 'ui/src'
+import { ColorTokens, Flex, SpinningLoader, Text, ThreeDButton, useIsDarkMode, useIsShortMobileDevice } from 'ui/src'
 import { opacify, validColor } from 'ui/src/theme'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { useAccountMeta, useUniswapContext } from 'uniswap/src/contexts/UniswapContext'
@@ -274,32 +265,34 @@ export function SwapFormButton({
     buttonTextColor: ColorTokens
     buttonText: string
     opacity: number | undefined
+    shadowColor: ColorTokens
   } = {
     backgroundColor:
       !activeAccount || isSubmitting
-        ? lightTokenColor ?? '$accent2'
+        ? lightTokenColor ?? '$accent1'
         : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
-          ? '$surface2'
+          ? '$accent2'
           : validTokenColor ?? '$accent1',
+    shadowColor:
+      !activeAccount || isSubmitting
+        ? hoveredLightTokenColor ?? '$blue3'
+        : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
+          ? '$blue4'
+          : validTokenColor ?? '$blue3',
     hoverBackgroundColor:
       !activeAccount || isSubmitting
-        ? hoveredLightTokenColor ?? '$accent2Hovered'
+        ? hoveredLightTokenColor ?? '$accent1Hovered'
         : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
           ? '$surface2'
           : validTokenColor ?? '$accent1Hovered',
     buttonTextColor: !activeAccount
-      ? validTokenColor ?? '$accent1'
+      ? validTokenColor ?? '$color'
       : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
-        ? '$neutral2'
-        : tokenColorText ?? '$white',
+        ? '$blue4'
+        : tokenColorText ?? '$color',
     buttonText: getButtonText(),
     opacity: getButtonOpacity(),
   }
-
-  const filter =
-    buttonProps.hoverBackgroundColor === validTokenColor && buttonProps.backgroundColor === validTokenColor
-      ? getHoverCssFilter(isDarkMode)
-      : undefined
 
   return (
     <Flex alignItems="center" gap={isShortMobileDevice ? '$spacing8' : '$spacing16'}>
@@ -320,30 +313,29 @@ export function SwapFormButton({
             })
           }}
         />
-        <DeprecatedButton
+        <ThreeDButton
           animation="fast"
-          // Custom styles are matched with our theme hover opacities - can remove this when we implement full theme support in DeprecatedButton
-          pressStyle={{ backgroundColor: buttonProps.backgroundColor, scale: 0.98 }}
-          hoverStyle={{ backgroundColor: buttonProps.hoverBackgroundColor, filter }}
+          // Custom styles are matched with our theme hover opacities - can remove this when we implement full theme support in ThreeDButton
           icon={indicative ? <SpinningLoader color="$neutral2" size={iconSizes.icon20} /> : undefined}
           backgroundColor={buttonProps.backgroundColor}
+          shadowColor={buttonProps.shadowColor}
           disabled={disabled}
           opacity={buttonProps.opacity}
           size={isShortMobileDevice ? 'small' : 'large'}
           testID={TestID.ReviewSwap}
           width="100%"
-          onPress={() =>
+          onPress={() => {
             onReviewPress({
               skipBridgingWarning: false,
               skipMaxTransferWarning: false,
               skipTokenProtectionWarning: false,
             })
-          }
+          }}
         >
           <Text color={buttonProps.buttonTextColor} variant={SWAP_BUTTON_TEXT_VARIANT}>
             {buttonProps.buttonText}
           </Text>
-        </DeprecatedButton>
+        </ThreeDButton>
       </Trace>
       <ViewOnlyModal isOpen={showViewOnlyModal} onDismiss={(): void => setShowViewOnlyModal(false)} />
       <BridgingModal
