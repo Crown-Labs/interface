@@ -23,6 +23,7 @@
     "https://verify.walletconnect.org/"
   ],
   "connectSrc": [
+    "https://fonts.googleapis.com",
     "'self'",
     "blob:",
     "data:",
@@ -105,7 +106,8 @@
     "wss://relay.walletconnect.com",
     "wss://relay.walletconnect.org",
     "wss://ws-us3.pusher.com/",
-    "wss://www.walletlink.org"
+    "wss://www.walletlink.org",
+    "https://develop-api.kittycorn.io"
   ],
   "workerSrc": [
     "'self'",

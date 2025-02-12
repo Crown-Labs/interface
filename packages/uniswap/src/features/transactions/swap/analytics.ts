@@ -241,7 +241,7 @@ export function tradeRoutingToFillType({
 }: {
   routing: Routing
   indicative: boolean
-}): SwapRouting {
+}): SwapRouting | any {
   if (indicative) {
     return 'none'
   }

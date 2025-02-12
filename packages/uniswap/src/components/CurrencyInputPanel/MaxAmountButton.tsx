@@ -111,7 +111,7 @@ const MaxButtonContent = memo(function _MaxButtonContent({
         onClose={handleMaxBalanceInfoModalClose}
       >
         <TouchableArea
-          backgroundColor={disabled ? '$surface3' : '$accent2'}
+          // backgroundColor={disabled ? '$surface3' : '$accent2'}
           borderRadius="$rounded12"
           opacity={disabled ? 0.5 : 1}
           px="$spacing6"

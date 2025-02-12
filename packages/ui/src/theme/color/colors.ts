@@ -1,7 +1,7 @@
 import { opacifyRaw } from 'ui/src/theme/color/utils'
 
 const accentColors = {
-  pinkLight: '#FEF4FF',
+  pinkLight: '#E1CCFE',
   pinkPastel: '#FDAFF0',
   pinkBase: '#FC74FE',
   pinkVibrant: '#F50DB4',
@@ -72,6 +72,10 @@ export const colors = {
   white: '#FFFFFF',
   black: '#000000',
   scrim: 'rgba(0,0,0,0.60)',
+  blue1: '#CDAAFE',
+  blue2: '#B48DFF',
+  blue3: '#A57DDE',
+  blue4: '#C0A4E8',
 
   ...accentColors,
 
@@ -91,7 +95,7 @@ export const DEP_accentColors = {
   green400: '#209853',
   magenta100: '#FAD8F8',
   magenta50: '#FFF1FE',
-  magentaVibrant: '#FC72FF',
+  magentaVibrant: '#B48DFF',
   red200: '#FEA79B',
   red300: '#FD766B',
   red400: '#FA2B39',
@@ -182,10 +186,10 @@ const sporeLight = {
   surface4: 'rgba(255,255,255,0.64)',
   surface5: 'rgba(0,0,0,0.04)',
 
-  accent1: '#FC72FF',
-  accent1Hovered: '#FD3CFE',
-  accent2: '#FEF4FF',
-  accent2Hovered: '#FEEBFC',
+  accent1: colors.blue1,
+  accent1Hovered: colors.blue2,
+  accent2: '#E1CCFE',
+  accent2Hovered: '#EDE4FA',
   accent3: '#222222',
   accent3Hovered: colors.black,
 
@@ -229,10 +233,10 @@ const sporeDark = {
   surface4: 'rgba(255,255,255,0.20)',
   surface5: 'rgba(0,0,0,0.04)',
 
-  accent1: '#FC72FF',
-  accent1Hovered: '#FD3CFE',
+  accent1: colors.blue1,
+  accent1Hovered: colors.blue2,
   accent2: '#361A37',
-  accent2Hovered: '#510D43',
+  accent2Hovered: '#EDE4FA',
   accent3: colors.white,
   accent3Hovered: '#F5F5F5',
 
