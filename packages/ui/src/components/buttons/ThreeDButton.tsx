@@ -40,14 +40,14 @@ const CustomButtonFrame = styled(XStack, {
   shadowColor: '$shadowColor',
 
   hoverStyle: {
-    backgroundColor: '$backgroundHover',
+    backgroundColor: '$blue6',
   },
 
   pressStyle: {
     position: 'relative',
     shadowOffset: { width: 0, height: 4 },
     bottom: -4,
-    backgroundColor: '$blue1',
+    backgroundColor: '$blue3',
   },
 
   variants: {

@@ -76,6 +76,10 @@ export const colors = {
   blue2: '#B48DFF',
   blue3: '#A57DDE',
   blue4: '#C0A4E8',
+  blue5: '#7E57C2',
+  blue6: '#b894fd', // using for hover blue2
+
+  pink1: '#EA6AD3',
 
   ...accentColors,
 
@@ -187,7 +191,7 @@ const sporeLight = {
   surface5: 'rgba(0,0,0,0.04)',
 
   accent1: colors.blue1,
-  accent1Hovered: colors.blue2,
+  accent1Hovered: colors.blue3,
   accent2: '#E1CCFE',
   accent2Hovered: '#EDE4FA',
   accent3: '#222222',
@@ -234,7 +238,7 @@ const sporeDark = {
   surface5: 'rgba(0,0,0,0.04)',
 
   accent1: colors.blue1,
-  accent1Hovered: colors.blue2,
+  accent1Hovered: colors.blue3,
   accent2: '#361A37',
   accent2Hovered: '#EDE4FA',
   accent3: colors.white,
@@ -338,6 +342,7 @@ export const colorsLight = {
   chain_10143: networkColors.monad.light,
 
   pinkThemed: colors.pinkLight,
+  blue1Hovered: colors.blue6,
 }
 
 export type ColorKeys = keyof typeof colorsLight
@@ -425,4 +430,5 @@ export const colorsDark = {
   chain_10143: networkColors.monad.dark,
 
   pinkThemed: colors.pinkDark,
+  blue1Hovered: colors.blue6,
 }

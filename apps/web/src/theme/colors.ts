@@ -133,6 +133,12 @@ export const colors = {
   critical2_dark: '#2E0805',
   critical2_light: '#FFF2F1',
   scrim: 'rgba(0, 0, 0, 0.60)',
+
+  // NEW COLORS FOR KITTYCORN
+  blue1: '#CDAAFE',
+  blue2: '#B48DFF',
+  blue3: '#A57DDE',
+  blue4: '#C0A4E8',
 }
 
 export type ThemeColors = typeof darkTheme
@@ -167,6 +173,12 @@ const commonTheme = {
 
   brandedGradient: 'linear-gradient(139.57deg, #FF79C9 4.35%, #FFB8E2 96.44%);',
   promotionalGradient: colors.accent1_light,
+
+  // NEW COLORS FOR KITTYCORN
+  blue1: colors.blue1,
+  blue2: colors.blue2,
+  blue3: colors.blue3,
+  blue4: colors.blue4,
 }
 
 export const darkTheme = {

@@ -51,7 +51,7 @@ export function SubmitSwapButton({
       return (
         <ThreeDButton
           fill
-          isDisabled
+          disabled
           backgroundColor="$surface2"
           pressStyle={{ scale: 0.98 }}
           icon={<SpinningLoader color="$neutral2" size={isWeb ? iconSizes.icon20 : iconSizes.icon24} />}
@@ -68,7 +68,7 @@ export function SubmitSwapButton({
       return (
         <ThreeDButton
           fill
-          isDisabled
+          disabled
           backgroundColor="$accent2"
           color="$accent1"
           pressStyle={{ scale: 0.98 }}
@@ -85,12 +85,14 @@ export function SubmitSwapButton({
       return (
         <ThreeDButton
           fill
-          isDisabled
-          backgroundColor="$surface2"
-          color="$neutral2"
+          disabled
+          animation="fast"
+          backgroundColor="$pinkLight"
+          color="$blue4"
           pressStyle={{ scale: 0.98 }}
           hoverStyle={{ opacity: 1 }}
-          icon={<SpinningLoader color="$neutral2" size={iconSizes.icon20} />}
+          shadowColor="$blue4"
+          icon={<SpinningLoader color="$blue4" size={iconSizes.icon20} />}
           opacity={1} // For UniswapX submitting UI, opacity should be full despite disabled state
           size={size}
         >
@@ -104,7 +106,7 @@ export function SubmitSwapButton({
           fill
           backgroundColor="$statusCritical"
           color="$accent1"
-          isDisabled={disabled}
+          disabled={disabled}
           pressStyle={{ scale: 0.98 }}
           hoverStyle={{ opacity: 1, backgroundColor: '$statusCritical' }}
           opacity={disabled ? 0.5 : 0.9}
@@ -120,23 +122,19 @@ export function SubmitSwapButton({
       )
     }
     default: {
-      const backgroundColor = disabled ? '$accent2' : '$accent1'
+      const backgroundColor = disabled ? '$accent2' : '$blue2'
       const textColor = disabled ? '$blue4' : '$white'
       const biometricIcon = renderBiometricsIcon?.({ color: disabled ? '$neutral2' : '$white' })
-      const shadowColor = disabled ? '$blue4' : '$blue3'
+      const shadowColor = disabled ? '$blue4' : '$blue5'
 
       return (
         <ThreeDButton
           fill
           backgroundColor={backgroundColor}
-<<<<<<< HEAD
-          isDisabled={disabled}
+          disabled={disabled}
           pressStyle={{ scale: 0.98 }}
           hoverStyle={{ opacity: 1 }}
           opacity={0.9}
-=======
-          disabled={disabled}
->>>>>>> d6c1cafe2 (feat: kittycorn setup)
           icon={biometricIcon}
           size={size}
           testID={TestID.Swap}
@@ -203,7 +201,7 @@ function ConfirmInWalletText(): JSX.Element {
   return (
     <AnimatePresence>
       <Flex animateEnterExit="fadeInDownOutDown" animation="quicker">
-        <Text color="$neutral2" flex={1} textAlign="center" variant={SWAP_BUTTON_TEXT_VARIANT}>
+        <Text color="$blue4" flex={1} textAlign="center" variant={SWAP_BUTTON_TEXT_VARIANT}>
           {t('common.confirmWallet')}
         </Text>
       </Flex>

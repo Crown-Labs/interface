@@ -1,6 +1,6 @@
 import { SwapEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { ComponentProps, memo, useCallback, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Text, TouchableArea, TouchableAreaEvent } from 'ui/src'
 import { useMaxAmountSpend } from 'uniswap/src/features/gas/useMaxAmountSpend'
@@ -89,10 +89,6 @@ const MaxButtonContent = memo(function _MaxButtonContent({
 }): JSX.Element {
   const { t } = useTranslation()
 
-  const hoverStyle: {
-    backgroundColor: ComponentProps<typeof TouchableArea>['backgroundColor']
-  } = useMemo(() => ({ backgroundColor: disabled ? '$surface3' : '$accent2Hovered' }), [disabled])
-
   const handleMaxBalanceInfoModalClose = useCallback(() => {
     setIsShowingMaxNativeBalanceModal(false)
   }, [setIsShowingMaxNativeBalanceModal])
@@ -111,17 +107,13 @@ const MaxButtonContent = memo(function _MaxButtonContent({
         onClose={handleMaxBalanceInfoModalClose}
       >
         <TouchableArea
-          // backgroundColor={disabled ? '$surface3' : '$accent2'}
-          borderRadius="$rounded12"
+          backgroundColor="transparent"
           opacity={disabled ? 0.5 : 1}
           px="$spacing6"
-          py="$spacing4"
           testID={currencyField === CurrencyField.INPUT ? TestID.SetMaxInput : TestID.SetMaxOutput}
-          scaleTo={0.98}
-          hoverStyle={hoverStyle}
           onPress={onPress}
         >
-          <Text color={disabled ? '$neutral2' : '$accent1'} variant="buttonLabel4">
+          <Text color={disabled ? '$neutral2' : '$pink1'} variant="buttonLabel4" fontSize={14}>
             {t('swap.button.max')}
           </Text>
         </TouchableArea>
