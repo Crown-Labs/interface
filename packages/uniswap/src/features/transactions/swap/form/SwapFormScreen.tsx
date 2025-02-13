@@ -684,7 +684,7 @@ function SwapFormContent({
             )}
             <Flex>
               {isWeb && (
-                <Flex pt="$spacing4">
+                <Flex pt="$spacing4" mb="$spacing8">
                   <SwapFormButton wrapCallback={wrapCallback} tokenColor={tokenColor} />
                 </Flex>
               )}

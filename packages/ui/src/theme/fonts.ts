@@ -46,11 +46,11 @@ const fontFamily = {
 }
 
 const baselMedium = isWeb
-  ? 'Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif'
+  ? '"Roboto", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif'
   : fontFamily.sansSerif.medium
 
 const baselBook = isWeb
-  ? 'Roboto, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif'
+  ? '"Roboto", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif'
   : fontFamily.sansSerif.book
 
 type SansSerifFontFamilyKey = keyof typeof fontFamily.sansSerif
@@ -70,11 +70,11 @@ const platformFontFamily = (family: SansSerifFontFamilyKey): SansSerifFontFamily
 
 // default for non-button fonts
 const BOOK_WEIGHT = '400'
-const BOOK_WEIGHT_WEB = '445'
+const BOOK_WEIGHT_WEB = '485'
 
 // used for buttons
 const MEDIUM_WEIGHT = '500'
-const MEDIUM_WEIGHT_WEB = '500'
+const MEDIUM_WEIGHT_WEB = '535'
 
 const defaultWeights = {
   book: isInterface ? BOOK_WEIGHT_WEB : BOOK_WEIGHT,

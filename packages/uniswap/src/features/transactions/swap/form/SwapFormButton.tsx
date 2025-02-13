@@ -269,22 +269,22 @@ export function SwapFormButton({
   } = {
     backgroundColor:
       !activeAccount || isSubmitting
-        ? lightTokenColor ?? '$accent1'
+        ? lightTokenColor ?? '$blue2'
         : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
-          ? '$accent2'
-          : validTokenColor ?? '$accent1',
+          ? '$pinkLight'
+          : validTokenColor ?? '$blue2',
     shadowColor:
       !activeAccount || isSubmitting
-        ? hoveredLightTokenColor ?? '$blue3'
+        ? hoveredLightTokenColor ?? '$blue5'
         : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
           ? '$blue4'
-          : validTokenColor ?? '$blue3',
+          : validTokenColor ?? '$blue5',
     hoverBackgroundColor:
       !activeAccount || isSubmitting
-        ? hoveredLightTokenColor ?? '$accent1Hovered'
+        ? hoveredLightTokenColor ?? '$blue1Hovered'
         : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
           ? '$surface2'
-          : validTokenColor ?? '$accent1Hovered',
+          : validTokenColor ?? '$blue1Hovered',
     buttonTextColor: !activeAccount
       ? validTokenColor ?? '$color'
       : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback

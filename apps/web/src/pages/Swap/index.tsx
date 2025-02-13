@@ -104,8 +104,8 @@ export default function SwapPage({ className }: { className?: string }) {
           initialIndependentField={initialField}
           initialCurrencyLoading={initialCurrencyLoading}
           syncTabToUrl={true}
-          hideHeader
-          hideFooter
+          hideHeader={true}
+          hideFooter={true}
         />
       </PageWrapper>
       {location.pathname === '/swap' && <SwitchLocaleLink />}
@@ -189,11 +189,7 @@ export function Swap({
             initialOutputCurrency={initialOutputCurrency}
           >
             <PrefetchBalancesWrapper>
-              <SwapFormContextProvider
-                prefilledState={prefilledState}
-                hideSettings={hideHeader}
-                hideFooter={hideFooter}
-              >
+              <SwapFormContextProvider prefilledState={prefilledState} hideSettings={false} hideFooter={hideFooter}>
                 <Flex position="relative" gap="$spacing16" opacity={isSharedSwapDisabled ? 0.6 : 1}>
                   {isSharedSwapDisabled && <DisabledSwapOverlay />}
                   <UniversalSwapFlow
