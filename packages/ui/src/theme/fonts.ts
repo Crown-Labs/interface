@@ -76,6 +76,8 @@ const BOOK_WEIGHT_WEB = '485'
 const MEDIUM_WEIGHT = '500'
 const MEDIUM_WEIGHT_WEB = '535'
 
+const LARGE_WEIGHT_WEB = '600'
+
 const defaultWeights = {
   book: isInterface ? BOOK_WEIGHT_WEB : BOOK_WEIGHT,
   true: isInterface ? BOOK_WEIGHT_WEB : BOOK_WEIGHT,
@@ -106,6 +108,13 @@ export const fonts = {
     fontSize: adjustedSize(24),
     lineHeight: 32,
     fontWeight: BOOK_WEIGHT,
+    maxFontSizeMultiplier: 1.2,
+  },
+  heading4: {
+    family: platformFontFamily('book'),
+    fontSize: adjustedSize(20),
+    lineHeight: 28,
+    fontWeight: LARGE_WEIGHT_WEB,
     maxFontSizeMultiplier: 1.2,
   },
   subheading1: {
@@ -201,6 +210,7 @@ export const headingFont = createFont({
     medium: fonts.heading2.fontSize,
     true: fonts.heading2.fontSize,
     large: fonts.heading1.fontSize,
+    xl: fonts.heading4.fontSize,
   },
   weight: defaultWeights,
   lineHeight: {

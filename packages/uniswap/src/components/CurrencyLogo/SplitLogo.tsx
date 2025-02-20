@@ -31,21 +31,21 @@ export function SplitLogo({
   chainId,
   customIcon,
 }: Props): JSX.Element {
-  const iconSize = size / 2
+  const iconSize = size
   const networkLogo =
     chainId && chainId !== UniverseChainId.Mainnet ? (
       <TransactionSummaryNetworkLogo chainId={chainId} size={size * STATUS_RATIO} />
     ) : undefined
 
   return (
-    <Flex height={size} width={size}>
+    <Flex height={size} width={size * 1.5}>
       <Flex
         left={0}
-        overflow="hidden"
+        // overflow="hidden"
         position="absolute"
         testID="input-currency-logo-container"
         top={0}
-        width={iconSize - 1 /* -1 to allow for space between the icons */}
+        width={iconSize /* -1 to allow for space between the icons */}
       >
         {inputLogoUrl ? (
           <TokenLogo hideNetworkLogo url={inputLogoUrl} chainId={chainId ?? undefined} size={size} />
@@ -55,12 +55,12 @@ export function SplitLogo({
       </Flex>
       <Flex
         flexDirection="row-reverse"
-        overflow="hidden"
+        // overflow="hidden"
         position="absolute"
         right={0}
         testID="output-currency-logo-container"
         top={0}
-        width={iconSize - 1 /* -1 to allow for space between the icons */}
+        width={iconSize /* -1 to allow for space between the icons */}
       >
         {outputLogoUrl ? (
           <TokenLogo hideNetworkLogo url={outputLogoUrl} chainId={chainId ?? undefined} size={size} />

@@ -104,7 +104,6 @@ export default function SwapPage({ className }: { className?: string }) {
           initialCurrencyLoading={initialCurrencyLoading}
           syncTabToUrl={true}
           hideHeader={true}
-          hideFooter={true}
         />
       </PageWrapper>
       {location.pathname === '/swap' && <SwitchLocaleLink />}
@@ -334,7 +333,6 @@ function UniversalSwapFlow({
       )}
       {currentTab === SwapTab.Swap && (
         <>
-          <h1>Swap</h1>
           <Flex gap="$spacing16">
             <SwapFlow
               settings={[Slippage, Deadline, ProtocolPreference]}

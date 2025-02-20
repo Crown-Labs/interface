@@ -81,6 +81,8 @@ export const colors = {
 
   pink1: '#EA6AD3',
 
+  lightGray: '#E0E0E0',
+
   ...accentColors,
 
   uniswapXViolet: '#4673FA',

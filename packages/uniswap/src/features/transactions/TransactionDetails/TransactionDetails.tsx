@@ -137,7 +137,6 @@ export function TransactionDetails({
             transactionUSDValue={transactionUSDValue}
             uniswapXGasBreakdown={uniswapXGasBreakdown}
           />
-          {isSwap && RoutingInfo}
           {AccountDetails}
           {showChildren ? (
             <AnimatePresence>
@@ -146,6 +145,8 @@ export function TransactionDetails({
               </Flex>
             </AnimatePresence>
           ) : null}
+
+          {isSwap && RoutingInfo}
         </Flex>
         {setTokenWarningChecked && tokenWarningProps && (
           <SwapReviewTokenWarningCard

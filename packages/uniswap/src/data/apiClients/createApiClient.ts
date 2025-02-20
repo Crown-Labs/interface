@@ -32,7 +32,14 @@ export function createApiClient({
   return {
     get fetch() {
       return (path: string, options: Parameters<typeof fetch>[1]) => {
-        return fetch(`${baseUrl}${path}`, {
+        let url = `${baseUrl}${path}`
+
+        if (url.includes('/v1/quote')) {
+          // url = 'http://localhost:8030/quote'
+          // console.log(options)
+        }
+
+        return fetch(`${url}`, {
           ...options,
           headers: {
             ...headers,

@@ -38,6 +38,7 @@ export function SubmitSwapButton({
     wrapType,
     trade: { trade, indicativeTrade },
   } = derivedSwapInfo
+
   const indicative = Boolean(!trade && indicativeTrade)
 
   const swapTxContext = useSwapTxContext()

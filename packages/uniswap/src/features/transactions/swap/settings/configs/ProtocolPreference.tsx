@@ -2,7 +2,6 @@ import { TFunction } from 'i18next'
 import { ReactNode, useCallback, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Flex, Switch, Text, UniswapXText } from 'ui/src'
-import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled'
 import { UniswapX } from 'ui/src/components/icons/UniswapX'
 import { WarningInfo } from 'uniswap/src/components/modals/WarningModal/WarningInfo'
 import { ProtocolItems } from 'uniswap/src/data/tradingApi/__generated__'
@@ -22,6 +21,7 @@ import {
 import { isMobileApp } from 'utilities/src/platform'
 
 function isDefaultOptions(selectedProtocols: FrontendSupportedProtocol[]): boolean {
+  return false
   return new Set(selectedProtocols).size === new Set([...selectedProtocols, ...DEFAULT_PROTOCOL_OPTIONS]).size
 }
 
@@ -64,16 +64,13 @@ export const ProtocolPreference: SwapSettingConfig = {
       ? t('swap.settings.protection.subtitle.unavailable', { chainName })
       : null
 
-    // We prevent the user from deselecting all options
-    const onlyOneProtocolSelected = selectedProtocols.length === 1
-
     // We prevent the user from deselecting all on-chain protocols (AKA only selecting UniswapX)
     const onlyOneClassicProtocolSelected =
       selectedProtocols.filter((p) => {
         if (!v4Enabled && p === ProtocolItems.V4) {
           return false
         }
-        return p !== ProtocolItems.UNISWAPX_V2
+        return true
       }).length === 1
 
     const toggleProtocol = useCallback(
@@ -96,57 +93,33 @@ export const ProtocolPreference: SwapSettingConfig = {
 
     return (
       <Flex gap="$spacing16" my="$spacing16">
-        <OptionRow
-          active={isDefault}
-          description={<DefaultOptionDescription isDefault={isDefault} />}
-          elementName={ElementName.SwapRoutingPreferenceDefault}
-          title={<DefaultOptionTitle />}
-          cantDisable={false}
-          disabled={isOnlyV2Allowed}
-          onSelect={toggleDefault}
-        />
-        {!isDefault && (
-          <>
-            {uniswapXEnabled && (
-              <OptionRow
-                active={selectedProtocols.includes(ProtocolItems.UNISWAPX_V2)}
-                elementName={ElementName.SwapRoutingPreferenceUniswapX}
-                title={getProtocolTitle(ProtocolItems.UNISWAPX_V2, t)}
-                cantDisable={onlyOneProtocolSelected}
-                disabled={isOnlyV2Allowed}
-                description={v2RestrictionDescription}
-                onSelect={() => toggleProtocol(ProtocolItems.UNISWAPX_V2)}
-              />
-            )}
-            {v4Enabled && (
-              <OptionRow
-                active={selectedProtocols.includes(ProtocolItems.V4)}
-                elementName={ElementName.SwapRoutingPreferenceV4}
-                title={getProtocolTitle(ProtocolItems.V4, t)}
-                cantDisable={onlyOneClassicProtocolSelected}
-                disabled={isOnlyV2Allowed}
-                description={v2RestrictionDescription}
-                onSelect={() => toggleProtocol(ProtocolItems.V4)}
-              />
-            )}
-            <OptionRow
-              active={selectedProtocols.includes(ProtocolItems.V3)}
-              elementName={ElementName.SwapRoutingPreferenceV3}
-              title={getProtocolTitle(ProtocolItems.V3, t)}
-              cantDisable={onlyOneClassicProtocolSelected}
-              disabled={isOnlyV2Allowed}
-              description={v2RestrictionDescription}
-              onSelect={() => toggleProtocol(ProtocolItems.V3)}
-            />
-            <OptionRow
-              active={selectedProtocols.includes(ProtocolItems.V2)}
-              elementName={ElementName.SwapRoutingPreferenceV3}
-              title={getProtocolTitle(ProtocolItems.V2, t)}
-              cantDisable={onlyOneClassicProtocolSelected || isOnlyV2Allowed}
-              onSelect={() => toggleProtocol(ProtocolItems.V2)}
-            />
-          </>
+        {v4Enabled && (
+          <OptionRow
+            active={selectedProtocols.includes(ProtocolItems.V4)}
+            elementName={ElementName.SwapRoutingPreferenceV4}
+            title={getProtocolTitle(ProtocolItems.V4, t)}
+            cantDisable={onlyOneClassicProtocolSelected}
+            disabled={isOnlyV2Allowed}
+            description={v2RestrictionDescription}
+            onSelect={() => toggleProtocol(ProtocolItems.V4)}
+          />
         )}
+        <OptionRow
+          active={selectedProtocols.includes(ProtocolItems.V3)}
+          elementName={ElementName.SwapRoutingPreferenceV3}
+          title={getProtocolTitle(ProtocolItems.V3, t)}
+          cantDisable={onlyOneClassicProtocolSelected}
+          disabled={isOnlyV2Allowed}
+          description={v2RestrictionDescription}
+          onSelect={() => toggleProtocol(ProtocolItems.V3)}
+        />
+        <OptionRow
+          active={selectedProtocols.includes(ProtocolItems.V2)}
+          elementName={ElementName.SwapRoutingPreferenceV3}
+          title={getProtocolTitle(ProtocolItems.V2, t)}
+          cantDisable={onlyOneClassicProtocolSelected || isOnlyV2Allowed}
+          onSelect={() => toggleProtocol(ProtocolItems.V2)}
+        />
       </Flex>
     )
   },
@@ -154,37 +127,6 @@ export const ProtocolPreference: SwapSettingConfig = {
 
 export function getProtocolTitle(preference: FrontendSupportedProtocol, t: TFunction): JSX.Element | string {
   switch (preference) {
-    case ProtocolItems.UNISWAPX_V2:
-      return (
-        <UniswapXInfo
-          tooltipTrigger={
-            <Text
-              alignItems="center"
-              color="$neutral2"
-              variant="body3"
-              flexDirection="row"
-              flexShrink={0}
-              display="inline-flex"
-              gap="$gap4"
-            >
-              <Trans
-                components={{
-                  icon: <UniswapX size="$icon.16" style={!isMobileApp && { transform: 'translateY(3px)' }} />,
-                  gradient: <UniswapXText height={18} variant="body3" />,
-                  info: (
-                    <InfoCircleFilled
-                      color="$neutral3"
-                      size="$icon.16"
-                      style={!isMobileApp && { transform: 'translateY(3px)' }}
-                    />
-                  ),
-                }}
-                i18nKey="uniswapx.item"
-              />
-            </Text>
-          }
-        />
-      )
     case ProtocolItems.V2:
       return t('swap.settings.routingPreference.option.v2.title')
     case ProtocolItems.V3:

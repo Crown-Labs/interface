@@ -275,7 +275,9 @@ export function SwapFormButton({
           : validTokenColor ?? '$blue2',
     shadowColor:
       !activeAccount || isSubmitting
-        ? hoveredLightTokenColor ?? '$blue5'
+        ? hoveredLightTokenColor ?? !activeAccount
+          ? '$blue5'
+          : '$blue4'
         : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
           ? '$blue4'
           : validTokenColor ?? '$blue5',
@@ -318,12 +320,8 @@ export function SwapFormButton({
           // Custom styles are matched with our theme hover opacities - can remove this when we implement full theme support in ThreeDButton
           icon={indicative ? <SpinningLoader color="$neutral2" size={iconSizes.icon20} /> : undefined}
           backgroundColor={buttonProps.backgroundColor}
-<<<<<<< HEAD
-          isDisabled={disabled}
-=======
           shadowColor={buttonProps.shadowColor}
           disabled={disabled}
->>>>>>> d6c1cafe2 (feat: kittycorn setup)
           opacity={buttonProps.opacity}
           size={isShortMobileDevice ? 'small' : 'large'}
           testID={TestID.ReviewSwap}

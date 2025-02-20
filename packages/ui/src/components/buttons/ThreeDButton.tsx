@@ -33,20 +33,21 @@ const CustomButtonFrame = styled(XStack, {
   borderColor: '$borderColor',
   cursor: 'pointer',
   height: 'auto',
-  shadowOffset: { width: 0, height: 8 },
+  shadowOffset: { width: 0, height: 5 },
   transition: 'transform 0.1s, box-shadow 0.16s',
   position: 'relative',
-  bottom: 0,
+  bottom: -3,
   shadowColor: '$shadowColor',
+  my: '$spacing12',
 
   hoverStyle: {
-    backgroundColor: '$blue6',
+    shadowOffset: { width: 0, height: 8 },
+    bottom: 0,
   },
 
   pressStyle: {
-    position: 'relative',
-    shadowOffset: { width: 0, height: 4 },
-    bottom: -4,
+    shadowOffset: { width: 0, height: 5 },
+    bottom: -3,
     backgroundColor: '$blue3',
   },
 

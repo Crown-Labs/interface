@@ -112,30 +112,42 @@ export function RoutingInfo({
   }, [t, trade, isMaybeV4])
 
   return (
-    <Flex row alignItems="center" justifyContent="space-between">
-      <WarningInfo
-        infoButton={InfoButton}
-        modalProps={{
-          modalName: ModalName.SwapReview,
-          captionComponent: caption,
-          rejectText: t('common.button.close'),
-          icon: <OrderRouting color={colors.neutral1.val} size={24} />,
-          severity: WarningSeverity.None,
-          title: t('swap.tradeRoutes'),
-        }}
-        tooltipProps={{ text: caption, placement: 'top', maxWidth: trade && isClassic(trade) ? 400 : undefined }}
-      >
-        <Flex centered row gap="$spacing4">
-          <Text color="$neutral2" variant="body3">
-            {t('swap.orderRouting')}
+    <Flex>
+      <Flex row alignItems="center" justifyContent="space-between">
+        <WarningInfo
+          infoButton={InfoButton}
+          modalProps={{
+            modalName: ModalName.SwapReview,
+            captionComponent: caption,
+            rejectText: t('common.button.close'),
+            icon: <OrderRouting color={colors.neutral1.val} size={24} />,
+            severity: WarningSeverity.None,
+            title: t('swap.tradeRoutes'),
+          }}
+          tooltipProps={{ text: caption, placement: 'top', maxWidth: trade && isClassic(trade) ? 400 : undefined }}
+        >
+          <Flex centered row gap="$spacing4">
+            <Text color="$neutral2" variant="body3">
+              {t('swap.orderRouting')}
+            </Text>
+          </Flex>
+        </WarningInfo>
+        <Flex row shrink justifyContent="flex-end">
+          <Text adjustsFontSizeToFit color="$neutral1" variant="body3">
+            <RouterLabel />
           </Text>
         </Flex>
-      </WarningInfo>
-      <Flex row shrink justifyContent="flex-end">
-        <Text adjustsFontSizeToFit color="$neutral1" variant="body3">
-          <RouterLabel />
-        </Text>
       </Flex>
+
+      {trade && isClassic(trade) && (
+        <Flex p="$spacing12">
+          <RoutingDiagram
+            routes={routes}
+            currencyIn={trade.inputAmount.currency}
+            currencyOut={trade.outputAmount.currency}
+          />
+        </Flex>
+      )}
     </Flex>
   )
 }

@@ -345,7 +345,6 @@ export function SwapReviewScreen(props: SwapReviewScreenProps): JSX.Element | nu
             newTradeRequiresAcceptance={newTradeRequiresAcceptance}
             onClose={onPrev}
           />
-
           {showInterfaceReviewSteps ? (
             <ProgressIndicator currentStep={currentStep} steps={steps} />
           ) : isWrap ? (

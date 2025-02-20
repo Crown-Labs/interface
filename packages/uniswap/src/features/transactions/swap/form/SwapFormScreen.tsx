@@ -26,12 +26,7 @@ import { CurrencyInfo } from 'uniswap/src/features/dataApi/types'
 import { ElementName, SectionName } from 'uniswap/src/features/telemetry/constants'
 import Trace from 'uniswap/src/features/telemetry/Trace'
 import { getTokenWarningSeverity } from 'uniswap/src/features/tokens/safetyUtils'
-import {
-  DecimalPadCalculatedSpaceId,
-  DecimalPadCalculateSpace,
-  DecimalPadInput,
-  DecimalPadInputRef,
-} from 'uniswap/src/features/transactions/DecimalPadInput/DecimalPadInput'
+import { DecimalPadInputRef } from 'uniswap/src/features/transactions/DecimalPadInput/DecimalPadInput'
 import { useTransactionSettingsContext } from 'uniswap/src/features/transactions/settings/contexts/TransactionSettingsContext'
 import { useSwapFormContext } from 'uniswap/src/features/transactions/swap/contexts/SwapFormContext'
 import { useSwapTxContext } from 'uniswap/src/features/transactions/swap/contexts/SwapTxContext'
@@ -567,177 +562,175 @@ function SwapFormContent({
   const showFooter = Boolean(!hideFooter && (isMobileApp || (!isBlockedTokens && input && output && exactAmountToken)))
 
   return (
-    <Flex grow gap="$spacing8" justifyContent="space-between">
-      <Flex animation="quick" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} gap="$spacing2" grow={isExtension}>
-        <Trace section={SectionName.CurrencyInputPanel}>
-          <Flex
-            animation="simple"
-            borderColor={focusOnCurrencyField === CurrencyField.INPUT ? '$surface3' : '$transparent'}
-            borderRadius="$rounded20"
-            backgroundColor={focusOnCurrencyField === CurrencyField.INPUT ? '$surface1' : '$surface2'}
-            borderWidth="$spacing1"
-            overflow="hidden"
-            pb={currencies[CurrencyField.INPUT] ? '$spacing4' : '$none'}
-            hoverStyle={hoverStyles.input}
-          >
-            <CurrencyInputPanel
-              ref={inputRef}
-              headerLabel={isInterface ? t('common.button.sell') : undefined}
-              currencyAmount={currencyAmounts[CurrencyField.INPUT]}
-              currencyBalance={currencyBalances[CurrencyField.INPUT]}
-              currencyField={CurrencyField.INPUT}
-              currencyInfo={currencies[CurrencyField.INPUT]}
-              // We do not want to force-focus the input when the token selector is open.
-              focus={selectingCurrencyField ? undefined : focusOnCurrencyField === CurrencyField.INPUT}
-              isFiatMode={isFiatMode && exactFieldIsInput}
-              isIndicativeLoading={trade.isIndicativeLoading}
-              isLoading={!exactFieldIsInput && isSwapDataLoading}
-              resetSelection={resetSelection}
-              showSoftInputOnFocus={false}
-              usdValue={currencyAmountsUSDValue[CurrencyField.INPUT]}
-              value={exactFieldIsInput ? exactValue : formattedDerivedValue}
-              valueIsIndicative={!exactFieldIsInput && trade.indicativeTrade && !trade.trade}
-              tokenColor={tokenColor}
-              onPressIn={onFocusInput}
-              onSelectionChange={onInputSelectionChange}
-              onSetExactAmount={onSetExactAmountInput}
-              onSetMax={onSetMax}
-              onShowTokenSelector={onShowTokenSelectorInput}
-              onToggleIsFiatMode={onToggleIsFiatMode}
-            />
+    <Flex>
+      <Flex
+        grow
+        gap="$spacing8"
+        justifyContent="space-between"
+        borderWidth="$spacing2"
+        borderColor="$lightGray"
+        p="$padding12"
+        borderRadius="$rounded20"
+        shadowColor="$lightGray"
+        shadowOffset={{ width: 0, height: 6 }}
+      >
+        <Flex>
+          <Text color="$pink1" fontWeight="600" fontSize="$large" pb="$spacing12" pt="$padding6">
+            Swap
+          </Text>
+        </Flex>
+        <Flex
+          animation="quick"
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+          gap="$spacing2"
+          grow={isExtension}
+          borderRadius="$rounded16"
+        >
+          <Trace section={SectionName.CurrencyInputPanel}>
+            <Flex
+              animation="simple"
+              borderColor={focusOnCurrencyField === CurrencyField.INPUT ? '$surface3' : '$transparent'}
+              borderRadius="$rounded20"
+              backgroundColor={focusOnCurrencyField === CurrencyField.INPUT ? '$surface1' : '$surface2'}
+              borderWidth="$spacing1"
+              overflow="hidden"
+              pb={currencies[CurrencyField.INPUT] ? '$spacing4' : '$none'}
+              hoverStyle={hoverStyles.input}
+            >
+              <CurrencyInputPanel
+                ref={inputRef}
+                headerLabel={isInterface ? t('common.button.sell') : undefined}
+                currencyAmount={currencyAmounts[CurrencyField.INPUT]}
+                currencyBalance={currencyBalances[CurrencyField.INPUT]}
+                currencyField={CurrencyField.INPUT}
+                currencyInfo={currencies[CurrencyField.INPUT]}
+                // We do not want to force-focus the input when the token selector is open.
+                focus={selectingCurrencyField ? undefined : focusOnCurrencyField === CurrencyField.INPUT}
+                isFiatMode={isFiatMode && exactFieldIsInput}
+                isIndicativeLoading={trade.isIndicativeLoading}
+                isLoading={!exactFieldIsInput && isSwapDataLoading}
+                resetSelection={resetSelection}
+                showSoftInputOnFocus={false}
+                usdValue={currencyAmountsUSDValue[CurrencyField.INPUT]}
+                value={exactFieldIsInput ? exactValue : formattedDerivedValue}
+                valueIsIndicative={!exactFieldIsInput && trade.indicativeTrade && !trade.trade}
+                tokenColor={tokenColor}
+                onPressIn={onFocusInput}
+                onSelectionChange={onInputSelectionChange}
+                onSetExactAmount={onSetExactAmountInput}
+                onSetMax={onSetMax}
+                onShowTokenSelector={onShowTokenSelectorInput}
+                onToggleIsFiatMode={onToggleIsFiatMode}
+              />
+            </Flex>
+          </Trace>
+
+          <SwitchCurrenciesButton onSwitchCurrencies={onSwitchCurrencies} />
+
+          <Trace section={SectionName.CurrencyOutputPanel}>
+            <Flex
+              borderRadius="$rounded20"
+              borderWidth="$spacing1"
+              borderColor={focusOnCurrencyField === CurrencyField.OUTPUT ? '$surface3' : '$transparent'}
+              backgroundColor={focusOnCurrencyField === CurrencyField.OUTPUT ? '$surface1' : '$surface2'}
+              pt={currencies[CurrencyField.OUTPUT] ? '$spacing4' : '$none'}
+              hoverStyle={hoverStyles.output}
+            >
+              <CurrencyInputPanel
+                ref={outputRef}
+                headerLabel={isInterface ? t('common.button.buy') : undefined}
+                currencyAmount={currencyAmounts[CurrencyField.OUTPUT]}
+                currencyBalance={currencyBalances[CurrencyField.OUTPUT]}
+                currencyField={CurrencyField.OUTPUT}
+                currencyInfo={currencies[CurrencyField.OUTPUT]}
+                disabled={exactOutputDisabled}
+                // We do not want to force-focus the input when the token selector is open.
+                focus={selectingCurrencyField ? undefined : focusOnCurrencyField === CurrencyField.OUTPUT}
+                isFiatMode={isFiatMode && exactFieldIsOutput}
+                isLoading={!exactFieldIsOutput && isSwapDataLoading}
+                resetSelection={resetSelection}
+                showSoftInputOnFocus={false}
+                usdValue={currencyAmountsUSDValue[CurrencyField.OUTPUT]}
+                value={exactFieldIsOutput ? exactValue : formattedDerivedValue}
+                valueIsIndicative={!exactFieldIsOutput && trade.indicativeTrade && !trade.trade}
+                tokenColor={tokenColor}
+                onPressDisabled={isBridge ? undefined : showTemporaryFoTWarning}
+                onPressIn={onFocusOutput}
+                onSelectionChange={onOutputSelectionChange}
+                onSetExactAmount={onSetExactAmountOutput}
+                onSetMax={onSetMax}
+                onShowTokenSelector={onShowTokenSelectorOutput}
+                onToggleIsFiatMode={onToggleIsFiatMode}
+              />
+              {walletNeedsRestore && (
+                <TouchableArea onPress={onRestorePress}>
+                  <Flex
+                    grow
+                    row
+                    alignItems="center"
+                    alignSelf="stretch"
+                    backgroundColor="$surface2"
+                    borderBottomLeftRadius="$rounded16"
+                    borderBottomRightRadius="$rounded16"
+                    borderTopColor="$surface1"
+                    borderTopWidth={1}
+                    gap="$spacing8"
+                    px="$spacing12"
+                    py="$spacing12"
+                  >
+                    <InfoCircleFilled color={colors.DEP_accentWarning.val} size="$icon.20" />
+                    <Text color="$DEP_accentWarning" variant="subheading2">
+                      {t('swap.form.warning.restore')}
+                    </Text>
+                  </Flex>
+                </TouchableArea>
+              )}
+            </Flex>
+          </Trace>
+
+          <Flex>
+            <Flex pt="$spacing4" mb="$spacing8">
+              <SwapFormButton wrapCallback={wrapCallback} tokenColor={tokenColor} />
+            </Flex>
           </Flex>
-        </Trace>
+        </Flex>
+      </Flex>
 
-        <SwitchCurrenciesButton onSwitchCurrencies={onSwitchCurrencies} />
+      <Flex>{`${showFooter}`}</Flex>
 
-        <Trace section={SectionName.CurrencyOutputPanel}>
-          <Flex
-            borderRadius="$rounded20"
-            borderWidth="$spacing1"
-            borderColor={focusOnCurrencyField === CurrencyField.OUTPUT ? '$surface3' : '$transparent'}
-            backgroundColor={focusOnCurrencyField === CurrencyField.OUTPUT ? '$surface1' : '$surface2'}
-            pt={currencies[CurrencyField.OUTPUT] ? '$spacing4' : '$none'}
-            hoverStyle={hoverStyles.output}
-          >
-            <CurrencyInputPanel
-              ref={outputRef}
-              headerLabel={isInterface ? t('common.button.buy') : undefined}
-              currencyAmount={currencyAmounts[CurrencyField.OUTPUT]}
-              currencyBalance={currencyBalances[CurrencyField.OUTPUT]}
-              currencyField={CurrencyField.OUTPUT}
-              currencyInfo={currencies[CurrencyField.OUTPUT]}
-              disabled={exactOutputDisabled}
-              // We do not want to force-focus the input when the token selector is open.
-              focus={selectingCurrencyField ? undefined : focusOnCurrencyField === CurrencyField.OUTPUT}
-              isFiatMode={isFiatMode && exactFieldIsOutput}
-              isLoading={!exactFieldIsOutput && isSwapDataLoading}
-              resetSelection={resetSelection}
-              showSoftInputOnFocus={false}
-              usdValue={currencyAmountsUSDValue[CurrencyField.OUTPUT]}
-              value={exactFieldIsOutput ? exactValue : formattedDerivedValue}
-              valueIsIndicative={!exactFieldIsOutput && trade.indicativeTrade && !trade.trade}
-              tokenColor={tokenColor}
-              onPressDisabled={isBridge ? undefined : showTemporaryFoTWarning}
-              onPressIn={onFocusOutput}
-              onSelectionChange={onOutputSelectionChange}
-              onSetExactAmount={onSetExactAmountOutput}
-              onSetMax={onSetMax}
-              onShowTokenSelector={onShowTokenSelectorOutput}
-              onToggleIsFiatMode={onToggleIsFiatMode}
-            />
-            {walletNeedsRestore && (
-              <TouchableArea onPress={onRestorePress}>
-                <Flex
-                  grow
-                  row
-                  alignItems="center"
-                  alignSelf="stretch"
-                  backgroundColor="$surface2"
-                  borderBottomLeftRadius="$rounded16"
-                  borderBottomRightRadius="$rounded16"
-                  borderTopColor="$surface1"
-                  borderTopWidth={1}
-                  gap="$spacing8"
-                  px="$spacing12"
-                  py="$spacing12"
-                >
-                  <InfoCircleFilled color={colors.DEP_accentWarning.val} size="$icon.20" />
-                  <Text color="$DEP_accentWarning" variant="subheading2">
-                    {t('swap.form.warning.restore')}
-                  </Text>
-                </Flex>
-              </TouchableArea>
-            )}
-          </Flex>
-        </Trace>
-
-        <Accordion collapsible type="single" overflow="hidden">
-          <Accordion.Item value="a1" className="gas-container">
-            {/* <Accordion.HeightAnimator> attaches an absolutely positioned element that cannot be targeted without the below style */}
-            {isWeb && (
-              <style>{`
+      <Accordion
+        collapsible
+        type="single"
+        overflow="hidden"
+        my="$spacing32"
+        borderWidth="$spacing2"
+        borderColor="$lightGray"
+        p="$padding12"
+        pb="$none"
+        borderRadius="$rounded20"
+        shadowColor="$lightGray"
+        shadowOffset={{ width: 0, height: 6 }}
+        value="a1"
+      >
+        <Accordion.Item value="a1" className="gas-container">
+          {
+            <style>{`
               .gas-container > div > div {
                 width: 100%;
               }
             `}</style>
-            )}
-            <Flex>
-              {isWeb && (
-                <Flex pt="$spacing4" mb="$spacing8">
-                  <SwapFormButton wrapCallback={wrapCallback} tokenColor={tokenColor} />
-                </Flex>
-              )}
-              {/*
-              IMPORTANT: If you modify the footer layout, you must test this on a small device and verify that the `DecimalPad` is able to
-                         properly calculate the correct height and it does not change its height when the gas and warning rows are shown/hidden,
-                         or when moving from the review screen back to the form screen.
-              */}
-              {showFooter && (
-                <Flex minHeight="$spacing40" pt={isShortMobileDevice ? '$spacing8' : '$spacing12'}>
-                  <AnimatePresence>
-                    {showWarning && (
-                      <FoTWarningRow currencies={currencies} outputTokenHasBuyTax={outputTokenHasBuyTax} />
-                    )}
-                  </AnimatePresence>
-                  {/* Accordion.Toggle is nested in GasAndWarningRows */}
-                  {exactAmountToken && !showWarning && <GasAndWarningRows />}
-                </Flex>
-              )}
-            </Flex>
-            {isWeb && showFooter ? <ExpandableRows isBridge={isBridge} /> : null}
-          </Accordion.Item>
-        </Accordion>
-      </Flex>
-
-      {!isWeb && (
-        <>
-          <DecimalPadCalculateSpace id={DecimalPadCalculatedSpaceId.Swap} decimalPadRef={decimalPadRef} />
-
-          <Flex
-            $short={{ gap: '$none' }}
-            animation="quick"
-            bottom={0}
-            gap="$spacing8"
-            left={0}
-            opacity={decimalPadReady ? 1 : 0}
-            position="absolute"
-            right={0}
-          >
-            <Flex grow justifyContent="flex-end">
-              <DecimalPadInput
-                ref={decimalPadRef}
-                maxDecimals={maxDecimals}
-                resetSelection={resetSelection}
-                selectionRef={selection[decimalPadControlledField]}
-                setValue={decimalPadSetValue}
-                valueRef={decimalPadValueRef}
-                onReady={onDecimalPadReady}
-                onTriggerInputShakeAnimation={onDecimalPadTriggerInputShake}
-              />
-            </Flex>
+          }
+          <Flex>
+            <AnimatePresence>
+              {showWarning && <FoTWarningRow currencies={currencies} outputTokenHasBuyTax={outputTokenHasBuyTax} />}
+            </AnimatePresence>
+            {/* Accordion.Toggle is nested in GasAndWarningRows */}
+            {exactAmountToken && !showWarning && <GasAndWarningRows />}
           </Flex>
-        </>
-      )}
+          <ExpandableRows isBridge={isBridge} />
+        </Accordion.Item>
+      </Accordion>
     </Flex>
   )
 }

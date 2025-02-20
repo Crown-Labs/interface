@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { isWeb } from 'ui/src'
+import { Flex, isWeb } from 'ui/src'
 import { Modal } from 'uniswap/src/components/modals/Modal'
 import Trace from 'uniswap/src/features/telemetry/Trace'
 import { ModalName, SectionName } from 'uniswap/src/features/telemetry/constants'
@@ -89,7 +89,7 @@ function CurrentScreen({
 
   if (isWeb) {
     return (
-      <>
+      <Flex>
         <Trace logImpression section={SectionName.SwapForm}>
           <SwapFormScreen settings={settings} hideContent={false} wrapCallback={wrapCallback} tokenColor={tokenColor} />
         </Trace>
@@ -110,7 +110,7 @@ function CurrentScreen({
             <SwapReviewScreen hideContent={false} swapCallback={swapCallback} wrapCallback={wrapCallback} />
           </Trace>
         </Modal>
-      </>
+      </Flex>
     )
   }
 
