@@ -381,7 +381,7 @@ export function SwapReviewScreen(props: SwapReviewScreenProps): JSX.Element | nu
 
       {!showInterfaceReviewSteps && (
         <TransactionModalFooterContainer>
-          <Flex row gap="$spacing8">
+          <Flex row gap="$spacing8" position="relative">
             {!isWeb && !showUniswapXSubmittingUI && (
               <DeprecatedButton
                 icon={<BackArrow />}

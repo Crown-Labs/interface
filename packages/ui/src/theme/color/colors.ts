@@ -182,8 +182,8 @@ const sporeLight = {
   surface4: 'rgba(255,255,255,0.64)',
   surface5: 'rgba(0,0,0,0.04)',
 
-  accent1: '#FC72FF',
-  accent1Hovered: '#FD3CFE',
+  accent1: '#B48DFF',
+  accent1Hovered: '#B48DFF',
   accent2: '#FEF4FF',
   accent2Hovered: '#FEEBFC',
   accent3: '#222222',
@@ -203,6 +203,21 @@ const sporeLight = {
   statusCriticalHovered: '#FF3931',
   statusCritical2: '#FFF2F1',
   statusCritical2Hovered: '#FFD5D4',
+
+  //NEW COLORS FOR KITTYCORN
+  kty_neutral1: '#FFFFFF',
+  kty_neutral2: '#82868B', //base text color
+  kty_neutral3: '#C0A4E8', //text for button disabled
+  kty_neutral4: '#B48DFF', //purple text
+  kty_surface1: '#B48DFF', //background for button
+  kty_surface2: '#E1CCFE', //background for button disabled
+  kty_surface3: '#7E57C2', //shadow
+  kty_surface4: '#C0A4E8', //shadow for button disabled
+  kty_surface5: '#E0E0E0', //border and shadow for box
+  kty_surface6: '#F4EAFE', //background for badge
+  kty_surface7: '#FAFAFA', //background for text
+  kty_accent1: '#B48DFF',
+  kty_accent2: '#EA6AD3', //pink text for titleyarn
 }
 
 const sporeDark = {
@@ -251,6 +266,21 @@ const sporeDark = {
   statusCriticalHovered: '#FF3931',
   statusCritical2: '#220D0C',
   statusCritical2Hovered: '#470402',
+
+  //NEW COLORS FOR KITTYCORN
+  kty_neutral1: '#FFFFFF',
+  kty_neutral2: '#EA6AD3', //pink text for title
+  kty_neutral3: '#C0A4E8', //text for button disabled
+  kty_neutral4: '#B48DFF', //purple text
+  kty_surface1: '#B48DFF', //background
+  kty_surface2: '#E1CCFE', //background for button disabled
+  kty_surface3: '#7E57C2', //shadow
+  kty_surface4: '#C0A4E8', //shadow for button disabled
+  kty_surface5: '#82868B', //border and shadow for box
+  kty_surface6: '#F4EAFE', //background for badge
+  kty_surface7: '#FAFAFA', //background for text
+  kty_accent1: '#B48DFF',
+  kty_accent2: '#EA6AD3', //pink text for title
 }
 
 export const colorsLight = {
@@ -262,7 +292,7 @@ export const colorsLight = {
 
   neutral1: sporeLight.neutral1,
   neutral1Hovered: sporeLight.neutral1Hovered,
-  neutral2: sporeLight.neutral2,
+  neutral2: sporeLight.kty_neutral2,
   neutral2Hovered: sporeLight.neutral2Hovered,
   neutral3: sporeLight.neutral3,
   neutral3Hovered: sporeLight.neutral3Hovered,
@@ -334,6 +364,21 @@ export const colorsLight = {
   chain_10143: networkColors.monad.light,
 
   pinkThemed: colors.pinkLight,
+
+  //NEW COLORS FOR KITTYCORN
+  kty_neutral1: sporeLight.kty_neutral1,
+  kty_neutral2: sporeLight.kty_neutral2,
+  kty_neutral3: sporeLight.kty_neutral3,
+  kty_neutral4: sporeLight.kty_neutral4,
+  kty_surface1: sporeLight.kty_surface1,
+  kty_surface2: sporeLight.kty_surface2,
+  kty_surface3: sporeLight.kty_surface3,
+  kty_surface4: sporeLight.kty_surface4,
+  kty_surface5: sporeLight.kty_surface5,
+  kty_surface6: sporeLight.kty_surface6,
+  kty_surface7: sporeLight.kty_surface7,
+  kty_accent1: sporeLight.kty_accent1,
+  kty_accent2: sporeLight.kty_accent2,
 }
 
 export type ColorKeys = keyof typeof colorsLight
@@ -358,7 +403,7 @@ export const colorsDark = {
 
   neutral1: sporeDark.neutral1,
   neutral1Hovered: sporeDark.neutral1Hovered,
-  neutral2: sporeDark.neutral2,
+  neutral2: sporeDark.kty_neutral2,
   neutral2Hovered: sporeDark.neutral2Hovered,
   neutral3: sporeDark.neutral3,
   neutral3Hovered: sporeDark.neutral3Hovered,
@@ -421,4 +466,19 @@ export const colorsDark = {
   chain_10143: networkColors.monad.dark,
 
   pinkThemed: colors.pinkDark,
+
+  //NEW COLORS FOR KITTYCORN
+  kty_neutral1: sporeDark.kty_neutral1,
+  kty_neutral2: sporeDark.kty_neutral2,
+  kty_neutral3: sporeDark.kty_neutral3,
+  kty_neutral4: sporeDark.kty_neutral4,
+  kty_surface1: sporeDark.kty_surface1,
+  kty_surface2: sporeDark.kty_surface2,
+  kty_surface3: sporeDark.kty_surface3,
+  kty_surface4: sporeDark.kty_surface4,
+  kty_surface5: sporeDark.kty_surface5,
+  kty_surface6: sporeDark.kty_surface6,
+  kty_surface7: sporeDark.surface1,
+  kty_accent1: sporeDark.kty_accent1,
+  kty_accent2: sporeDark.kty_accent2,
 }

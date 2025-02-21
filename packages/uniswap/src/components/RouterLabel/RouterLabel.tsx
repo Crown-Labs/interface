@@ -22,7 +22,7 @@ export function RouterLabel(): JSX.Element | null {
   }
 
   if (isClassic(trade)) {
-    return <>Uniswap API</>
+    return <>Kittycorn API</>
   }
 
   return null

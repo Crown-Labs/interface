@@ -137,7 +137,7 @@ export function TransactionDetails({
             transactionUSDValue={transactionUSDValue}
             uniswapXGasBreakdown={uniswapXGasBreakdown}
           />
-          {isSwap && RoutingInfo}
+
           {AccountDetails}
           {showChildren ? (
             <AnimatePresence>
@@ -167,6 +167,7 @@ export function TransactionDetails({
           onClose={() => setShowSlippageSettings(false)}
         />
       )}
+      {isSwap && RoutingInfo}
     </Flex>
   )
 }

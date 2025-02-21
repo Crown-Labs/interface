@@ -321,6 +321,21 @@ function UniversalSwapFlow({
   }, [t, currentTab])
 
   return (
+    <SwapFlow
+      settings={[Slippage, Deadline, ProtocolPreference]}
+      hideHeader={hideHeader}
+      hideFooter={hideFooter}
+      onClose={noop}
+      swapRedirectCallback={swapRedirectCallback}
+      onCurrencyChange={onCurrencyChange}
+      swapCallback={swapCallback}
+      wrapCallback={wrapCallback}
+      prefilledState={prefilledState}
+      tokenColor={tokenColor}
+    />
+  )
+
+  return (
     <Flex>
       {!hideHeader && (
         <Flex row gap="$spacing16">

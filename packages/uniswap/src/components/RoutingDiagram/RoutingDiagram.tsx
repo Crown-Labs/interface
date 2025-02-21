@@ -6,12 +6,12 @@ import { Flex, styled as tamaguiStyled, Text, Tooltip } from 'ui/src'
 import { DotLine } from 'ui/src/components/icons/DotLine'
 import { zIndexes } from 'ui/src/theme'
 import { CurrencyLogo } from 'uniswap/src/components/CurrencyLogo/CurrencyLogo'
-import { SplitLogo } from 'uniswap/src/components/CurrencyLogo/SplitLogo'
 import { BIPS_BASE } from 'uniswap/src/constants/misc'
 import type { CurrencyInfo } from 'uniswap/src/features/dataApi/types'
 import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo'
 import { buildCurrencyId, buildNativeCurrencyId } from 'uniswap/src/utils/currencyId'
 import { RoutingDiagramEntry } from 'uniswap/src/utils/getRoutingDiagramEntries'
+import { TwoLogo } from '../CurrencyLogo/TwoLogo'
 
 const PoolBadge = tamaguiStyled(Flex, {
   row: true,
@@ -62,7 +62,7 @@ function Pool({
       <Tooltip.Trigger>
         <OpaqueBadge>
           <Flex ml={2}>
-            <SplitLogo
+            <TwoLogo
               chainId={currency0.chainId}
               inputCurrencyInfo={currency0CurrencyInfo}
               outputCurrencyInfo={currency1CurrencyInfo}
