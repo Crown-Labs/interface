@@ -93,6 +93,29 @@ export default function WalletModal() {
           </Text>
         </AutoRow>
       )}
+      <Column gap="md" flex="1">
+        <Row flex="1" align="flex-start">
+          <OptionGrid data-testid="option-grid" closed={isUniExtensionAvailable && !showOtherWallets}>
+            {connectors.map((c) => (
+              <Option connector={c} key={c.uid} detected={c.isInjected} />
+            ))}
+          </OptionGrid>
+        </Row>
+      </Column>
+    </Wrapper>
+  )
+
+  return (
+    <Wrapper data-testid="wallet-modal" isUniExtensionAvailable={isUniExtensionAvailable}>
+      <Flex />
+      <ConnectionErrorView />
+      {isEmbeddedWalletEnabled ? null : (
+        <AutoRow justify="space-between" width="100%">
+          <Text variant="subheading2">
+            {isSignIn ? t('nav.signIn.button') : isLogIn ? t('nav.logIn.button') : t('common.connectAWallet.button')}
+          </Text>
+        </AutoRow>
+      )}
       <UniswapWalletOptions />
       <Flex
         row

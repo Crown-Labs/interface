@@ -10,6 +10,7 @@ import {
   AnimatePresence,
   Flex,
   isWeb,
+  KtyText,
   Text,
   ThreeDBox,
   TouchableArea,
@@ -566,9 +567,9 @@ function SwapFormContent({
     <>
       <ThreeDBox>
         <Flex>
-          <Text color="$kty_accent2" fontWeight="600" fontSize="$large" pb="$spacing12" pt="$padding6">
+          <KtyText color="$kty_accent2" variant="heading1" pb="$spacing12" pt="$padding6">
             Swap
-          </Text>
+          </KtyText>
         </Flex>
         <Flex grow gap="$spacing8" justifyContent="space-between">
           <Flex

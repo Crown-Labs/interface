@@ -1,4 +1,5 @@
 export * from './ElementAfterText'
 export * from './HiddenFromScreenReaders'
+export * from './KtyText'
 export * from './Text'
 export * from './UniswapXText'

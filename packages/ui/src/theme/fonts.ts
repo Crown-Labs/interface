@@ -46,11 +46,11 @@ const fontFamily = {
 }
 
 const baselMedium = isWeb
-  ? 'Basel, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  ? '"Roboto", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
   : fontFamily.sansSerif.medium
 
 const baselBook = isWeb
-  ? 'Basel, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  ? '"Roboto", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
   : fontFamily.sansSerif.book
 
 type SansSerifFontFamilyKey = keyof typeof fontFamily.sansSerif
@@ -70,16 +70,25 @@ const platformFontFamily = (family: SansSerifFontFamilyKey): SansSerifFontFamily
 
 // default for non-button fonts
 const BOOK_WEIGHT = '400'
-const BOOK_WEIGHT_WEB = '485'
+const BOOK_WEIGHT_WEB = '400'
+
+const ROBOTO_WEIGHT_WEB = '500'
+const ROBOTO_WEIGHT_LARGE_WEB = '600'
 
 // used for buttons
 const MEDIUM_WEIGHT = '500'
-const MEDIUM_WEIGHT_WEB = '535'
+const MEDIUM_WEIGHT_WEB = '500'
 
 const defaultWeights = {
   book: isInterface ? BOOK_WEIGHT_WEB : BOOK_WEIGHT,
   true: isInterface ? BOOK_WEIGHT_WEB : BOOK_WEIGHT,
   medium: isInterface ? MEDIUM_WEIGHT_WEB : MEDIUM_WEIGHT,
+}
+
+const defaultKtyWeights = {
+  roboto: ROBOTO_WEIGHT_WEB,
+  true: ROBOTO_WEIGHT_WEB,
+  medium: ROBOTO_WEIGHT_LARGE_WEB,
 }
 
 // on native, the Basel font files render down a few px
@@ -272,9 +281,32 @@ export const buttonFont = createFont({
   },
 })
 
+export const ktyFont = createFont({
+  family: baselBook,
+  size: {
+    micro: adjustedSize(12),
+    small: adjustedSize(14),
+    medium: adjustedSize(16),
+    true: adjustedSize(16),
+    large: adjustedSize(20),
+  },
+  weight: {
+    ...defaultKtyWeights,
+    true: ROBOTO_WEIGHT_WEB,
+  },
+  lineHeight: {
+    micro: fonts.buttonLabel4.lineHeight,
+    small: fonts.buttonLabel3.lineHeight,
+    medium: fonts.buttonLabel2.lineHeight,
+    large: fonts.buttonLabel1.lineHeight,
+    true: fonts.buttonLabel2.lineHeight,
+  },
+})
+
 export const allFonts = {
   heading: headingFont,
   subHeading: subHeadingFont,
   body: bodyFont,
   button: buttonFont,
+  ktyFont,
 }

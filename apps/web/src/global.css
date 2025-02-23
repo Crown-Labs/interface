@@ -2,7 +2,6 @@
    things go here, but stuff like keyframe CSS animations that Tamagui doesn't
    support can be added here. Be sure to try `$platform-web` style prop first as
    that should avoid needing to add here.  */
-
 .text-wrap-pretty {
   text-wrap: pretty;
 }
