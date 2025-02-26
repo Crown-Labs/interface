@@ -17,7 +17,7 @@ import { RefObject, useCallback, useEffect, useRef } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useAppSelector } from 'state/hooks'
 import { flexRowNoWrap } from 'theme/styles'
-import { Text } from 'ui/src'
+import { ThreeDButton } from 'ui/src'
 import { Unitag } from 'ui/src/components/icons/Unitag'
 import { breakpoints } from 'ui/src/theme'
 import { AccountCTAsExperimentGroup, Experiments } from 'uniswap/src/features/gating/experiments'
@@ -143,11 +143,18 @@ function ExistingUserCTAButton() {
     accountsCTAExperimentGroup === AccountCTAsExperimentGroup.LogInCreateAccount && !isEmbeddedWalletEnabled
 
   return (
-    <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
-      <Text variant="buttonLabel3" color="$accent1" whiteSpace="nowrap">
-        {isSignIn ? t('nav.signIn.button') : isLogIn ? t('nav.logIn.button') : t('common.connect.button')}
-      </Text>
-    </StyledConnectButton>
+    <ThreeDButton
+      animation="fast"
+      backgroundColor="$kty_surface1"
+      shadowColor="$kty_surface3"
+      tabIndex={-1}
+      data-testid="navbar-connect-wallet"
+      size="small"
+      color="$white"
+      fontSize={12}
+    >
+      {isSignIn ? t('nav.signIn.button') : isLogIn ? t('nav.logIn.button') : t('common.connect.button')}
+    </ThreeDButton>
   )
 }
 

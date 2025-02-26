@@ -563,6 +563,10 @@ function SwapFormContent({
   // We *always* want to show the footer on native mobile because it's used to calculate the available space for the `DecimalPad`.
   const showFooter = Boolean(!hideFooter && (isMobileApp || (!isBlockedTokens && input && output && exactAmountToken)))
 
+  const customAccordionStyle = `
+   
+  `
+
   return (
     <>
       <ThreeDBox>
@@ -688,12 +692,13 @@ function SwapFormContent({
         </Flex>
       </ThreeDBox>
 
+      <style>{customAccordionStyle}</style>
       {currencyAmounts[CurrencyField.OUTPUT] && currencyAmounts[CurrencyField.INPUT] && (
-        <ThreeDBox mt={32}>
+        <ThreeDBox mt={32} className="custom-accordion">
           <Accordion collapsible type="single" overflow="hidden" defaultValue="a1">
             <Accordion.Item value="a1">
               {showFooter && (
-                <Flex minHeight="$spacing40">
+                <Flex minHeight={30}>
                   <AnimatePresence>
                     {showWarning && (
                       <FoTWarningRow currencies={currencies} outputTokenHasBuyTax={outputTokenHasBuyTax} />
@@ -806,7 +811,7 @@ function ExpandableRows({ isBridge }: { isBridge?: boolean }): JSX.Element | nul
   }
 
   return (
-    <Accordion.HeightAnimator animation="fast" mt="$spacing8">
+    <Accordion.HeightAnimator animation="fast">
       <Accordion.Content animation="fast" p="$none" exitStyle={{ opacity: 0 }}>
         <TransactionDetails
           isSwap

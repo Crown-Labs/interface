@@ -106,7 +106,7 @@ export function TransactionDetails({
       txSimulationErrors?.includes(TransactionFailureReason.SLIPPAGE_TOO_LOW))
 
   return (
-    <Flex>
+    <Flex px="$spacing8" pt="$spacing28" backgroundColor="$transparent">
       {showExpectedFailureBanner && (
         <ExpectedFailureBanner
           txFailureReasons={txSimulationErrors}

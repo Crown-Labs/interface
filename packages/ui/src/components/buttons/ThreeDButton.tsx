@@ -56,9 +56,21 @@ const CustomButtonFrame = styled(XStack, {
   variants: {
     size: {
       small: {
-        padding: '$spacing8',
+        padding: '$spacing10',
         borderRadius: '$rounded12',
         gap: '$spacing4',
+        shadowOffset: { width: 0, height: 3 },
+        bottom: -2,
+
+        hoverStyle: {
+          shadowOffset: { width: 0, height: 5 },
+          bottom: 0,
+        },
+
+        pressStyle: {
+          shadowOffset: { width: 0, height: 3 },
+          bottom: -2,
+        },
       },
       medium: {
         padding: '$spacing12',

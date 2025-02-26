@@ -26,8 +26,11 @@ export function CompanyMenu() {
     <UniIcon onClick={handleLogoClick} data-testid="nav-uniswap-logo">
       <NavIcon width="48" height="48" />
       {isLargeScreen && (
-        <Text variant="subheading1" color="$accent1" userSelect="none">
-          Kitty<Text color="$kty_accent2">corn</Text>
+        <Text fontSize={24} color="$accent1" userSelect="none">
+          Kitty
+          <Text fontSize={24} color="$kty_accent2">
+            corn
+          </Text>
         </Text>
       )}
     </UniIcon>
