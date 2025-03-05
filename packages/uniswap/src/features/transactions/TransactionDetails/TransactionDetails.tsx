@@ -3,9 +3,9 @@ import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
 import { PropsWithChildren, ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, DeprecatedButton, Flex, Popover, Separator, Text, TouchableArea } from 'ui/src'
+import { RotatableChevron } from 'ui/src/components/icons'
 import { AlertTriangleFilled } from 'ui/src/components/icons/AlertTriangleFilled'
-import { AnglesMaximize } from 'ui/src/components/icons/AnglesMaximize'
-import { AnglesMinimize } from 'ui/src/components/icons/AnglesMinimize'
+import { iconSizes } from 'ui/src/theme/iconSizes'
 import { NetworkFee } from 'uniswap/src/components/gas/NetworkFee'
 import { getAlertColor } from 'uniswap/src/components/modals/WarningModal/getAlertColor'
 import { Warning } from 'uniswap/src/components/modals/WarningModal/types'
@@ -106,7 +106,11 @@ export function TransactionDetails({
       txSimulationErrors?.includes(TransactionFailureReason.SLIPPAGE_TOO_LOW))
 
   return (
-    <Flex px="$spacing8" pt="$spacing28" backgroundColor="$transparent">
+    <Flex
+      px={showSeparatorToggle ? 0 : '$spacing8'}
+      pt={showSeparatorToggle ? 0 : '$spacing28'}
+      backgroundColor="transparent"
+    >
       {showExpectedFailureBanner && (
         <ExpectedFailureBanner
           txFailureReasons={txSimulationErrors}
@@ -123,30 +127,37 @@ export function TransactionDetails({
         />
       ) : null}
       <Flex gap="$spacing16" pb="$spacing8">
-        <Flex gap="$spacing8" px="$spacing8">
-          {RateInfo}
-          {feeOnTransferProps && <FeeOnTransferFeeGroup {...feeOnTransferProps} />}
-          {isSwap && isBridgeTrade && <EstimatedTime visibleIfLong={true} timeMs={estimatedBridgingTime} />}
-          {isSwap && outputCurrency && (
-            <SwapFee currency={outputCurrency} loading={indicative} swapFee={swapFee} swapFeeUsd={swapFeeUsd} />
-          )}
-          <NetworkFee
-            chainId={chainId}
-            gasFee={gasFee}
-            indicative={indicative}
-            transactionUSDValue={transactionUSDValue}
-            uniswapXGasBreakdown={uniswapXGasBreakdown}
-          />
-
-          {AccountDetails}
+        <Flex gap={showSeparatorToggle ? '$spacing12' : '$spacing8'} px={showSeparatorToggle ? 0 : '$spacing12'}>
+          <Flex gap={showSeparatorToggle ? '$spacing12' : '$spacing8'} px={!showSeparatorToggle ? 0 : '$spacing12'}>
+            {RateInfo}
+            {feeOnTransferProps && <FeeOnTransferFeeGroup {...feeOnTransferProps} />}
+            {isSwap && isBridgeTrade && <EstimatedTime visibleIfLong={true} timeMs={estimatedBridgingTime} />}
+            {isSwap && outputCurrency && (
+              <SwapFee currency={outputCurrency} loading={indicative} swapFee={swapFee} swapFeeUsd={swapFeeUsd} />
+            )}
+            <NetworkFee
+              chainId={chainId}
+              gasFee={gasFee}
+              indicative={indicative}
+              transactionUSDValue={transactionUSDValue}
+              uniswapXGasBreakdown={uniswapXGasBreakdown}
+            />
+            {AccountDetails}
+          </Flex>
           {showChildren ? (
             <AnimatePresence>
-              <Flex animation="fast" exitStyle={{ opacity: 0 }} enterStyle={{ opacity: 0 }} gap="$spacing8">
+              <Flex
+                animation="fast"
+                exitStyle={{ opacity: 0 }}
+                enterStyle={{ opacity: 0 }}
+                gap={showSeparatorToggle ? '$spacing12' : '$spacing8'}
+              >
                 {children}
               </Flex>
             </AnimatePresence>
           ) : null}
         </Flex>
+
         {setTokenWarningChecked && tokenWarningProps && (
           <SwapReviewTokenWarningCard
             checked={!!tokenWarningChecked}
@@ -184,7 +195,7 @@ export const ListSeparatorToggle = ({
   closedText: string
 }): JSX.Element => {
   return (
-    <Flex centered row gap="$spacing16" mb="$spacing16" px="$spacing12">
+    <Flex centered row gap="$spacing16" mb="$spacing16">
       <Separator />
       <TouchableArea
         alignItems="center"
@@ -193,15 +204,17 @@ export const ListSeparatorToggle = ({
         pb="$spacing4"
         pt="$spacing8"
         onPress={onPress}
+        gap="$spacing8"
       >
-        <Text color="$neutral3" variant="body3">
+        <Text color="$kty_neutral2" variant="body3" fontWeight={500}>
           {isOpen ? openText : closedText}
         </Text>
-        {isOpen ? (
-          <AnglesMinimize color="$neutral3" size="$icon.20" />
-        ) : (
-          <AnglesMaximize color="$neutral3" size="$icon.20" />
-        )}
+        <RotatableChevron
+          color="$kty_neutral2"
+          width={iconSizes.icon16}
+          height={iconSizes.icon16}
+          direction={isOpen ? 'up' : 'down'}
+        />
       </TouchableArea>
       <Separator />
     </Flex>

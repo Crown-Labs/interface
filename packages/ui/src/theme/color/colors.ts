@@ -209,6 +209,7 @@ const sporeLight = {
   kty_neutral2: '#82868B', //base text color
   kty_neutral3: '#C0A4E8', //text for button disabled
   kty_neutral4: '#B48DFF', //purple text
+  kty_neutral5: '#212121', //secound text color
   kty_surface1: '#B48DFF', //background for button
   kty_surface2: '#E1CCFE', //background for button disabled
   kty_surface3: '#7E57C2', //shadow
@@ -272,6 +273,7 @@ const sporeDark = {
   kty_neutral2: '#EA6AD3', //pink text for title
   kty_neutral3: '#C0A4E8', //text for button disabled
   kty_neutral4: '#B48DFF', //purple text
+  kty_neutral5: colors.white, //secound text color
   kty_surface1: '#B48DFF', //background
   kty_surface2: '#E1CCFE', //background for button disabled
   kty_surface3: '#7E57C2', //shadow
@@ -370,6 +372,7 @@ export const colorsLight = {
   kty_neutral2: sporeLight.kty_neutral2,
   kty_neutral3: sporeLight.kty_neutral3,
   kty_neutral4: sporeLight.kty_neutral4,
+  kty_neutral5: sporeLight.kty_neutral5,
   kty_surface1: sporeLight.kty_surface1,
   kty_surface2: sporeLight.kty_surface2,
   kty_surface3: sporeLight.kty_surface3,
@@ -379,6 +382,7 @@ export const colorsLight = {
   kty_surface7: sporeLight.kty_surface7,
   kty_accent1: sporeLight.kty_accent1,
   kty_accent2: sporeLight.kty_accent2,
+  kty_accent3: colors.black,
 }
 
 export type ColorKeys = keyof typeof colorsLight
@@ -472,6 +476,7 @@ export const colorsDark = {
   kty_neutral2: sporeDark.kty_neutral2,
   kty_neutral3: sporeDark.kty_neutral3,
   kty_neutral4: sporeDark.kty_neutral4,
+  kty_neutral5: sporeDark.kty_neutral5,
   kty_surface1: sporeDark.kty_surface1,
   kty_surface2: sporeDark.kty_surface2,
   kty_surface3: sporeDark.kty_surface3,
@@ -481,4 +486,5 @@ export const colorsDark = {
   kty_surface7: sporeDark.surface1,
   kty_accent1: sporeDark.kty_accent1,
   kty_accent2: sporeDark.kty_accent2,
+  kty_accent3: colors.white,
 }

@@ -2,7 +2,7 @@ import { isWeb, Stack, styled } from 'tamagui'
 
 export const Separator = styled(Stack, {
   name: 'Separator',
-  borderColor: '$surface3',
+  borderColor: '$kty_surface5',
   flexShrink: 0,
   borderWidth: 0,
   flex: 1,

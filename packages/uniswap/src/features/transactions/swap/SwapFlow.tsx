@@ -102,7 +102,7 @@ function CurrentScreen({
           alignment={isInterface ? 'center' : 'top'}
           isModalOpen={screen === TransactionScreen.Review}
           name={ModalName.SwapReview}
-          padding="$spacing12"
+          padding="$spacing16"
           onClose={() => setScreen(TransactionScreen.Form)}
         >
           <Trace logImpression section={SectionName.SwapReview}>

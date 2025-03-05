@@ -166,7 +166,9 @@ export function getFeatureFlagName(flag: FeatureFlags, client?: FeatureFlagClien
       : isInterface
         ? FEATURE_FLAG_NAMES[FeatureFlagClient.Web]
         : FEATURE_FLAG_NAMES[FeatureFlagClient.Wallet]
+
   const name = names.get(flag)
+
   if (!name) {
     const err = new Error(`Feature ${FeatureFlags[flag]} does not have a name mapped for this application`)
 

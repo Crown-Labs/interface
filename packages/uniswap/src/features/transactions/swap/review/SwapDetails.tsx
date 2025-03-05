@@ -20,7 +20,6 @@ import { usePriceImpact } from 'uniswap/src/features/transactions/swap/hooks/use
 import { useParsedSwapWarnings } from 'uniswap/src/features/transactions/swap/hooks/useSwapWarnings'
 import { AcrossRoutingInfo } from 'uniswap/src/features/transactions/swap/modals/AcrossRoutingInfo'
 import { MarketPriceImpactWarning } from 'uniswap/src/features/transactions/swap/modals/MarketPriceImpactWarning'
-import { RoutingInfo } from 'uniswap/src/features/transactions/swap/modals/RoutingInfo'
 import { EstimatedTime } from 'uniswap/src/features/transactions/swap/review/EstimatedTime'
 import { MaxSlippageRow } from 'uniswap/src/features/transactions/swap/review/MaxSlippageRow'
 import { SwapRateRatio } from 'uniswap/src/features/transactions/swap/review/SwapRateRatio'
@@ -32,6 +31,7 @@ import { CurrencyField } from 'uniswap/src/types/currency'
 import { getSymbolDisplayText } from 'uniswap/src/utils/currency'
 import { NumberType } from 'utilities/src/format/types'
 import { isMobileApp, isMobileWeb } from 'utilities/src/platform'
+import { RoutingInlineInfo } from '../modals/RoutingInlineInfo'
 
 interface SwapDetailsProps {
   acceptedDerivedSwapInfo: DerivedSwapInfo<CurrencyInfo, CurrencyInfo>
@@ -130,27 +130,29 @@ export function SwapDetails({
         txSimulationErrors={txSimulationErrors}
         onShowWarning={onShowWarning}
       >
-        <Flex row alignItems="center" justifyContent="space-between">
-          <Text color="$neutral2" variant="body3">
-            {t('swap.details.rate')}
-          </Text>
-          <Flex row shrink justifyContent="flex-end">
-            <SwapRateRatio trade={trade} />
+        <Flex px="$spacing12" gap="$spacing12">
+          <Flex row alignItems="center" justifyContent="space-between">
+            <Text color="$neutral2" variant="body3">
+              {t('swap.details.rate')}
+            </Text>
+            <Flex row shrink justifyContent="flex-end">
+              <SwapRateRatio trade={trade} />
+            </Flex>
           </Flex>
+          {isBridgeTrade && <EstimatedTime visibleIfLong={false} timeMs={estimatedBridgingTime} />}
+          {isBridgeTrade && <AcrossRoutingInfo />}
+          {!isBridgeTrade && (
+            <MaxSlippageRow
+              acceptedDerivedSwapInfo={acceptedDerivedSwapInfo}
+              autoSlippageTolerance={autoSlippageTolerance}
+              customSlippageTolerance={customSlippageTolerance}
+            />
+          )}
+          <PriceImpactRow derivedSwapInfo={acceptedDerivedSwapInfo} />
         </Flex>
-        {isBridgeTrade && <EstimatedTime visibleIfLong={false} timeMs={estimatedBridgingTime} />}
-        {isBridgeTrade && <AcrossRoutingInfo />}
-        {!isBridgeTrade && (
-          <MaxSlippageRow
-            acceptedDerivedSwapInfo={acceptedDerivedSwapInfo}
-            autoSlippageTolerance={autoSlippageTolerance}
-            customSlippageTolerance={customSlippageTolerance}
-          />
-        )}
         {!isBridgeTrade && v4Enabled && (
-          <RoutingInfo gasFee={gasFee} chainId={acceptedTrade.inputAmount.currency.chainId} />
+          <RoutingInlineInfo gasFee={gasFee} chainId={acceptedTrade.inputAmount.currency.chainId} />
         )}
-        <PriceImpactRow derivedSwapInfo={acceptedDerivedSwapInfo} />
       </TransactionDetails>
     </HeightAnimatorWrapper>
   )

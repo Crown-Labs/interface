@@ -123,7 +123,7 @@ export function LiquidityPositionFeeStats({
                 </Text>
                 <MouseoverTooltip text={t('fee.unavailable')} placement="auto">
                   <Flex justifyContent="center">
-                    <InfoCircleFilled color="$neutral2" size="$icon.16" />
+                    <InfoCircleFilled color="$kty_neutral2" size="$icon.16" />
                   </Flex>
                 </MouseoverTooltip>
               </Flex>

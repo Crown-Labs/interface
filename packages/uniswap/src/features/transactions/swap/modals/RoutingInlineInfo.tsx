@@ -1,11 +1,8 @@
 import { PropsWithChildren, useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Flex, Text, TouchableArea, UniswapXText, isWeb, useSporeColors } from 'ui/src'
-import { OrderRouting } from 'ui/src/components/icons/OrderRouting'
 import { RouterLabel } from 'uniswap/src/components/RouterLabel/RouterLabel'
 import RoutingDiagram from 'uniswap/src/components/RoutingDiagram/RoutingDiagram'
-import { WarningInfo } from 'uniswap/src/components/modals/WarningModal/WarningInfo'
-import { WarningSeverity } from 'uniswap/src/components/modals/WarningModal/types'
 import { uniswapUrls } from 'uniswap/src/constants/urls'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
 import { useUSDValueOfGasFee } from 'uniswap/src/features/gas/hooks'
@@ -13,7 +10,6 @@ import { GasFeeResult } from 'uniswap/src/features/gas/types'
 import { FeatureFlags } from 'uniswap/src/features/gating/flags'
 import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
 import { useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext'
-import { ModalName } from 'uniswap/src/features/telemetry/constants'
 import { useSwapTxContext } from 'uniswap/src/features/transactions/swap/contexts/SwapTxContext'
 import { isClassic, isUniswapX } from 'uniswap/src/features/transactions/swap/utils/routing'
 import getRoutingDiagramEntries from 'uniswap/src/utils/getRoutingDiagramEntries'
@@ -119,25 +115,12 @@ export function RoutingInlineInfo({
       backgroundColor="$kty_surface7"
       borderRadius="$rounded12"
     >
-      <Flex row alignItems="center" justifyContent="space-between">
-        <WarningInfo
-          infoButton={InfoButton}
-          modalProps={{
-            modalName: ModalName.SwapReview,
-            captionComponent: caption,
-            rejectText: t('common.button.close'),
-            icon: <OrderRouting color={colors.neutral1.val} size={24} />,
-            severity: WarningSeverity.None,
-            title: t('swap.tradeRoutes'),
-          }}
-          tooltipProps={{ text: caption, placement: 'top', maxWidth: trade && isClassic(trade) ? 400 : undefined }}
-        >
-          <Flex centered row gap="$spacing4">
-            <Text color="$neutral2" variant="body3">
-              {t('swap.orderRouting')}
-            </Text>
-          </Flex>
-        </WarningInfo>
+      <Flex row alignItems="center" justifyContent="flex-start" gap="$spacing6">
+        <Flex centered row gap="$spacing4">
+          <Text color="$neutral2" variant="body3">
+            {t('swap.orderRouting')}
+          </Text>
+        </Flex>
         <Flex row shrink justifyContent="flex-end">
           <Text adjustsFontSizeToFit color="$neutral1" variant="body3">
             <RouterLabel />

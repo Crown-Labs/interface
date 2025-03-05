@@ -51,10 +51,16 @@ export function SwapRateRatio({
 
   return (
     <Flex pressStyle={{ opacity: 0.2 }} onPress={(): void => setShowInverseRate(!showInverseRate)}>
-      <Text adjustsFontSizeToFit color={isPrimary ? '$neutral1' : '$neutral2'} numberOfLines={1} variant="body3">
+      <Text
+        adjustsFontSizeToFit
+        color={isPrimary ? '$kty_accent3' : '$kty_accent3'}
+        fontWeight={isPrimary ? 400 : 500}
+        numberOfLines={1}
+        fontSize={14}
+        textAlign="left"
+      >
         {latestRate}
-
-        <Text color={isPrimary ? '$neutral1' : '$neutral3'} variant="body3">
+        <Text color={isPrimary ? '$kty_neutral2' : '$kty_neutral2'} variant="body3" backgroundColor="transparent">
           {rateAmountUSD && ` (${rateAmountUSD})`}
         </Text>
       </Text>

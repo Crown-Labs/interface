@@ -34,15 +34,18 @@ export function createApiClient({
       return (path: string, options: Parameters<typeof fetch>[1]) => {
         let url = `${baseUrl}${path}`
 
-        // if (url.includes('/v1/quote')) {
+        // const { body } = options ?? {}
+        // const { swapper } = JSON.parse(body as string)
+
+        // if (url.includes('/v1/quote') && swapper !== '0xAAAA44272dc658575Ba38f43C438447dDED45358') {
         //   url = 'http://localhost:8030/quote'
         // }
 
         // console.log(path)
 
-        // if (path === '/v1/swap') {
-        //   url = 'http://localhost:8030/swap'
-        // }
+        if (path === '/v1/swap') {
+          url = 'https://develop-api.kittycorn.io/swap'
+        }
 
         return fetch(url, {
           ...options,

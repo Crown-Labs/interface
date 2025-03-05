@@ -30,7 +30,7 @@ import { useUniswapContext } from 'uniswap/src/contexts/UniswapContext'
 import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
 import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag, useFeatureFlagWithLoading } from 'uniswap/src/features/gating/hooks'
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
 import Trace from 'uniswap/src/features/telemetry/Trace'
 import { InterfaceEventNameLocal } from 'uniswap/src/features/telemetry/constants'
 import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
@@ -46,7 +46,6 @@ import { Slippage } from 'uniswap/src/features/transactions/swap/settings/config
 import { currencyToAsset } from 'uniswap/src/features/transactions/swap/utils/asset'
 import { CurrencyField } from 'uniswap/src/types/currency'
 import { SwapTab } from 'uniswap/src/types/screens/interface'
-import { isTestEnv } from 'utilities/src/environment/env'
 import { isMobileWeb } from 'utilities/src/platform'
 import noop from 'utilities/src/react/noop'
 
@@ -154,7 +153,7 @@ export function Swap({
   const media = useMedia()
   const isExplorePage = useIsPage(PageType.EXPLORE)
 
-  const { value: universalSwapFlow, isLoading } = useFeatureFlagWithLoading(FeatureFlags.UniversalSwap)
+  // const { value: universalSwapFlow, isLoading } = useFeatureFlagWithLoading(FeatureFlags.UniversalSwap)
 
   const { isTestnetModeEnabled } = useEnabledChains()
   const isSharedSwapDisabled = isTestnetModeEnabled && isExplorePage
@@ -174,42 +173,33 @@ export function Swap({
     skipFocusOnCurrencyField: isMobileWeb,
   })
 
-  // TODO(WEB-5078): Remove this once we upgrade swap e2e tests to use the new swap flow
-  const waitForLoading = isLoading && !isTestEnv()
-
-  if (universalSwapFlow || isTestnetModeEnabled || waitForLoading) {
-    return (
-      <MultichainContextProvider initialChainId={chainId}>
-        <TransactionSettingsContextProvider settingKey={TransactionSettingKey.Swap}>
-          <SwapAndLimitContextProvider
-            initialInputCurrency={initialInputCurrency}
-            initialOutputCurrency={initialOutputCurrency}
-          >
-            <PrefetchBalancesWrapper>
-              <SwapFormContextProvider
-                prefilledState={prefilledState}
-                hideSettings={hideHeader}
-                hideFooter={hideFooter}
-              >
-                <Flex position="relative" gap="$spacing16" opacity={isSharedSwapDisabled ? 0.6 : 1}>
-                  {isSharedSwapDisabled && <DisabledSwapOverlay />}
-                  <UniversalSwapFlow
-                    hideHeader={hideHeader}
-                    hideFooter={hideFooter}
-                    syncTabToUrl={syncTabToUrl}
-                    swapRedirectCallback={swapRedirectCallback}
-                    onCurrencyChange={onCurrencyChange}
-                    prefilledState={prefilledState}
-                    tokenColor={tokenColor}
-                  />
-                </Flex>
-              </SwapFormContextProvider>
-            </PrefetchBalancesWrapper>
-          </SwapAndLimitContextProvider>
-        </TransactionSettingsContextProvider>
-      </MultichainContextProvider>
-    )
-  }
+  return (
+    <MultichainContextProvider initialChainId={chainId}>
+      <TransactionSettingsContextProvider settingKey={TransactionSettingKey.Swap}>
+        <SwapAndLimitContextProvider
+          initialInputCurrency={initialInputCurrency}
+          initialOutputCurrency={initialOutputCurrency}
+        >
+          <PrefetchBalancesWrapper>
+            <SwapFormContextProvider prefilledState={prefilledState} hideSettings={hideHeader} hideFooter={hideFooter}>
+              <Flex position="relative" gap="$spacing16" opacity={isSharedSwapDisabled ? 0.6 : 1}>
+                {isSharedSwapDisabled && <DisabledSwapOverlay />}
+                <UniversalSwapFlow
+                  hideHeader={hideHeader}
+                  hideFooter={hideFooter}
+                  syncTabToUrl={syncTabToUrl}
+                  swapRedirectCallback={swapRedirectCallback}
+                  onCurrencyChange={onCurrencyChange}
+                  prefilledState={prefilledState}
+                  tokenColor={tokenColor}
+                />
+              </Flex>
+            </SwapFormContextProvider>
+          </PrefetchBalancesWrapper>
+        </SwapAndLimitContextProvider>
+      </TransactionSettingsContextProvider>
+    </MultichainContextProvider>
+  )
 
   return (
     <MultichainContextProvider initialChainId={chainId}>

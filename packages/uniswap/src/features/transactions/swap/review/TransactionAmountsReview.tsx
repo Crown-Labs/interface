@@ -95,10 +95,10 @@ export function TransactionAmountsReview({
   }
 
   return (
-    <Flex $short={{ gap: '$spacing8' }} gap="$spacing16" ml="$spacing12" mr="$spacing12">
+    <Flex $short={{ gap: '$spacing8' }} gap="$spacing16">
       <Flex row alignItems="center">
         <Flex fill>
-          <Text color="$neutral2" variant="body2">
+          <Text color="$kty_neutral5" variant="body1" fontWeight={500}>
             {t('swap.review.summary')}
           </Text>
         </Flex>
@@ -122,7 +122,7 @@ export function TransactionAmountsReview({
         />
       )}
 
-      <ArrowDown color={colors.neutral3.get()} size={20} />
+      <ArrowDown color={colors.kty_neutral2.get()} size={20} />
 
       {!currencyOutInfo ? (
         <CurrencyValueWithIconSkeleton />
@@ -141,7 +141,7 @@ export function TransactionAmountsReview({
 }
 
 function CurrencyValueWithIconSkeleton(): JSX.Element {
-  return <Loader.Box height={60} />
+  return <Loader.Box height={70} />
 }
 
 function CurrencyValueWithIcon({
@@ -160,7 +160,7 @@ function CurrencyValueWithIcon({
   isBridgeTrade: boolean
 }): JSX.Element {
   const { defaultChainId } = useEnabledChains()
-  const amountColor = indicative ? '$neutral2' : shouldDim ? '$neutral3' : '$neutral1'
+  const amountColor = indicative ? '$neutral2' : shouldDim ? '$kty_neutral5' : '$neutral1'
   const fiatColor = indicative || shouldDim ? '$neutral3' : '$neutral2'
 
   const chainId = toSupportedChainId(currencyInfo.currency.chainId) ?? defaultChainId
@@ -181,11 +181,11 @@ function CurrencyValueWithIcon({
             </Text>
           </Flex>
         )}
-        <Text color={amountColor} variant="heading3">
+        <Text color={amountColor} fontSize={32} fontWeight={500}>
           {formattedTokenAmount} {getSymbolDisplayText(currencyInfo.currency.symbol)}
         </Text>
 
-        <Text color={fiatColor} variant="body2">
+        <Text color={fiatColor} variant="body3" fontWeight={500} pt="$spacing4">
           {formattedFiatAmount}
         </Text>
       </Flex>

@@ -96,7 +96,6 @@ function StatsigProvider({ children }: PropsWithChildren) {
       waitForInitialization={false}
       options={{
         environment: { tier: getEnvName() },
-        api: process.env.REACT_APP_STATSIG_PROXY_URL,
         disableAutoMetricsLogging: true,
         disableErrorLogging: true,
       }}

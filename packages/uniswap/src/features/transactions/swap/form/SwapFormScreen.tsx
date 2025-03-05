@@ -564,13 +564,12 @@ function SwapFormContent({
   const showFooter = Boolean(!hideFooter && (isMobileApp || (!isBlockedTokens && input && output && exactAmountToken)))
 
   const customAccordionStyle = `
-   
   `
 
   return (
     <>
       <ThreeDBox>
-        <Flex>
+        <Flex p={4}>
           <KtyText color="$kty_accent2" variant="heading1" pb="$spacing12" pt="$padding6">
             Swap
           </KtyText>
@@ -694,24 +693,33 @@ function SwapFormContent({
 
       <style>{customAccordionStyle}</style>
       {currencyAmounts[CurrencyField.OUTPUT] && currencyAmounts[CurrencyField.INPUT] && (
-        <ThreeDBox mt={32} className="custom-accordion">
-          <Accordion collapsible type="single" overflow="hidden" defaultValue="a1">
-            <Accordion.Item value="a1">
-              {showFooter && (
-                <Flex minHeight={30}>
-                  <AnimatePresence>
-                    {showWarning && (
-                      <FoTWarningRow currencies={currencies} outputTokenHasBuyTax={outputTokenHasBuyTax} />
-                    )}
-                  </AnimatePresence>
-                  {/* Accordion.Toggle is nested in GasAndWarningRows */}
-                  {exactAmountToken && !showWarning && <GasAndWarningRows />}
-                </Flex>
+        <Accordion collapsible type="single" overflow="hidden" defaultValue="a1">
+          <Accordion.Item value="a1" pb="$padding10">
+            <Accordion.Trigger
+              p="$none"
+              style={{ background: 'transparent' }}
+              focusStyle={{ background: 'transparent' }}
+              hoverStyle={{ background: 'transparent' }}
+            >
+              {({ open }: { open: boolean }) => (
+                <ThreeDBox mt={32} className="custom-accordion" backgroundColor={open ? 'transparent' : '$surface2'}>
+                  {showFooter && (
+                    <Flex minHeight={30}>
+                      <AnimatePresence>
+                        {showWarning && (
+                          <FoTWarningRow currencies={currencies} outputTokenHasBuyTax={outputTokenHasBuyTax} />
+                        )}
+                      </AnimatePresence>
+                      {/* Accordion.Toggle is nested in GasAndWarningRows */}
+                      {exactAmountToken && !showWarning && <GasAndWarningRows />}
+                    </Flex>
+                  )}
+                  {isWeb && showFooter ? <ExpandableRows isBridge={isBridge} /> : null}
+                </ThreeDBox>
               )}
-              {isWeb && showFooter ? <ExpandableRows isBridge={isBridge} /> : null}
-            </Accordion.Item>
-          </Accordion>
-        </ThreeDBox>
+            </Accordion.Trigger>
+          </Accordion.Item>
+        </Accordion>
       )}
     </>
   )
@@ -812,7 +820,7 @@ function ExpandableRows({ isBridge }: { isBridge?: boolean }): JSX.Element | nul
 
   return (
     <Accordion.HeightAnimator animation="fast">
-      <Accordion.Content animation="fast" p="$none" exitStyle={{ opacity: 0 }}>
+      <Accordion.Content animation="fast" p="$none" exitStyle={{ opacity: 0 }} backgroundColor="transparent">
         <TransactionDetails
           isSwap
           showExpandedChildren

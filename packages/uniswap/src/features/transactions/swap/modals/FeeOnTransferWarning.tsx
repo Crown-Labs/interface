@@ -45,7 +45,7 @@ export function FeeOnTransferWarning({
             <FeeRow feePercent={feePercent} feeType={feeType} />
           </WarningModalInfoContainer>
         }
-        trigger={<InfoCircle color="$neutral3" size="$icon.16" />}
+        trigger={<InfoCircle color="$kty_neutral2" size="$icon.16" />}
         triggerPlacement="end"
       >
         {children}
@@ -66,7 +66,7 @@ export function FeeOnTransferWarning({
       <TouchableArea flexShrink={1} onPress={onPress}>
         <Flex row shrink alignItems="center" gap="$spacing4">
           {children}
-          <InfoCircle color="$neutral3" size="$icon.16" />
+          <InfoCircle color="$kty_neutral2" size="$icon.16" />
         </Flex>
       </TouchableArea>
       {feeInfo.currencyInfo && (

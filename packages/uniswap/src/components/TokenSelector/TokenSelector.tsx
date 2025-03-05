@@ -312,7 +312,7 @@ export function TokenSelectorContent({
               mx="$spacing8"
               p="$spacing12"
             >
-              <InfoCircleFilled color="$neutral2" size="$icon.20" />
+              <InfoCircleFilled color="$kty_neutral2" size="$icon.20" />
               <Text variant="body3">{t('limits.form.disclaimer.mainnet.short')}</Text>
             </Flex>
           )}

@@ -22,7 +22,7 @@ export function BlockedAddressWarning({
         }}
       >
         <Flex gap="$spacing8" {...props}>
-          <InfoCircle color="$neutral2" size="$icon.16" />
+          <InfoCircle color="$kty_neutral2" size="$icon.16" />
           <Text color="$neutral2" variant="subheading2">
             {isRecipientBlocked ? t('send.warning.blocked.recipient') : t('send.warning.blocked.default')}
           </Text>

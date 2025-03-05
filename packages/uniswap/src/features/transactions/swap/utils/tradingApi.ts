@@ -65,13 +65,9 @@ interface TradingApiResponseToTradeArgs {
 export function transformTradingApiResponseToTrade(params: TradingApiResponseToTradeArgs): Trade | null {
   const { currencyIn, currencyOut, tradeType, deadline, data } = params
 
-  console.log(params)
-
   switch (data?.routing) {
     case Routing.CLASSIC: {
       const routes = computeRoutes(currencyIn.isNative, currencyOut.isNative, data)
-
-      console.log({ routes })
 
       if (!routes || !deadline) {
         return null
@@ -150,22 +146,9 @@ export function computeRoutes(
   const tokenIn = quote.route[0]?.[0]?.tokenIn
   const tokenOut = quote.route[0]?.[quote.route[0]?.length - 1]?.tokenOut
 
-  console.log({
-    tokenIn,
-    tokenOut,
-  })
-
   if (!tokenIn || !tokenOut) {
     throw new Error('Expected both tokenIn and tokenOut to be present')
   }
-  console.log({
-    1: !tokenIn.chainId,
-    2: tokenOut.chainId === undefined,
-    3: !tokenIn.address,
-    4: !tokenOut.address,
-    5: !tokenIn.decimals,
-    6: !tokenOut.decimals,
-  })
   if (
     !tokenIn.chainId ||
     tokenOut.chainId === undefined ||

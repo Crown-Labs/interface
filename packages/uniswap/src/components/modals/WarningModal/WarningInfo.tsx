@@ -21,7 +21,7 @@ export function WarningInfo({
   modalProps,
   infoButton,
   children,
-  trigger = <InfoCircle color="$neutral3" size="$icon.16" />,
+  trigger = <InfoCircle color="$kty_neutral2" size="$icon.16" />,
   triggerPlacement = 'end',
 }: PropsWithChildren<WarningInfoProps>): JSX.Element {
   const [showModal, setShowModal] = useState(false)

@@ -174,11 +174,6 @@ function* submitTransaction(params: HandleOnChainStepParams): SagaGenerator<Vita
   const { account, step } = params
   const signer = yield* call(getSigner, account.address)
 
-  console.log({
-    signer,
-    txRequest: step.txRequest,
-  })
-
   try {
     const response = yield* call([signer, 'sendTransaction'], step.txRequest)
     return transformTransactionResponse(response)

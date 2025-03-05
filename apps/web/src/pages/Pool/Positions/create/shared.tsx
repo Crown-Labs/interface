@@ -62,7 +62,7 @@ export function AdvancedButton({
       {tooltipText && (
         <MouseoverTooltip text={tooltipText} placement="auto" style={{ maxHeight: '16px' }}>
           <Flex>
-            <InfoCircleFilled size={iconSizes.icon16} color="$neutral3" />
+            <InfoCircleFilled size={iconSizes.icon16} color="$kty_neutral2" />
           </Flex>
         </MouseoverTooltip>
       )}

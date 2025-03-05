@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { permit2Address as permit2AddressSDK } from '@uniswap/permit2-sdk'
 import { ChainId, SupportedChainsType } from '@uniswap/sdk-core'
 import {

@@ -12,7 +12,6 @@ import { WarningInfo } from 'uniswap/src/components/modals/WarningModal/WarningI
 import { getAlertColor } from 'uniswap/src/components/modals/WarningModal/getAlertColor'
 import { Warning, WarningLabel } from 'uniswap/src/components/modals/WarningModal/types'
 import { getCanonicalBridgingDappUrls } from 'uniswap/src/features/bridging/constants'
-import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
 import { getChainLabel } from 'uniswap/src/features/chains/utils'
 import {
@@ -171,15 +170,10 @@ export function TradeInfoRow({
   // Debounce the trade to prevent flickering on input
   const debouncedTrade = useDebouncedTrade()
   const warningColor = getAlertColor(warning?.severity)
-  const { isTestnetModeEnabled } = useEnabledChains()
 
   const {
     derivedSwapInfo: { currencies },
   } = useSwapFormContext()
-
-  if (isTestnetModeEnabled) {
-    return null
-  }
 
   if (isMobileApp) {
     return <GasRow gasInfo={gasInfo} />
@@ -216,12 +210,12 @@ export function TradeInfoRow({
       ) : debouncedTrade ? (
         <Accordion.Trigger
           p="$none"
-          style={{ background: '$surface1' }}
-          focusStyle={{ background: '$surface1' }}
-          hoverStyle={{ background: '$surface1' }}
+          style={{ background: 'transparent' }}
+          focusStyle={{ background: 'transparent' }}
+          hoverStyle={{ background: 'transparent' }}
         >
           {({ open }: { open: boolean }) => (
-            <Flex row gap="$spacing4" alignItems="center">
+            <Flex row gap="$spacing4" alignItems="center" backgroundColor="transparent">
               <GasRow gasInfo={gasInfo} hidden={open} />
               <RotatableChevron
                 animation="fast"

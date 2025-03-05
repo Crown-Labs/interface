@@ -121,17 +121,17 @@ const StyledText = styled.span`
   font-weight: 485;
 `
 
-const StyledConnectButton = styled.button`
-  background-color: transparent;
-  border: none;
-  border-top-left-radius: ${FULL_BORDER_RADIUS}px;
-  border-bottom-left-radius: ${FULL_BORDER_RADIUS}px;
-  cursor: pointer;
-  font-weight: 535;
-  font-size: 16px;
-  padding: 10px 12px;
-  color: inherit;
-`
+// const StyledConnectButton = styled.button`
+//   background-color: transparent;
+//   border: none;
+//   border-top-left-radius: ${FULL_BORDER_RADIUS}px;
+//   border-bottom-left-radius: ${FULL_BORDER_RADIUS}px;
+//   cursor: pointer;
+//   font-weight: 535;
+//   font-size: 16px;
+//   padding: 10px 12px;
+//   color: inherit;
+// `
 
 function ExistingUserCTAButton() {
   const { t } = useTranslation()
