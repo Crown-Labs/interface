@@ -692,7 +692,7 @@ function SwapFormContent({
       </ThreeDBox>
 
       <style>{customAccordionStyle}</style>
-      {currencyAmounts[CurrencyField.OUTPUT] && currencyAmounts[CurrencyField.INPUT] && (
+      {currencyAmounts[CurrencyField.OUTPUT] && currencyAmounts[CurrencyField.INPUT] && !wrapType && (
         <Accordion collapsible type="single" overflow="hidden" defaultValue="a1">
           <Accordion.Item value="a1" pb="$padding10">
             <Accordion.Trigger

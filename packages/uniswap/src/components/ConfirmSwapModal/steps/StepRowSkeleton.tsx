@@ -52,35 +52,37 @@ export function StepRowSkeleton(props: StepRowSkeletonProps): JSX.Element {
     /*default=*/ colors.neutral3.val,
   )
 
-  const titleColor = status === StepStatus.Active || status === StepStatus.InProgress ? '$neutral1' : '$neutral2'
+  const titleColor =
+    status === StepStatus.Active || status === StepStatus.InProgress ? '$kty_neutral2' : '$kty_neutral2'
 
   return (
     <Flex row alignItems="center" justifyContent="space-between">
-      <Flex row alignItems="center" gap="$gap12" height="$spacing40" justifyContent="space-between" py={8}>
+      <Flex row alignItems="center" gap="$gap12" height="$spacing48" justifyContent="space-between" py={8}>
         <StepIconWrapper rippleColor={rippleColor ?? tokenColor ?? undefined} stepStatus={status}>
           {currency0Info && currency1Info ? (
             <SplitLogo
-              size={iconSizes.icon24}
+              size={iconSizes.icon32}
               chainId={currency0Info.currency.chainId}
               inputCurrencyInfo={currency0Info}
               outputCurrencyInfo={currency1Info}
             />
           ) : (
-            icon ?? <CurrencyLogo currencyInfo={currencyInfo} size={iconSizes.icon24} />
+            icon ?? <CurrencyLogo currencyInfo={currencyInfo} size={iconSizes.icon32} />
           )}
         </StepIconWrapper>
         <Flex>
-          <Text color={titleColor} variant="body3">
+          <Text color={titleColor} variant="body2" fontWeight={500}>
             {title}
           </Text>
           {status === StepStatus.Active && learnMore && (
             <Anchor
               color="$accent1"
-              fontSize={fonts.body4.fontSize}
+              fontSize={fonts.body3.fontSize}
               href={learnMore.url}
               lineHeight={spacing.spacing16}
               target="_blank"
               textDecorationLine="none"
+              fontWeight={400}
             >
               {learnMore.text}
             </Anchor>
@@ -88,7 +90,7 @@ export function StepRowSkeleton(props: StepRowSkeletonProps): JSX.Element {
         </Flex>
       </Flex>
       {!!secondsRemaining && <Timer secondsRemaining={secondsRemaining} />}
-      {status === StepStatus.Complete && <Check color="$statusSuccess" size={iconSizes.icon16} />}
+      {status === StepStatus.Complete && <Check color="$kty_neutral6" size={iconSizes.icon16} />}
     </Flex>
   )
 }
@@ -104,7 +106,7 @@ function StepIconWrapper({
   if (stepStatus === StepStatus.InProgress) {
     return (
       <Flex mr={3}>
-        <SpinningLoader color={rippleColor as ColorTokens} size={21} />
+        <SpinningLoader color={rippleColor as ColorTokens} size={32} />
       </Flex>
     )
   }
@@ -114,9 +116,9 @@ function StepIconWrapper({
       <Flex
         data-testid="step-icon"
         filter={stepStatus === StepStatus.Active ? 'grayscale(0)' : 'grayscale(1)'}
-        height="$spacing24"
+        height="$spacing32"
         opacity={stepStatus === StepStatus.Active ? 1 : 0.5}
-        width="$spacing24"
+        width="$spacing32"
       >
         {children}
       </Flex>

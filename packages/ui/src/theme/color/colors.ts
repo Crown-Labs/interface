@@ -210,6 +210,7 @@ const sporeLight = {
   kty_neutral3: '#C0A4E8', //text for button disabled
   kty_neutral4: '#B48DFF', //purple text
   kty_neutral5: '#212121', //secound text color
+  kty_neutral6: '#944DEA', //color for icon
   kty_surface1: '#B48DFF', //background for button
   kty_surface2: '#E1CCFE', //background for button disabled
   kty_surface3: '#7E57C2', //shadow
@@ -245,10 +246,10 @@ const sporeDark = {
   surface4: 'rgba(255,255,255,0.20)',
   surface5: 'rgba(0,0,0,0.04)',
 
-  accent1: '#FC72FF',
-  accent1Hovered: '#FD3CFE',
-  accent2: '#361A37',
-  accent2Hovered: '#510D43',
+  accent1: '#B48DFF',
+  accent1Hovered: '#B48DFF',
+  accent2: '#FEF4FF',
+  accent2Hovered: '#FEF4FF',
   accent3: colors.white,
   accent3Hovered: '#F5F5F5',
 
@@ -270,17 +271,18 @@ const sporeDark = {
 
   //NEW COLORS FOR KITTYCORN
   kty_neutral1: '#FFFFFF',
-  kty_neutral2: '#EA6AD3', //pink text for title
+  kty_neutral2: '#ABABAB', //pink text for title
   kty_neutral3: '#C0A4E8', //text for button disabled
   kty_neutral4: '#B48DFF', //purple text
   kty_neutral5: colors.white, //secound text color
+  kty_neutral6: '#944DEA', //color for icon
   kty_surface1: '#B48DFF', //background
   kty_surface2: '#E1CCFE', //background for button disabled
   kty_surface3: '#7E57C2', //shadow
   kty_surface4: '#C0A4E8', //shadow for button disabled
-  kty_surface5: '#82868B', //border and shadow for box
+  kty_surface5: '#263238', //border and shadow for box
   kty_surface6: '#F4EAFE', //background for badge
-  kty_surface7: '#FAFAFA', //background for text
+  kty_surface7: '#151B23', //background for text
   kty_accent1: '#B48DFF',
   kty_accent2: '#EA6AD3', //pink text for title
 }
@@ -373,6 +375,7 @@ export const colorsLight = {
   kty_neutral3: sporeLight.kty_neutral3,
   kty_neutral4: sporeLight.kty_neutral4,
   kty_neutral5: sporeLight.kty_neutral5,
+  kty_neutral6: sporeDark.kty_neutral6,
   kty_surface1: sporeLight.kty_surface1,
   kty_surface2: sporeLight.kty_surface2,
   kty_surface3: sporeLight.kty_surface3,
@@ -477,13 +480,14 @@ export const colorsDark = {
   kty_neutral3: sporeDark.kty_neutral3,
   kty_neutral4: sporeDark.kty_neutral4,
   kty_neutral5: sporeDark.kty_neutral5,
+  kty_neutral6: sporeDark.kty_neutral6,
   kty_surface1: sporeDark.kty_surface1,
   kty_surface2: sporeDark.kty_surface2,
   kty_surface3: sporeDark.kty_surface3,
   kty_surface4: sporeDark.kty_surface4,
   kty_surface5: sporeDark.kty_surface5,
   kty_surface6: sporeDark.kty_surface6,
-  kty_surface7: sporeDark.surface1,
+  kty_surface7: sporeDark.kty_surface7,
   kty_accent1: sporeDark.kty_accent1,
   kty_accent2: sporeDark.kty_accent2,
   kty_accent3: colors.white,
