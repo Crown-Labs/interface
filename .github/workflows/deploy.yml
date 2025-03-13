@@ -19,6 +19,7 @@ jobs:
 
       - name: Install and Build
         run: |
+          mkdir apps/web/src/utils/__generated__
           yarn
           yarn g:build
           yarn build:staging

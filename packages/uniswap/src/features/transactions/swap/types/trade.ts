@@ -195,7 +195,8 @@ export class ClassicTrade<
     }[]
     readonly tradeType: TTradeType
   }) {
-    super(routes)
+    // TODO: fix for quick build and deploy
+    super(routes as any)
     this.quote = quote
     this.deadline = deadline
     this.slippageTolerance = quote?.quote.slippage ?? MAX_AUTO_SLIPPAGE_TOLERANCE
