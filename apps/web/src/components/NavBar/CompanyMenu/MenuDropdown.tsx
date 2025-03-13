@@ -74,6 +74,8 @@ function Section({ title, items, closeMenu }: MenuSection) {
     </Flex>
   )
 }
+
+// eslint-disable-next-line import/no-unused-modules
 export function MenuDropdown({ close }: { close?: () => void }) {
   const { t } = useTranslation()
   const isConversionTrackingEnabled = useFeatureFlag(FeatureFlags.ConversionTracking)

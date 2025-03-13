@@ -3,7 +3,7 @@ name: Deploy to AWS S3
 on:
   push:
     branches:
-      - develop
+      - feat/kittycorn-theme
 
 jobs:
   deploy-develop:
@@ -21,6 +21,7 @@ jobs:
         run: |
           yarn
           yarn g:build
+          yarn build:staging
 
       - name: Append Environment Variables to .env
         run: |
@@ -38,7 +39,7 @@ jobs:
           REACT_APP_MOONPAY_LINK=""
           REACT_APP_MOONPAY_PUBLISHABLE_KEY=""
           REACT_APP_SENTRY_DSN=""
-          REACT_APP_STATSIG_PROXY_URL="${{ secrets.REACT_APP_STATSIG_API_KEY }}"
+          # REACT_APP_STATSIG_PROXY_URL="${{ secrets.REACT_APP_STATSIG_API_KEY }}"
           REACT_APP_TEMP_API_URL=""
           REACT_APP_UNISWAP_BASE_API_URL="https://interface.gateway.uniswap.org"
           REACT_APP_UNISWAP_GATEWAY_DNS="https://interface.gateway.uniswap.org/v2"
@@ -46,6 +47,7 @@ jobs:
           REACT_APP_IS_UNISWAP_INTERFACE=true
           REACT_APP_STATSIG_API_KEY="client-zdC7XY3i3v1wVBEXMOcfZPebmVD7oxp9993jDLuPX3X"
           REACT_APP_STAGING=true
+          REACT_APP_KITTYCORN_API_URL="https://develop-web.kittycorn.io"
           EOF
 
       - name: Deploy Develop to S3
@@ -57,4 +59,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'ap-southeast-1'
-          SOURCE_DIR: 'build'
+          SOURCE_DIR: 'apps/web/build'
