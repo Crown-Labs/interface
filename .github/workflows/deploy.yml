@@ -9,7 +9,7 @@ jobs:
   deploy-develop:
     name: Deploy Develop
     runs-on: ubuntu-latest
-    if: endsWith(github.ref, 'develop')
+    if: endsWith(github.ref, 'feat/kittycorn-theme')
     steps:
       - name: Checkout
         uses: actions/checkout@v3
