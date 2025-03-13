@@ -27,6 +27,7 @@ export function createApiClient({
   ) => Promise<T>
   readonly post: <T>(path: string, options: Parameters<typeof fetch>[1]) => Promise<T>
 } {
+  const KITTYCORN_API_URL = process.env.REACT_APP_KITTYCORN_API_URL
   const headers = includeBaseUniswapHeaders ? { ...BASE_UNISWAP_HEADERS, ...additionalHeaders } : additionalHeaders
 
   return {
@@ -34,17 +35,23 @@ export function createApiClient({
       return (path: string, options: Parameters<typeof fetch>[1]) => {
         let url = `${baseUrl}${path}`
 
-        // const { body } = options ?? {}
-        // const { swapper } = JSON.parse(body as string)
+        const { body } = options ?? {}
+        const { swapper } = JSON.parse(body as string)
 
-        // if (url.includes('/v1/quote') && swapper !== '0xAAAA44272dc658575Ba38f43C438447dDED45358') {
-        //   url = 'http://localhost:8030/quote'
-        // }
-
-        // console.log(path)
+        if (url.includes('/v1/quote') && swapper !== '0xAAAA44272dc658575Ba38f43C438447dDED45358') {
+          url = `${KITTYCORN_API_URL}/quote`
+        }
 
         if (path === '/v1/swap') {
-          url = 'https://develop-api.kittycorn.io/swap'
+          url = `${KITTYCORN_API_URL}/swap`
+        }
+
+        if (path === '/v1/indicative_quote') {
+          url = `${KITTYCORN_API_URL}/indicative_quote`
+        }
+
+        if (path === '/v1/check_approval') {
+          url = `${KITTYCORN_API_URL}/check_approval`
         }
 
         return fetch(url, {

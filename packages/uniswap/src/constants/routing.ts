@@ -20,6 +20,7 @@ import {
   USDC_BASE,
   USDC_BSC,
   USDC_CELO,
+  USDC_KITTYCORN,
   USDC_MAINNET,
   USDC_OPTIMISM,
   USDC_POLYGON,
@@ -32,6 +33,7 @@ import {
   USDT_ARBITRUM_ONE,
   USDT_AVALANCHE,
   USDT_BSC,
+  USDT_KITTYCORN,
   USDT_MONAD_TESTNET,
   USDT_OPTIMISM,
   USDT_POLYGON,
@@ -40,8 +42,11 @@ import {
   WBTC_OPTIMISM,
   WBTC_POLYGON,
   WETH_AVALANCHE,
+  // kittycorn tokens
+  WETH_KITTYCORN,
   WETH_POLYGON,
   WRAPPED_NATIVE_CURRENCY,
+  // ---
   isCelo,
   nativeOnChain,
 } from 'uniswap/src/constants/tokens'
@@ -133,6 +138,11 @@ export const COMMON_BASES: ChainCurrencyList = {
 
   [UniverseChainId.Sepolia]: [
     nativeOnChain(UniverseChainId.Sepolia),
+
+    WETH_KITTYCORN,
+    USDC_KITTYCORN,
+    USDT_KITTYCORN,
+
     WRAPPED_NATIVE_CURRENCY[UniverseChainId.Sepolia] as Token,
     USDC_SEPOLIA,
     UNI[UniverseChainId.Sepolia],

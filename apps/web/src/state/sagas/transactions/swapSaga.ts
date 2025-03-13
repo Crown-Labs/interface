@@ -1,4 +1,5 @@
 /* eslint-disable rulesdir/no-undefined-or */
+/* eslint-disable no-console */
 import { SwapEventName } from '@uniswap/analytics-events'
 import { ZERO_PERCENT } from 'constants/misc'
 import { useTotalBalancesUsdForAnalytics } from 'graphql/data/apollo/useTotalBalancesUsdForAnalytics'

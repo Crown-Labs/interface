@@ -153,6 +153,7 @@
     "upgrade:tamagui:canary": "yarn up '*tamagui*'@canary '@tamagui/*'@canary",
     "wallet": "yarn workspace wallet",
     "web": "yarn workspace @uniswap/interface",
+    "web:build:staging": "yarn web build:staging",
     "uniswap": "yarn workspace uniswap",
     "utilities": "yarn workspace utilities"
   },

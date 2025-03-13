@@ -796,7 +796,9 @@ export const UNIVERSE_CHAIN_INFO: Record<UniverseChainId, UniverseChainInfo> = {
           'https://rpc.bordel.wtf/sepolia',
         ],
       },
-      [RPCType.Interface]: { http: [`https://sepolia.infura.io/v3/${config.infuraKey}`] },
+      [RPCType.Interface]: {
+        http: [`https://greatest-patient-pine.ethereum-sepolia.quiknode.pro/588425258cd19f62cee69c44c09b708d40ccd6de`],
+      },
     },
     spotPriceStablecoinAmount: CurrencyAmount.fromRawAmount(USDC_SEPOLIA, 100e6),
     stablecoins: [USDC_SEPOLIA],
@@ -804,11 +806,18 @@ export const UNIVERSE_CHAIN_INFO: Record<UniverseChainId, UniverseChainInfo> = {
     supportsInterfaceClientSideRouting: true,
     supportsGasEstimates: false,
     urlParam: 'ethereum_sepolia',
+    // wrappedNativeCurrency: {
+    //   name: 'Wrapped Ether',
+    //   symbol: 'WETH',
+    //   decimals: 18,
+    //   address: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
+    // },
+    // TODO: only use for Kittycorn native address
     wrappedNativeCurrency: {
       name: 'Wrapped Ether',
       symbol: 'WETH',
       decimals: 18,
-      address: '0xfff9976782d46cc05630d1f6ebab18b2324d6b14',
+      address: '0xC558DBdd856501FCd9aaF1E62eae57A9F0629a3c',
     },
   } as const satisfies UniverseChainInfo,
   [UniverseChainId.Unichain]: {

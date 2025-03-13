@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { TradeType } from '@uniswap/sdk-core'

@@ -3,6 +3,32 @@ import { Currency, NativeCurrency, Token, UNI_ADDRESSES, WETH9 } from '@uniswap/
 import invariant from 'tiny-invariant'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
 
+// Kittycorn tokens config
+export const WETH_KITTYCORN = new Token(
+  UniverseChainId.Sepolia,
+  '0xC558DBdd856501FCd9aaF1E62eae57A9F0629a3c',
+  18,
+  'WETH',
+  'Wrapped Ether',
+)
+
+export const USDC_KITTYCORN = new Token(
+  UniverseChainId.Sepolia,
+  '0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8',
+  6,
+  'USDC',
+  'USD//C Kittycorn',
+)
+
+export const USDT_KITTYCORN = new Token(
+  UniverseChainId.Sepolia,
+  '0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0',
+  6,
+  'USDT',
+  'Tether USD Kittycorn',
+)
+// -------------------
+
 export const USDT_MONAD_TESTNET = new Token(
   UniverseChainId.MonadTestnet,
   '0xfBC2D240A5eD44231AcA3A9e9066bc4b33f01149',

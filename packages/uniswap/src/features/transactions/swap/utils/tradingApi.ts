@@ -414,8 +414,17 @@ export function validateTrade({
     return null
   }
 
-  const inputsMatch = areAddressesEqual(currencyIn.wrapped.address, trade?.inputAmount.currency.wrapped.address)
-  const outputsMatch = areAddressesEqual(currencyOut.wrapped.address, trade.outputAmount.currency.wrapped.address)
+  let inputsMatch = areAddressesEqual(currencyIn.wrapped.address, trade?.inputAmount.currency.wrapped.address)
+  let outputsMatch = areAddressesEqual(currencyOut.wrapped.address, trade.outputAmount.currency.wrapped.address)
+
+  // TODO: use only Sepolia native token address
+  if (currencyIn?.wrapped?.address === '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14') {
+    inputsMatch = true
+  }
+
+  if (currencyOut?.wrapped?.address === '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14') {
+    outputsMatch = true
+  }
 
   const tokenAddressesMatch = inputsMatch && outputsMatch
   // TODO(WEB-5132): Add validation checking that exact amount from response matches exact amount from user input
