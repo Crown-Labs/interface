@@ -9,6 +9,7 @@ import {
   mergeFeeTiers,
 } from 'components/Liquidity/utils'
 import { PriceOrdering, getPriceOrderingFromPositionForUI } from 'components/PositionListItem'
+import { ZERO_ADDRESS } from 'constants/misc'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import JSBI from 'jsbi'
 import { OptionalCurrency } from 'pages/Pool/Positions/create/types'
@@ -22,6 +23,7 @@ import { useGetPoolsByTokens } from 'uniswap/src/data/rest/getPools'
 import { useUSDCPrice } from 'uniswap/src/features/transactions/swap/hooks/useUSDCPrice'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 
+export const MAX_FEE_TIER_DECIMALS = 4
 /**
  * @returns map of fee tier (in hundredths of bips) to more data about the Pool
  *
@@ -31,10 +33,12 @@ export function useAllFeeTierPoolData({
   protocolVersion,
   currencies,
   withDynamicFeeTier = false,
+  hook,
 }: {
   chainId?: number
   protocolVersion: ProtocolVersion
   currencies: [OptionalCurrency, OptionalCurrency]
+  hook: string
   withDynamicFeeTier?: boolean
 }): { feeTierData: Record<number, FeeTierData>; hasExistingFeeTiers: boolean } {
   const { t } = useTranslation()
@@ -47,6 +51,7 @@ export function useAllFeeTierPoolData({
       protocolVersions: [protocolVersion],
       token0: getCurrencyAddressForTradingApi(sortedCurrencies[0]),
       token1: getCurrencyAddressForTradingApi(sortedCurrencies[1]),
+      hooks: hook ?? ZERO_ADDRESS,
     },
     Boolean(chainId && sortedCurrencies?.[0] && sortedCurrencies?.[1]),
   )
@@ -75,7 +80,7 @@ export function useAllFeeTierPoolData({
               feeAmount: pool.fee,
               tickSpacing: pool.tickSpacing,
             },
-            formattedFee: formatPercent(new Percent(pool.fee, 1000000)),
+            formattedFee: formatPercent(new Percent(pool.fee, 1000000), MAX_FEE_TIER_DECIMALS),
             totalLiquidityUsd: totalLiquidityUsdTruncated,
             percentage,
             tvl: pool.totalLiquidityUsd,
@@ -89,14 +94,18 @@ export function useAllFeeTierPoolData({
       feeTierData: mergeFeeTiers(
         feeTierData,
         Object.values(
-          getDefaultFeeTiersForChainWithDynamicFeeTier({ chainId, dynamicFeeTierEnabled: withDynamicFeeTier }),
+          getDefaultFeeTiersForChainWithDynamicFeeTier({
+            chainId,
+            dynamicFeeTierEnabled: withDynamicFeeTier,
+            protocolVersion,
+          }),
         ),
         formatPercent,
         t('fee.dynamic'),
       ),
       hasExistingFeeTiers: Object.values(feeTierData).length > 0,
     }
-  }, [poolData, sortedCurrencies, chainId, withDynamicFeeTier, formatPercent, t])
+  }, [poolData, sortedCurrencies, chainId, withDynamicFeeTier, formatPercent, protocolVersion, t])
 }
 
 /**

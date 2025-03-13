@@ -16,10 +16,10 @@ import {
   FeeOnTransferFeeGroupProps,
   TokenWarningProps,
 } from 'uniswap/src/features/transactions/TransactionDetails/types'
+import { usePriceImpact } from 'uniswap/src/features/transactions/swap/hooks/usePriceImpact'
 import { useParsedSwapWarnings } from 'uniswap/src/features/transactions/swap/hooks/useSwapWarnings'
 import { AcrossRoutingInfo } from 'uniswap/src/features/transactions/swap/modals/AcrossRoutingInfo'
 import { MarketPriceImpactWarning } from 'uniswap/src/features/transactions/swap/modals/MarketPriceImpactWarning'
-import { RoutingInfo } from 'uniswap/src/features/transactions/swap/modals/RoutingInfo'
 import { EstimatedTime } from 'uniswap/src/features/transactions/swap/review/EstimatedTime'
 import { MaxSlippageRow } from 'uniswap/src/features/transactions/swap/review/MaxSlippageRow'
 import { SwapRateRatio } from 'uniswap/src/features/transactions/swap/review/SwapRateRatio'
@@ -29,9 +29,9 @@ import { getSwapFeeUsdFromDerivedSwapInfo } from 'uniswap/src/features/transacti
 import { isBridge } from 'uniswap/src/features/transactions/swap/utils/routing'
 import { CurrencyField } from 'uniswap/src/types/currency'
 import { getSymbolDisplayText } from 'uniswap/src/utils/currency'
-import { normalizePriceImpact } from 'utilities/src/format/normalizePriceImpact'
 import { NumberType } from 'utilities/src/format/types'
 import { isMobileApp, isMobileWeb } from 'utilities/src/platform'
+import { RoutingInlineInfo } from '../modals/RoutingInlineInfo'
 
 interface SwapDetailsProps {
   acceptedDerivedSwapInfo: DerivedSwapInfo<CurrencyInfo, CurrencyInfo>
@@ -97,10 +97,6 @@ export function SwapDetails({
     return tradeQuote.quote.estimatedFillTimeMs
   }, [derivedSwapInfo.trade.trade?.quote])
 
-  const priceImpactPercentage = acceptedDerivedSwapInfo.trade.trade?.priceImpact
-  const { priceImpactWarning } = useParsedSwapWarnings()
-  const priceImpactWarningColor = getAlertColor(priceImpactWarning?.severity).text
-
   return (
     <HeightAnimatorWrapper>
       <TransactionDetails
@@ -134,44 +130,68 @@ export function SwapDetails({
         txSimulationErrors={txSimulationErrors}
         onShowWarning={onShowWarning}
       >
-        <Flex row alignItems="center" justifyContent="space-between">
-          <Text color="$neutral2" variant="body3">
-            {t('swap.details.rate')}
-          </Text>
-          <Flex row shrink justifyContent="flex-end">
-            <SwapRateRatio trade={trade} />
-          </Flex>
-        </Flex>
-        {isBridgeTrade && <EstimatedTime visibleIfLong={false} timeMs={estimatedBridgingTime} />}
-        {isBridgeTrade && <AcrossRoutingInfo />}
-        {!isBridgeTrade && (
-          <MaxSlippageRow
-            acceptedDerivedSwapInfo={acceptedDerivedSwapInfo}
-            autoSlippageTolerance={autoSlippageTolerance}
-            customSlippageTolerance={customSlippageTolerance}
-          />
-        )}
-        {!isBridgeTrade && v4Enabled && (
-          <RoutingInfo gasFee={gasFee} chainId={acceptedTrade.inputAmount.currency.chainId} />
-        )}
-        {!isBridgeTrade && v4Enabled && priceImpactPercentage ? (
+        <Flex px="$spacing12" gap="$spacing12">
           <Flex row alignItems="center" justifyContent="space-between">
-            <MarketPriceImpactWarning>
-              <Flex centered row gap="$spacing4">
-                <Text color="$neutral2" variant="body3">
-                  {t('swap.priceImpact')}
-                </Text>
-              </Flex>
-            </MarketPriceImpactWarning>
+            <Text color="$neutral2" variant="body3">
+              {t('swap.details.rate')}
+            </Text>
             <Flex row shrink justifyContent="flex-end">
-              <Text adjustsFontSizeToFit color={priceImpactWarningColor} variant="body3">
-                {normalizePriceImpact(priceImpactPercentage)}%
-              </Text>
+              <SwapRateRatio trade={trade} />
             </Flex>
           </Flex>
-        ) : null}
+          {isBridgeTrade && <EstimatedTime visibleIfLong={false} timeMs={estimatedBridgingTime} />}
+          {isBridgeTrade && <AcrossRoutingInfo />}
+          {!isBridgeTrade && (
+            <MaxSlippageRow
+              acceptedDerivedSwapInfo={acceptedDerivedSwapInfo}
+              autoSlippageTolerance={autoSlippageTolerance}
+              customSlippageTolerance={customSlippageTolerance}
+            />
+          )}
+          <PriceImpactRow derivedSwapInfo={acceptedDerivedSwapInfo} />
+        </Flex>
+        {!isBridgeTrade && v4Enabled && (
+          <RoutingInlineInfo gasFee={gasFee} chainId={acceptedTrade.inputAmount.currency.chainId} />
+        )}
       </TransactionDetails>
     </HeightAnimatorWrapper>
+  )
+}
+
+export function PriceImpactRow({
+  hide,
+  derivedSwapInfo,
+}: {
+  hide?: boolean
+  derivedSwapInfo: DerivedSwapInfo
+}): JSX.Element | null {
+  const { t } = useTranslation()
+
+  const { formattedPriceImpact } = usePriceImpact({ derivedSwapInfo })
+  const { priceImpactWarning } = useParsedSwapWarnings()
+  const priceImpactWarningColor = getAlertColor(priceImpactWarning?.severity).text
+
+  const trade = derivedSwapInfo.trade.trade
+
+  if (hide || !trade || isBridge(trade)) {
+    return null
+  }
+
+  return (
+    <Flex row alignItems="center" justifyContent="space-between">
+      <MarketPriceImpactWarning routing={trade.routing} missing={!formattedPriceImpact}>
+        <Flex centered row gap="$spacing4">
+          <Text color="$neutral2" variant="body3">
+            {t('swap.priceImpact')}
+          </Text>
+        </Flex>
+      </MarketPriceImpactWarning>
+      <Flex row shrink justifyContent="flex-end">
+        <Text adjustsFontSizeToFit color={priceImpactWarningColor} variant="body3">
+          {formattedPriceImpact ?? 'N/A'}
+        </Text>
+      </Flex>
+    </Flex>
   )
 }
 
@@ -209,7 +229,7 @@ function AcceptNewQuoteRow({
       alignItems="center"
       borderColor="$surface3"
       borderRadius="$rounded16"
-      borderWidth={1}
+      borderWidth="$spacing1"
       gap="$spacing12"
       justifyContent="space-between"
       pl="$spacing12"
@@ -252,7 +272,11 @@ function HeightAnimatorWrapper({ children }: { children: React.ReactNode }): JSX
   if (isMobileApp || isMobileWeb) {
     return <>{children}</>
   } else {
-    return <HeightAnimator animation="fast">{children}</HeightAnimator>
+    return (
+      <HeightAnimator useInitialHeight animation="fast">
+        {children}
+      </HeightAnimator>
+    )
   }
 }
 

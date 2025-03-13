@@ -14,9 +14,11 @@ export interface TransactionState {
   isMax?: boolean
   exactAmountFiat?: string
   focusOnCurrencyField?: CurrencyField | null
+  skipFocusOnCurrencyField?: boolean
   recipient?: string
   isFiatInput?: boolean
   selectingCurrencyField?: CurrencyField
+  selectingCurrencyChainId?: UniverseChainId
   showRecipientSelector?: boolean
   customSlippageTolerance?: number
   customDeadline?: number
@@ -26,23 +28,25 @@ export interface TransactionState {
 
 export const prepareSwapFormState = ({
   inputCurrencyId,
+  outputCurrencyId,
   defaultChainId,
 }: {
   inputCurrencyId?: CurrencyId
+  outputCurrencyId?: CurrencyId
   defaultChainId: UniverseChainId
-}): TransactionState | undefined => {
-  if (!inputCurrencyId) {
-    return undefined
-  }
-
+}): TransactionState => {
   return {
     exactCurrencyField: CurrencyField.INPUT,
     exactAmountToken: '',
-    [CurrencyField.INPUT]: {
+    [CurrencyField.INPUT]: inputCurrencyId ? {
       address: currencyIdToAddress(inputCurrencyId),
-      chainId: (currencyIdToChain(inputCurrencyId) as UniverseChainId) ?? defaultChainId,
+      chainId: currencyIdToChain(inputCurrencyId) ?? defaultChainId,
       type: AssetType.Currency,
-    },
-    [CurrencyField.OUTPUT]: null,
+    } : null,
+    [CurrencyField.OUTPUT]: outputCurrencyId ? {
+      address: currencyIdToAddress(outputCurrencyId),
+      chainId: currencyIdToChain(outputCurrencyId) ?? defaultChainId,
+      type: AssetType.Currency,
+    } : null,
   }
 }

@@ -5,12 +5,22 @@ import { useDispatch, useSelector } from 'react-redux'
 import { navigate } from 'src/app/navigation/rootNavigation'
 import { FundWalletModal } from 'src/components/home/introCards/FundWalletModal'
 import { openModal } from 'src/features/modals/modalSlice'
+import {
+  NotificationPermission,
+  useNotificationOSPermissionsEnabled,
+} from 'src/features/notifications/hooks/useNotificationOSPermissionsEnabled'
 import { Flex } from 'ui/src'
-import { Buy, ShieldCheck, UniswapLogo } from 'ui/src/components/icons'
+import { PUSH_NOTIFICATIONS_CARD_BANNER } from 'ui/src/assets'
+import { Buy, ShieldCheck } from 'ui/src/components/icons'
+import { UnichainIntroModal } from 'uniswap/src/components/unichain/UnichainIntroModal'
 import { AccountType } from 'uniswap/src/features/accounts/types'
+import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { FeatureFlags } from 'uniswap/src/features/gating/flags'
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
 import { ElementName, ModalName, WalletEventName } from 'uniswap/src/features/telemetry/constants'
 import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
 import { OnboardingCardLoggingName } from 'uniswap/src/features/telemetry/types'
+import { CurrencyField } from 'uniswap/src/types/currency'
 import { ImportType, OnboardingEntryPoint } from 'uniswap/src/types/onboarding'
 import { MobileScreens, OnboardingScreens, UnitagScreens } from 'uniswap/src/types/screens/mobile'
 import {
@@ -21,16 +31,17 @@ import {
 } from 'wallet/src/components/introCards/IntroCard'
 import { INTRO_CARD_MIN_HEIGHT, IntroCardStack } from 'wallet/src/components/introCards/IntroCardStack'
 import { useSharedIntroCards } from 'wallet/src/components/introCards/useSharedIntroCards'
-import { selectHasViewedWelcomeWalletCard } from 'wallet/src/features/behaviorHistory/selectors'
-import { setHasViewedWelcomeWalletCard } from 'wallet/src/features/behaviorHistory/slice'
+import { useWalletNavigation } from 'wallet/src/contexts/WalletNavigationContext'
+import { selectHasViewedNotificationsCard } from 'wallet/src/features/behaviorHistory/selectors'
+import { setHasViewedNotificationsCard } from 'wallet/src/features/behaviorHistory/slice'
 import { useActiveAccountWithThrow } from 'wallet/src/features/wallet/hooks'
 
 type OnboardingIntroCardStackProps = {
   isLoading?: boolean
-  hasTokens: boolean
+  showEmptyWalletState: boolean
 }
 export function OnboardingIntroCardStack({
-  hasTokens,
+  showEmptyWalletState,
   isLoading = false,
 }: OnboardingIntroCardStackProps): JSX.Element | null {
   const { t } = useTranslation()
@@ -40,8 +51,15 @@ export function OnboardingIntroCardStack({
   const isSignerAccount = activeAccount.type === AccountType.SignerMnemonic
   const hasBackups = activeAccount.backups && activeAccount.backups.length > 0
 
-  const welcomeCardTitle = t('onboarding.home.intro.welcome.title')
-  const hasViewedWelcomeWalletCard = useSelector(selectHasViewedWelcomeWalletCard)
+  const { notificationPermissionsEnabled } = useNotificationOSPermissionsEnabled()
+  const notificationOnboardingCardEnabled = useFeatureFlag(FeatureFlags.NotificationOnboardingCard)
+  const hasViewedNotificationsCard = useSelector(selectHasViewedNotificationsCard)
+  const showEnableNotificationsCard =
+    notificationOnboardingCardEnabled &&
+    notificationPermissionsEnabled === NotificationPermission.Disabled &&
+    !hasViewedNotificationsCard
+
+  const { navigateToSwapFlow } = useWalletNavigation()
 
   const navigateToUnitagClaim = useCallback(() => {
     navigate(MobileScreens.UnitagStack, {
@@ -62,13 +80,14 @@ export function OnboardingIntroCardStack({
     )
   }, [dispatch, address])
 
+  const [showFundModal, setShowFundModal] = useState(false)
+  const [showUnichainIntroModal, setShowUnichainIntroModal] = useState(false)
+
   const { cards: sharedCards } = useSharedIntroCards({
-    hasTokens,
+    showUnichainModal: () => setShowUnichainIntroModal(true),
     navigateToUnitagClaim,
     navigateToUnitagIntro,
   })
-
-  const [showFundModal, setShowFundModal] = useState(false)
 
   const cards = useMemo((): IntroCardProps[] => {
     const output: IntroCardProps[] = []
@@ -78,7 +97,7 @@ export function OnboardingIntroCardStack({
       return output
     }
 
-    if (!hasTokens) {
+    if (showEmptyWalletState) {
       output.push({
         loggingName: OnboardingCardLoggingName.FundWallet,
         graphic: {
@@ -121,28 +140,30 @@ export function OnboardingIntroCardStack({
 
     output.push(...sharedCards)
 
-    if (output.length && !hasViewedWelcomeWalletCard) {
-      output.unshift({
-        loggingName: OnboardingCardLoggingName.WelcomeWallet,
+    if (showEnableNotificationsCard) {
+      output.push({
+        loggingName: OnboardingCardLoggingName.EnablePushNotifications,
         graphic: {
-          type: IntroCardGraphicType.Icon,
-          Icon: UniswapLogo,
-          iconProps: {
-            color: '$accent1',
-          },
-          iconContainerProps: {
-            backgroundColor: '$accent2',
-            borderRadius: '$rounded12',
-          },
+          type: IntroCardGraphicType.Image,
+          image: PUSH_NOTIFICATIONS_CARD_BANNER,
         },
-        title: welcomeCardTitle,
-        description: t('onboarding.home.intro.welcome.description'),
-        cardType: CardType.Swipe,
+        title: t('onboarding.home.intro.pushNotifications.title'),
+        description: t('onboarding.home.intro.pushNotifications.description'),
+        cardType: CardType.Dismissible,
+        onPress: (): void => {
+          navigate(ModalName.NotificationsOSSettings)
+          dispatch(setHasViewedNotificationsCard(true))
+          sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
+            element: ElementName.OnboardingIntroCardEnablePushNotifications,
+          })
+        },
+        onClose: (): void => {
+          dispatch(setHasViewedNotificationsCard(true))
+        },
       })
     }
-
     return output
-  }, [hasBackups, hasTokens, hasViewedWelcomeWalletCard, isSignerAccount, sharedCards, t, welcomeCardTitle])
+  }, [hasBackups, showEmptyWalletState, isSignerAccount, sharedCards, t, showEnableNotificationsCard, dispatch])
 
   const handleSwiped = useCallback(
     (_card: IntroCardProps, index: number) => {
@@ -152,13 +173,20 @@ export function OnboardingIntroCardStack({
           card_name: loggingName,
         })
       }
-
-      if (!hasViewedWelcomeWalletCard && cards[index]?.title === welcomeCardTitle) {
-        dispatch(setHasViewedWelcomeWalletCard(true))
-      }
     },
-    [cards, dispatch, hasViewedWelcomeWalletCard, welcomeCardTitle],
+    [cards],
   )
+
+  const UnichainIntroModalInstance = useMemo((): JSX.Element => {
+    return (
+      <UnichainIntroModal
+        openSwapFlow={() =>
+          navigateToSwapFlow({ openTokenSelector: CurrencyField.OUTPUT, outputChainId: UniverseChainId.Unichain })
+        }
+        onClose={() => setShowUnichainIntroModal(false)}
+      />
+    )
+  }, [navigateToSwapFlow])
 
   if (cards.length) {
     return (
@@ -166,8 +194,13 @@ export function OnboardingIntroCardStack({
         {isLoading ? <Flex height={INTRO_CARD_MIN_HEIGHT} /> : <IntroCardStack cards={cards} onSwiped={handleSwiped} />}
 
         {showFundModal && <FundWalletModal onClose={() => setShowFundModal(false)} />}
+        {showUnichainIntroModal && UnichainIntroModalInstance}
       </Flex>
     )
+  }
+
+  if (showUnichainIntroModal) {
+    return UnichainIntroModalInstance
   }
 
   return null

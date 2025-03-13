@@ -1,6 +1,5 @@
 import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks'
 import { LoaderButton } from 'components/Button/LoaderButton'
-import { ButtonLight } from 'components/Button/buttons'
 import { ConnectWalletButtonText } from 'components/NavBar/accountCTAsExperimentUtils'
 import { useBuyFormContext } from 'pages/Swap/Buy/BuyFormContext'
 import { useTranslation } from 'react-i18next'
@@ -17,29 +16,47 @@ export function BuyFormButton({ forceDisabled }: BuyFormButtonProps) {
   const { t } = useTranslation()
 
   const { buyFormState, derivedBuyFormInfo, setBuyFormState } = useBuyFormContext()
-  const { inputAmount } = buyFormState
+  const { inputAmount, quoteCurrency } = buyFormState
   const { notAvailableInThisRegion, quotes, fetchingQuotes, error } = derivedBuyFormInfo
 
   if (!account.isConnected) {
     return (
-      <ButtonLight onClick={accountDrawer.open}>
-        <ConnectWalletButtonText />
-      </ButtonLight>
+      <DeprecatedButton
+        animation="fast"
+        size="large"
+        borderRadius="$rounded16"
+        width="100%"
+        pressStyle={{ scale: 0.98 }}
+        opacity={1}
+        onPress={accountDrawer.open}
+        backgroundColor="$accent2"
+        hoverStyle={{
+          backgroundColor: '$accent2Hovered',
+        }}
+      >
+        <Text variant="buttonLabel1" color="$accent1">
+          <ConnectWalletButtonText />
+        </Text>
+      </DeprecatedButton>
     )
   }
 
-  if (!inputAmount || forceDisabled || notAvailableInThisRegion) {
+  if (!inputAmount || forceDisabled || notAvailableInThisRegion || !quoteCurrency) {
     return (
       <DeprecatedButton
         key="BuyFormButton"
-        disabled
+        isDisabled
         size="large"
-        disabledStyle={{
-          backgroundColor: '$surface3',
-        }}
+        borderRadius="$rounded16"
+        opacity={1}
+        backgroundColor="surface2"
       >
-        <Text variant="buttonLabel1">
-          {notAvailableInThisRegion ? t('common.notAvailableInRegion.error') : t('common.noAmount.error')}
+        <Text variant="buttonLabel1" color="$neutral2">
+          {notAvailableInThisRegion
+            ? t('common.notAvailableInRegion.error')
+            : quoteCurrency
+              ? t('common.noAmount.error')
+              : t('common.selectToken.label')}
         </Text>
       </DeprecatedButton>
     )
@@ -48,7 +65,7 @@ export function BuyFormButton({ forceDisabled }: BuyFormButtonProps) {
   return (
     <LoaderButton
       buttonKey="BuyFormButton"
-      disabled={Boolean(fetchingQuotes || !quotes || !quotes.quotes || quotes.quotes.length === 0 || error)}
+      isDisabled={Boolean(fetchingQuotes || !quotes || !quotes.quotes || quotes.quotes.length === 0 || error)}
       onPress={() => {
         setBuyFormState((prev) => ({ ...prev, providerModalOpen: true }))
       }}

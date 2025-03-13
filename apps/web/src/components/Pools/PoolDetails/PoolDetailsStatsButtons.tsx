@@ -7,11 +7,8 @@ import Row from 'components/deprecated/Row'
 import { MobileBottomBar } from 'components/NavBar/MobileBottomBar'
 import { SwapWrapperOuter } from 'components/swap/styled'
 import { LoadingBubble } from 'components/Tokens/loading'
-import TokenSafetyMessage from 'components/TokenSafety/DeprecatedTokenSafetyMessage'
-import { getPriorityWarning, StrongWarning, useTokenWarning } from 'constants/deprecatedTokenSafety'
 import { NATIVE_CHAIN_ID } from 'constants/tokens'
 import { gqlToCurrency } from 'graphql/data/util'
-import { useScreenSize } from 'hooks/screenSize/useScreenSize'
 import { useAccount } from 'hooks/useAccount'
 import { ScrollDirection, useScroll } from 'hooks/useScroll'
 import { useSwitchChain } from 'hooks/useSwitchChain'
@@ -21,12 +18,12 @@ import { ReactNode, useCallback, useReducer, useState } from 'react'
 import { Plus, X } from 'react-feather'
 import { Trans } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { BREAKPOINTS } from 'theme'
 import { ClickableStyle, ThemedText } from 'theme/components'
 import { opacify } from 'theme/utils'
 import { Z_INDEX } from 'theme/zIndex'
-import { Flex, useIsTouchDevice } from 'ui/src'
+import { Flex, useIsTouchDevice, useMedia } from 'ui/src'
 import { ArrowUpDown } from 'ui/src/components/icons/ArrowUpDown'
+import { breakpoints } from 'ui/src/theme'
 import { ProtocolVersion, Token } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
 import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
@@ -42,7 +39,7 @@ const PoolDetailsStatsButtonsRow = styled(Row)`
   gap: 12px;
   z-index: 1;
 
-  @media (max-width: ${BREAKPOINTS.lg}px) {
+  @media (max-width: ${breakpoints.xl}px) {
     gap: 8px;
     position: fixed;
     bottom: 0px;
@@ -75,10 +72,10 @@ const PoolButton = styled.button<{ $open?: boolean; $fixedWidth?: boolean }>`
   transition: ${({ theme }) => `width ${theme.transition.duration.medium} ${theme.transition.timing.inOut}`};
   border: ${({ theme, $open }) => $open && `1px solid ${theme.surface3}`};
   ${ClickableStyle}
-  @media (max-width: ${BREAKPOINTS.lg}px) {
+  @media (max-width: ${breakpoints.xl}px) {
     width: ${({ $fixedWidth }) => $fixedWidth && '120px'};
   }
-  @media (max-width: ${BREAKPOINTS.sm}px) {
+  @media (max-width: ${breakpoints.md}px) {
     width: ${({ $fixedWidth }) => !$fixedWidth && '100%'};
     background-color: ${({ theme, $open }) => ($open ? theme.surface1 : theme.accent1)};
     color: ${({ theme, $open }) => ($open ? theme.neutral1 : theme.white)};
@@ -111,7 +108,7 @@ const SwapModalWrapper = styled(Column)<{ open?: boolean }>`
     visibility: ${({ open }) => (open ? 'visible' : 'hidden')};
   }
 
-  @media (max-width: ${BREAKPOINTS.lg}px) {
+  @media (max-width: ${breakpoints.xl}px) {
     position: fixed;
     width: calc(100% - 16px);
     padding: 0px 12px 12px;
@@ -198,15 +195,10 @@ export function PoolDetailsStatsButtons({
   }
   const [swapModalOpen, toggleSwapModalOpen] = useReducer((state) => !state, false)
 
-  const isScreenSize = useScreenSize()
-  const screenSizeLargerThanTablet = isScreenSize['lg']
-  const isMobile = !isScreenSize['sm']
+  const media = useMedia()
+  const screenSizeLargerThanTablet = !media.xl
+  const isMobile = media.md
 
-  const token0Warning = useTokenWarning(token0?.address, chainId)
-  const token1Warning = useTokenWarning(token1?.address, chainId)
-  const priorityWarning = getPriorityWarning(token0Warning, token1Warning)
-
-  const tokenProtectionEnabled = useFeatureFlag(FeatureFlags.TokenProtection)
   const [showWarningModal, setShowWarningModal] = useState(false)
   const closeWarningModal = useCallback(() => setShowWarningModal(false), [])
   const [warningModalCurrencyInfo, setWarningModalCurrencyInfo] = useState<Maybe<CurrencyInfo>>()
@@ -266,35 +258,22 @@ export function PoolDetailsStatsButtons({
           compact
           disableTokenInputs={chainId !== account.chainId}
         />
-        {tokenProtectionEnabled ? (
-          <>
-            <TokenWarningCard currencyInfo={currencyInfo0} onPress={() => onWarningCardCtaPressed(currencyInfo0)} />
-            <TokenWarningCard currencyInfo={currencyInfo1} onPress={() => onWarningCardCtaPressed(currencyInfo1)} />
-            {warningModalCurrencyInfo && (
-              // Intentionally duplicative with the TokenWarningModal in the swap component; this one only displays when user clicks "i" Info button on the TokenWarningCard
-              <TokenWarningModal
-                currencyInfo0={warningModalCurrencyInfo}
-                isInfoOnlyWarning
-                isVisible={showWarningModal}
-                closeModalOnly={closeWarningModal}
-                onAcknowledge={closeWarningModal}
-              />
-            )}
-          </>
-        ) : (
-          Boolean(priorityWarning) && (
-            <TokenSafetyMessage
-              tokenAddress={(priorityWarning === token0Warning ? token0?.address : token1?.address) ?? ''}
-              warning={priorityWarning ?? StrongWarning}
-              plural={Boolean(token0Warning && token1Warning)}
-              tokenSymbol={priorityWarning === token0Warning ? token0?.symbol : token1?.symbol}
-            />
-          )
+        <TokenWarningCard currencyInfo={currencyInfo0} onPress={() => onWarningCardCtaPressed(currencyInfo0)} />
+        <TokenWarningCard currencyInfo={currencyInfo1} onPress={() => onWarningCardCtaPressed(currencyInfo1)} />
+        {warningModalCurrencyInfo && (
+          // Intentionally duplicative with the TokenWarningModal in the swap component; this one only displays when user clicks "i" Info button on the TokenWarningCard
+          <TokenWarningModal
+            currencyInfo0={warningModalCurrencyInfo}
+            isInfoOnlyWarning
+            isVisible={showWarningModal}
+            closeModalOnly={closeWarningModal}
+            onAcknowledge={closeWarningModal}
+          />
         )}
       </SwapModalWrapper>
       <Scrim
         $open={swapModalOpen && !screenSizeLargerThanTablet}
-        $maxWidth={BREAKPOINTS.lg}
+        $maxWidth={breakpoints.xl}
         $zIndex={Z_INDEX.sticky}
         onClick={toggleSwapModalOpen}
       />

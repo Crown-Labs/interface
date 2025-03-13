@@ -10,11 +10,11 @@ import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledCh
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
 import { usePortfolioCacheUpdater } from 'uniswap/src/features/dataApi/balances'
 import { PortfolioBalance } from 'uniswap/src/features/dataApi/types'
-import { toggleTokenVisibility } from 'uniswap/src/features/favorites/slice'
 import { pushNotification } from 'uniswap/src/features/notifications/slice'
 import { AppNotificationType } from 'uniswap/src/features/notifications/types'
 import { ElementName, SectionName, WalletEventName } from 'uniswap/src/features/telemetry/constants'
 import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
+import { setTokenVisibility } from 'uniswap/src/features/visibility/slice'
 import { CurrencyField, CurrencyId } from 'uniswap/src/types/currency'
 import { areCurrencyIdsEqual, currencyIdToAddress, currencyIdToChain } from 'uniswap/src/utils/currencyId'
 import { isExtension } from 'utilities/src/platform'
@@ -60,7 +60,7 @@ export function useTokenContextMenu({
 
   const activeAccountHoldsToken =
     portfolioBalance && areCurrencyIdsEqual(currencyId, portfolioBalance?.currencyInfo.currencyId)
-  const isHidden = !!portfolioBalance?.isHidden
+  const isVisible = !portfolioBalance?.isHidden
 
   const currencyAddress = currencyIdToAddress(currencyId)
   const currencyChainId = (currencyIdToChain(currencyId) as UniverseChainId) ?? defaultChainId
@@ -81,15 +81,12 @@ export function useTokenContextMenu({
   )
 
   const onPressViewDetails = useCallback(() => {
-    if (isTestnetModeEnabled) {
-      return
-    }
     sendAnalyticsEvent(SharedEventName.ELEMENT_CLICKED, {
       element: ElementName.TokenItem,
       section: SectionName.HomeTokensTab,
     })
     navigateToTokenDetails(currencyId)
-  }, [isTestnetModeEnabled, navigateToTokenDetails, currencyId])
+  }, [navigateToTokenDetails, currencyId])
 
   const onPressShare = useCallback(async () => {
     handleShareToken({ currencyId })
@@ -105,26 +102,26 @@ export function useTokenContextMenu({
      * modify the current one in the cache.
      */
 
-    updateCache(!isHidden, portfolioBalance ?? undefined)
+    updateCache(isVisible, portfolioBalance ?? undefined)
 
     sendAnalyticsEvent(WalletEventName.TokenVisibilityChanged, {
       currencyId,
       // we log the state to which it's transitioning
-      visible: isHidden,
+      visible: !isVisible,
     })
-    dispatch(toggleTokenVisibility({ currencyId: currencyId.toLowerCase(), isSpam: isHidden }))
+    dispatch(setTokenVisibility({ currencyId: currencyId.toLowerCase(), isVisible: !isVisible }))
 
     if (tokenSymbolForNotification) {
       dispatch(
         pushNotification({
           type: AppNotificationType.AssetVisibility,
-          visible: !isHidden,
+          visible: isVisible,
           hideDelay: 2 * ONE_SECOND_MS,
           assetName: t('walletConnect.request.details.label.token'),
         }),
       )
     }
-  }, [currencyId, dispatch, isHidden, tokenSymbolForNotification, updateCache, portfolioBalance, t])
+  }, [updateCache, isVisible, portfolioBalance, currencyId, dispatch, tokenSymbolForNotification, t])
 
   const menuActions = useMemo(() => {
     const allMenuActions: MenuAction[] = [
@@ -157,7 +154,7 @@ export function useTokenContextMenu({
               systemIcon: 'square.and.arrow.up',
             },
           ]),
-      ...(isExtension
+      ...(isExtension && !isTestnetModeEnabled
         ? [
             {
               name: TokenMenuActionType.ViewDetails,
@@ -167,14 +164,14 @@ export function useTokenContextMenu({
             },
           ]
         : []),
-      ...(activeAccountHoldsToken
+      ...(activeAccountHoldsToken && !isTestnetModeEnabled
         ? [
             {
               name: TokenMenuActionType.ToggleVisibility,
-              title: isHidden ? t('tokens.action.unhide') : t('tokens.action.hide'),
-              destructive: !isHidden,
+              title: isVisible ? t('tokens.action.hide') : t('tokens.action.unhide'),
+              destructive: isVisible,
               onPress: onPressHiddenStatus,
-              ...(isWeb ? { Icon: isHidden ? Eye : EyeOff } : { systemIcon: isHidden ? 'eye' : 'eye.slash' }),
+              ...(isWeb ? { Icon: isVisible ? EyeOff : Eye } : { systemIcon: isVisible ? 'eye.slash' : 'eye' }),
             },
           ]
         : []),
@@ -182,17 +179,18 @@ export function useTokenContextMenu({
 
     return allMenuActions.filter((action) => !excludedActions?.includes(action.name))
   }, [
-    excludedActions,
-    isBlocked,
     t,
-    isHidden,
-    activeAccountHoldsToken,
-    navigateToReceive,
-    onPressSwap,
+    isBlocked,
     onPressSend,
+    navigateToReceive,
     onPressShare,
     onPressViewDetails,
+    activeAccountHoldsToken,
+    isVisible,
     onPressHiddenStatus,
+    onPressSwap,
+    excludedActions,
+    isTestnetModeEnabled,
   ])
 
   const onContextMenuPress = useCallback(

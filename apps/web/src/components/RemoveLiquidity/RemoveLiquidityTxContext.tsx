@@ -21,7 +21,7 @@ export type RemoveLiquidityTxInfo = {
   decreaseCalldataLoading: boolean
   approvalLoading: boolean
   txContext?: ValidatedDecreasePositionTxAndGasInfo
-  error?: boolean
+  error: boolean | string
   refetch?: () => void
 }
 
@@ -81,7 +81,8 @@ export function RemoveLiquidityTxContextProvider({ children }: PropsWithChildren
       txRequest,
       approveToken0Request: undefined,
       approveToken1Request: undefined,
-      revocationTxRequest: undefined,
+      revokeToken0Request: undefined,
+      revokeToken1Request: undefined,
       permit: undefined,
     }
   }, [

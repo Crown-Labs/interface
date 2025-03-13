@@ -14,8 +14,8 @@ import {
 } from 'uniswap/src/features/transactions/swap/types/steps'
 
 const LPIcon = (): JSX.Element => (
-  <Flex centered width="$spacing24" height="$spacing24" borderRadius="$roundedFull" backgroundColor="$DEP_blue400">
-    <Swap color="$neutral1" size="$icon.12" />
+  <Flex centered width="$spacing32" height="$spacing32" borderRadius="$roundedFull" backgroundColor="$kty_surface2">
+    <Swap color="$kty_neutral6" size="$icon.16" />
   </Flex>
 )
 

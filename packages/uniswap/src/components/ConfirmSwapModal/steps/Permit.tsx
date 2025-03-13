@@ -7,8 +7,8 @@ import { uniswapUrls } from 'uniswap/src/constants/urls'
 import { Permit2SignatureStep } from 'uniswap/src/features/transactions/swap/types/steps'
 
 const SignIcon = (): JSX.Element => (
-  <Flex centered width="$spacing24" height="$spacing24" borderRadius="$roundedFull" backgroundColor="$accent1">
-    <Sign size="$icon.12" />
+  <Flex centered width="$spacing32" height="$spacing32" borderRadius="$roundedFull" backgroundColor="$kty_surface2">
+    <Sign size="$icon.16" color="$kty_neutral6" />
   </Flex>
 )
 

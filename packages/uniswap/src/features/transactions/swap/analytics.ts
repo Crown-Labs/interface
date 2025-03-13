@@ -3,6 +3,7 @@ import { Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
 import { useEffect } from 'react'
 import { useAccountMeta } from 'uniswap/src/contexts/UniswapContext'
 import { Routing } from 'uniswap/src/data/tradingApi/__generated__'
+import { getChainLabel } from 'uniswap/src/features/chains/utils'
 import { usePortfolioTotalValue } from 'uniswap/src/features/dataApi/balances'
 import { LocalizationContextState, useLocalizationContext } from 'uniswap/src/features/language/LocalizationContext'
 import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
@@ -12,13 +13,13 @@ import { TransactionSettingsContextState } from 'uniswap/src/features/transactio
 import { DerivedSwapInfo } from 'uniswap/src/features/transactions/swap/types/derivedSwapInfo'
 import { Trade } from 'uniswap/src/features/transactions/swap/types/trade'
 import { SwapEventType, timestampTracker } from 'uniswap/src/features/transactions/swap/utils/SwapEventTimestampTracker'
+import { slippageToleranceToPercent } from 'uniswap/src/features/transactions/swap/utils/format'
 import { getSwapFeeUsd } from 'uniswap/src/features/transactions/swap/utils/getSwapFeeUsd'
 import { isClassic } from 'uniswap/src/features/transactions/swap/utils/routing'
 import { getClassicQuoteFromResponse } from 'uniswap/src/features/transactions/swap/utils/tradingApi'
 import { TransactionOriginType } from 'uniswap/src/features/transactions/types/transactionDetails'
 import { CurrencyField } from 'uniswap/src/types/currency'
 import { getCurrencyAddressForAnalytics } from 'uniswap/src/utils/currencyId'
-import { percentFromFloat } from 'utilities/src/format/percent'
 import { NumberType } from 'utilities/src/format/types'
 import { logger } from 'utilities/src/logger/logger'
 import { ITraceContext, useTrace } from 'utilities/src/telemetry/trace/TraceContext'
@@ -90,7 +91,7 @@ export function getBaseTradeAnalyticsProperties({
 
   const finalOutputAmount = feeCurrencyAmount ? trade.outputAmount.subtract(feeCurrencyAmount) : trade.outputAmount
 
-  const slippagePercent = percentFromFloat(trade.slippageTolerance ?? 0)
+  const slippagePercent = slippageToleranceToPercent(trade.slippageTolerance ?? 0)
 
   return {
     ...trace,
@@ -100,7 +101,7 @@ export function getBaseTradeAnalyticsProperties({
     token_out_symbol: trade.outputAmount.currency.symbol,
     token_in_address: getCurrencyAddressForAnalytics(trade.inputAmount.currency),
     token_out_address: getCurrencyAddressForAnalytics(trade.outputAmount.currency),
-    price_impact_basis_points: trade.priceImpact?.multiply(100).toSignificant(),
+    price_impact_basis_points: isClassic(trade) ? trade.priceImpact?.multiply(100).toSignificant() : undefined,
     chain_id:
       trade.inputAmount.currency.chainId === trade.outputAmount.currency.chainId
         ? trade.inputAmount.currency.chainId
@@ -177,13 +178,16 @@ export function getBaseTradeAnalyticsPropertiesFromSwapInfo({
   const finalOutputAmount =
     outputCurrencyAmount && feeCurrencyAmount ? outputCurrencyAmount.subtract(feeCurrencyAmount) : outputCurrencyAmount
 
+  const trade = derivedSwapInfo.trade.trade
+
   return {
     ...trace,
     token_in_symbol: inputCurrencyAmount?.currency.symbol,
     token_out_symbol: outputCurrencyAmount?.currency.symbol,
     token_in_address: inputCurrencyAmount ? getCurrencyAddressForAnalytics(inputCurrencyAmount?.currency) : '',
     token_out_address: outputCurrencyAmount ? getCurrencyAddressForAnalytics(outputCurrencyAmount?.currency) : '',
-    price_impact_basis_points: derivedSwapInfo.trade.trade?.priceImpact?.multiply(100)?.toSignificant(),
+    price_impact_basis_points:
+      trade && isClassic(trade) ? trade?.priceImpact?.multiply(100)?.toSignificant() : undefined,
     estimated_network_fee_usd: undefined,
     chain_id: chainId,
     token_in_amount: inputCurrencyAmount?.toExact() ?? '',
@@ -224,12 +228,13 @@ export function logSwapQuoteFetch({
   sendAnalyticsEvent(SwapEventName.SWAP_QUOTE_FETCH, { chainId, isQuickRoute, ...performanceMetrics })
   logger.info('analytics', 'logSwapQuoteFetch', SwapEventName.SWAP_QUOTE_FETCH, {
     chainId,
+    // we explicitly log it here to show on Datadog dashboard
+    chainLabel: getChainLabel(chainId),
     isQuickRoute,
     ...performanceMetrics,
   })
 }
 
-// eslint-disable-next-line consistent-return
 export function tradeRoutingToFillType({
   routing,
   indicative,
@@ -242,6 +247,8 @@ export function tradeRoutingToFillType({
   }
 
   switch (routing) {
+    case Routing.DUTCH_V3:
+      return 'uniswap_x_v3'
     case Routing.DUTCH_V2:
       return 'uniswap_x_v2'
     case Routing.DUTCH_LIMIT:
@@ -254,5 +261,7 @@ export function tradeRoutingToFillType({
       return 'classic'
     case Routing.BRIDGE:
       return 'bridge'
+    default:
+      return 'none'
   }
 }

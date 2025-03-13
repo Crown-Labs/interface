@@ -301,7 +301,7 @@ export function ClaimUnitagContent({
                   blurOnSubmit={!isExtension}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  borderWidth={0}
+                  borderWidth="$none"
                   borderRadius={isExtension ? 0 : undefined}
                   fontFamily="$heading"
                   fontSize={isExtension ? fonts.subheading1.fontSize : fontSize}
@@ -367,13 +367,13 @@ export function ClaimUnitagContent({
       </Flex>
       <Flex gap="$spacing24" justifyContent="flex-end">
         <DeprecatedButton
-          disabled={
+          isDisabled={
             (entryPoint === OnboardingScreens.Landing && !unitagAddress) ||
             !unitagInputValue ||
             isCheckingUnitag ||
             shouldBlockContinue
           }
-          size="medium"
+          size={entryPoint === OnboardingScreens.Landing ? 'large' : 'medium'}
           testID={TestID.Continue}
           theme="primary"
           onPress={onPressContinue}

@@ -50,7 +50,8 @@ interface BaseLiquidityTxAndGasInfo {
   approveToken1Request: ValidatedTransactionRequest | undefined
   approvePositionTokenRequest: ValidatedTransactionRequest | undefined
   permit: ValidatedPermit | undefined
-  revocationTxRequest: ValidatedTransactionRequest | undefined
+  revokeToken0Request: ValidatedTransactionRequest | undefined
+  revokeToken1Request: ValidatedTransactionRequest | undefined
   txRequest: ValidatedTransactionRequest | undefined
 }
 

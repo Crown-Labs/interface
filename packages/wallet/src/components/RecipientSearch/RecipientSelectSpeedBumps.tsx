@@ -71,7 +71,14 @@ export function RecipientSelectSpeedBumps({
   )
 
   const renderNewAddressWarning = useCallback<PaginatedModalRenderer>(
-    (props) => (recipientAddress ? <NewAddressWarningModal address={recipientAddress} {...props} /> : null),
+    (props) =>
+      recipientAddress ? (
+        <NewAddressWarningModal
+          address={recipientAddress}
+          onAcknowledge={props.onAcknowledge}
+          onClose={props.onClose}
+        />
+      ) : null,
     [recipientAddress],
   )
 
@@ -96,7 +103,7 @@ export function RecipientSelectSpeedBumps({
       <WarningModal
         isOpen
         caption={t('send.warning.erc20.message')}
-        rejectText={t('common.button.cancel')}
+        rejectText={t('common.button.goBack')}
         acknowledgeText={t('common.button.understand')}
         modalName={ModalName.RecipientSelectErc20Warning}
         severity={WarningSeverity.High}
@@ -112,10 +119,10 @@ export function RecipientSelectSpeedBumps({
       <WarningModal
         isOpen
         caption={t('send.warning.smartContract.message')}
-        rejectText={t('common.button.cancel')}
+        rejectText={t('common.button.goBack')}
         acknowledgeText={t('common.button.understand')}
         modalName={ModalName.RecipientSelectSmartContractWarning}
-        severity={WarningSeverity.None}
+        severity={WarningSeverity.Medium}
         title={t('send.warning.smartContract.title')}
         {...props}
       />

@@ -1,12 +1,23 @@
-We are back with some new updates! Here’s the latest:
+IPFS hash of the deployment:
+- CIDv0: `QmTwfweMceprzM3eyPD6GdtmZeuqbeotCsGndzkVDAW35s`
+- CIDv1: `bafybeictimufoh4lae7mcfsxhjm3scrbzevhdadhljwpgs7molln7n6kpi`
 
-Integrated Flashbots Protect: This is a private RPC provider that protects users from getting sandwiched on Mainnet.
+The latest release is always mirrored at [app.uniswap.org](https://app.uniswap.org).
 
-Max Balance Education: Introduces copy to educate users on why the Max button is disabled when they don't have enough of the network token to cover gas costs.
+You can also access the Uniswap Interface from an IPFS gateway.
+**BEWARE**: The Uniswap interface uses [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) to remember your settings, such as which tokens you have imported.
+**You should always use an IPFS gateway that enforces origin separation**, or our hosted deployment of the latest release at [app.uniswap.org](https://app.uniswap.org).
+Your Uniswap settings are never remembered across different URLs.
 
-Other changes:
+IPFS gateways:
+- https://bafybeictimufoh4lae7mcfsxhjm3scrbzevhdadhljwpgs7molln7n6kpi.ipfs.dweb.link/
+- [ipfs://QmTwfweMceprzM3eyPD6GdtmZeuqbeotCsGndzkVDAW35s/](ipfs://QmTwfweMceprzM3eyPD6GdtmZeuqbeotCsGndzkVDAW35s/)
 
-- Improved readability and color extraction of NFT Detail pages
-- Improved fee detection of fee-on-transfer tokens
-- More concise context menu on token detail pages
-- Various bug fixes and performance improvements
+### 5.72.2 (2025-02-19)
+
+
+### Bug Fixes
+
+* **web:** hotfix monad down banner (#16467) 825783e
+
+

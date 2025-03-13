@@ -1,17 +1,15 @@
 import { CSSProperties } from 'react'
-import { useSporeColors } from 'ui/src/hooks/useSporeColors'
 
 export function useScrollbarStyles(): CSSProperties {
-  const colors = useSporeColors()
   return {
     '&::WebkitScrollbar': {
       backgroundColor: 'transparent',
     },
     '&::WebkitScrollbarThumb': {
-      backgroundColor: colors.surface3.val,
+      backgroundColor: '#CDAAFE',
       borderRadius: '8px',
     },
     scrollbarWidth: 'thin',
-    scrollbarColor: `${colors.surface3.val} transparent`,
+    scrollbarColor: `#CDAAFE transparent`,
   } as CSSProperties
 }

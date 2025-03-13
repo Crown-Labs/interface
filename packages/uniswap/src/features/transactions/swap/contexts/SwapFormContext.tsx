@@ -12,8 +12,6 @@ import { TransactionType } from 'uniswap/src/features/transactions/types/transac
 import { CurrencyField } from 'uniswap/src/types/currency'
 import { currencyId } from 'uniswap/src/utils/currencyId'
 import { logContextUpdate } from 'utilities/src/logger/contextEnhancer'
-import { logger } from 'utilities/src/logger/logger'
-import { parseFloatWithThrow } from 'utilities/src/primitives/string'
 import { usePrevious } from 'utilities/src/react/hooks'
 import { useValueAsRef } from 'utilities/src/react/useValueAsRef'
 import { useDebounceWithStatus } from 'utilities/src/time/timing'
@@ -29,6 +27,7 @@ export type SwapFormState = {
   input?: TradeableAsset
   output?: TradeableAsset
   selectingCurrencyField?: CurrencyField
+  isSelectingCurrencyFieldPrefilled?: boolean
   txId?: string
   isFiatMode: boolean
   isMax: boolean
@@ -36,6 +35,7 @@ export type SwapFormState = {
   hideFooter?: boolean
   hideSettings?: boolean
   prefilledCurrencies?: TradeableAsset[]
+  isPrefilled?: boolean
 }
 
 type DerivedSwapFormState = {
@@ -115,10 +115,12 @@ export function SwapFormContextProvider({
         return {
           ...oldVal,
           selectingCurrencyField: prefilledState?.selectingCurrencyField,
+          filteredChainIds: prefilledState.filteredChainIds,
+          isSelectingCurrencyFieldPrefilled: true,
         }
       })
     }
-  }, [prefilledState?.selectingCurrencyField])
+  }, [prefilledState?.selectingCurrencyField, prefilledState?.filteredChainIds])
 
   const [debouncedExactAmountToken, isDebouncingExactAmountToken] = useDebounceWithStatus(
     swapForm.exactAmountToken,
@@ -173,27 +175,14 @@ export function SwapFormContextProvider({
         const updatedState = { ...prevState, ...newState }
 
         if (isAmountUpdated) {
-          try {
-            const isMaxTokenAmount =
-              maxInputAmountAsRef.current &&
-              updatedState.exactAmountToken &&
-              parseFloatWithThrow(maxInputAmountAsRef.current) <= parseFloatWithThrow(updatedState.exactAmountToken)
+          const isMaxTokenAmount =
+            maxInputAmountAsRef.current &&
+            updatedState.exactAmountToken &&
+            parseFloat(maxInputAmountAsRef.current) <= parseFloat(updatedState.exactAmountToken)
 
-            // if max value is explicitly set, use that
-            // otherwise, check the token amount again the maxInputAmount
-            updatedState.isMax = newState.isMax ?? !!isMaxTokenAmount
-          } catch (error) {
-            logger.error(error, {
-              tags: {
-                file: 'SwapFormContext.tsx',
-                function: 'updateSwapForm',
-              },
-              extra: {
-                maxInputAmount: maxInputAmountAsRef.current,
-                exactAmountToken: updatedState.exactAmountToken,
-              },
-            })
-          }
+          // if max value is explicitly set, use that
+          // otherwise, check the token amount again the maxInputAmount
+          updatedState.isMax = newState.isMax ?? !!isMaxTokenAmount
         }
 
         logContextUpdate('SwapFormContext', updatedState, datadogEnabled)
@@ -230,8 +219,10 @@ export function SwapFormContextProvider({
       prefilledCurrencies: [prefilledState?.input, prefilledState?.output].filter((asset): asset is TradeableAsset =>
         Boolean(asset),
       ),
+      isSelectingCurrencyFieldPrefilled: swapForm.isSelectingCurrencyFieldPrefilled,
     }),
     [
+      derivedSwapInfo,
       swapForm.exactAmountFiat,
       swapForm.exactAmountToken,
       swapForm.exactCurrencyField,
@@ -244,11 +235,12 @@ export function SwapFormContextProvider({
       swapForm.output,
       swapForm.selectingCurrencyField,
       swapForm.txId,
-      derivedSwapInfo,
-      hideSettings,
+      swapForm.isSelectingCurrencyFieldPrefilled,
       hideFooter,
+      hideSettings,
       updateSwapForm,
-      prefilledState,
+      prefilledState?.input,
+      prefilledState?.output,
     ],
   )
 

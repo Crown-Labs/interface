@@ -60,6 +60,9 @@ exports[`BreadcrumbNav does not display address hover for native tokens 1`] = `
           </h1>
            
         </div>
+        <div
+          style="display: contents;"
+        />
       </span>
     </span>
   </span>
@@ -143,10 +146,15 @@ exports[`BreadcrumbNav renders hover components correctly 1`] = `
             <div
               class="c5"
             >
-              0x2260...C599
+              <div>
+                0x2260...C599
+              </div>
             </div>
           </div>
         </div>
+        <div
+          style="display: contents;"
+        />
       </span>
     </span>
   </span>

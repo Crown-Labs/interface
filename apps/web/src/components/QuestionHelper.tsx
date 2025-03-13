@@ -35,7 +35,7 @@ export default function QuestionHelper({
     <Flex ml="$spacing4" alignItems="center">
       <MouseoverTooltip text={text} forceShow={show} placement={placement}>
         <InfoIconWrapper onPress={open} onMouseEnter={open} onMouseLeave={close}>
-          <InfoCircleFilled size={size} color="$neutral3" />
+          <InfoCircleFilled size={size} color="$kty_neutral2" />
         </InfoIconWrapper>
       </MouseoverTooltip>
     </Flex>

@@ -2,11 +2,10 @@ import { InterfacePageName } from '@uniswap/analytics-events'
 import { Currency } from '@uniswap/sdk-core'
 import { BreadcrumbNavContainer, BreadcrumbNavLink, CurrentPageBreadcrumb } from 'components/BreadcrumbNav'
 import { MobileBottomBar, TDPActionTabs } from 'components/NavBar/MobileBottomBar'
-import TokenSafetyMessage from 'components/TokenSafety/DeprecatedTokenSafetyMessage'
 import { ActivitySection } from 'components/Tokens/TokenDetails/ActivitySection'
 import BalanceSummary, { PageChainBalanceSummary } from 'components/Tokens/TokenDetails/BalanceSummary'
 import ChartSection from 'components/Tokens/TokenDetails/ChartSection'
-import { LeftPanel, RightPanel, TokenDetailsLayout, TokenInfoContainer } from 'components/Tokens/TokenDetails/Skeleton'
+import { LeftPanel, RightPanel, TokenDetailsLayout } from 'components/Tokens/TokenDetails/Skeleton'
 import StatsSection from 'components/Tokens/TokenDetails/StatsSection'
 import { TokenDescription } from 'components/Tokens/TokenDetails/TokenDescription'
 import { TokenDetailsHeader } from 'components/Tokens/TokenDetails/TokenDetailsHeader'
@@ -14,7 +13,6 @@ import { Hr } from 'components/Tokens/TokenDetails/shared'
 import { NATIVE_CHAIN_ID } from 'constants/tokens'
 import { getTokenDetailsURL } from 'graphql/data/util'
 import { useCurrency } from 'hooks/Tokens'
-import { useScreenSize } from 'hooks/screenSize/useScreenSize'
 import { ScrollDirection, useScroll } from 'hooks/useScroll'
 import deprecatedStyled from 'lib/styled-components'
 import { Swap } from 'pages/Swap'
@@ -24,13 +22,11 @@ import { ChevronRight } from 'react-feather'
 import { Trans } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { CurrencyState } from 'state/swap/types'
-import { Flex, useIsTouchDevice } from 'ui/src'
+import { Flex, useIsTouchDevice, useMedia } from 'ui/src'
 import { getNativeAddress } from 'uniswap/src/constants/addresses'
 import { useUrlContext } from 'uniswap/src/contexts/UrlContext'
 import { isUniverseChainId } from 'uniswap/src/features/chains/types'
 import { toGraphQLChain } from 'uniswap/src/features/chains/utils'
-import { FeatureFlags } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
 import Trace from 'uniswap/src/features/telemetry/Trace'
 import { TokenWarningCard } from 'uniswap/src/features/tokens/TokenWarningCard'
 import TokenWarningModal from 'uniswap/src/features/tokens/TokenWarningModal'
@@ -42,7 +38,7 @@ import { getInitialLogoUrl } from 'utils/getInitialLogoURL'
 const DividerLine = deprecatedStyled(Hr)`
   margin-top: 40px;
   margin-bottom: 40px;
-  @media screen and (max-width: ${({ theme }) => theme.breakpoint.sm}px) {
+  @media screen and (max-width: ${({ theme }) => theme.breakpoint.md}px) {
     opacity: 0;
     margin-bottom: 0;
   }
@@ -94,14 +90,13 @@ function useSwapInitialInputCurrency() {
 }
 
 function TDPSwapComponent() {
-  const { address, currency, currencyChainId, warning, tokenColor } = useTDPContext()
-  const tokenProtectionEnabled = useFeatureFlag(FeatureFlags.TokenProtection)
+  const { address, currency, currencyChainId, tokenColor } = useTDPContext()
   const navigate = useNavigate()
 
   const currencyInfo = useCurrencyInfo(currencyId(currency))
 
   const handleCurrencyChange = useCallback(
-    (tokens: CurrencyState) => {
+    (tokens: CurrencyState, isBridgePair?: boolean) => {
       const inputCurrencyURLAddress = getCurrencyURLAddress(tokens.inputCurrency)
       const outputCurrencyURLAddress = getCurrencyURLAddress(tokens.outputCurrency)
 
@@ -110,7 +105,7 @@ function TDPSwapComponent() {
       const outputEquivalent =
         addressesAreEquivalent(outputCurrencyURLAddress, address) && tokens.outputCurrency?.chainId === currencyChainId
 
-      if (inputEquivalent || outputEquivalent) {
+      if (inputEquivalent || outputEquivalent || isBridgePair) {
         return
       }
 
@@ -156,22 +151,16 @@ function TDPSwapComponent() {
         tokenColor={tokenColor}
         compact
       />
-      {tokenProtectionEnabled ? (
-        <>
-          <TokenWarningCard currencyInfo={currencyInfo} onPress={() => setShowWarningModal(true)} />
-          {currencyInfo && (
-            // Intentionally duplicative with the TokenWarningModal in the swap component; this one only displays when user clicks "i" Info button on the TokenWarningCard
-            <TokenWarningModal
-              currencyInfo0={currencyInfo}
-              isInfoOnlyWarning
-              isVisible={showWarningModal}
-              closeModalOnly={closeWarningModal}
-              onAcknowledge={closeWarningModal}
-            />
-          )}
-        </>
-      ) : (
-        warning && <TokenSafetyMessage tokenAddress={address} warning={warning} />
+      <TokenWarningCard currencyInfo={currencyInfo} onPress={() => setShowWarningModal(true)} />
+      {currencyInfo && (
+        // Intentionally duplicative with the TokenWarningModal in the swap component; this one only displays when user clicks "i" Info button on the TokenWarningCard
+        <TokenWarningModal
+          currencyInfo0={currencyInfo}
+          isInfoOnlyWarning
+          isVisible={showWarningModal}
+          closeModalOnly={closeWarningModal}
+          onAcknowledge={closeWarningModal}
+        />
       )}
     </Flex>
   )
@@ -199,7 +188,8 @@ export default function TokenDetails() {
   const { address, currency, tokenQuery, currencyChain, multiChainMap } = useTDPContext()
   const tokenQueryData = tokenQuery.data?.token
   const pageChainBalance = multiChainMap[currencyChain]?.balance
-  const { lg: showRightPanel } = useScreenSize()
+  const media = useMedia()
+  const showRightPanel = !media.xl
   const { direction: scrollDirection } = useScroll()
   const isTouchDevice = useIsTouchDevice()
 
@@ -208,9 +198,7 @@ export default function TokenDetails() {
       <TokenDetailsLayout>
         <LeftPanel>
           <TDPBreadcrumb />
-          <TokenInfoContainer data-testid="token-info-container">
-            <TokenDetailsHeader />
-          </TokenInfoContainer>
+          <TokenDetailsHeader />
           <ChartSection />
           {!showRightPanel && !!pageChainBalance && (
             <Flex mt="$spacing40">

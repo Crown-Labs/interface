@@ -21,7 +21,9 @@ import { PositionField } from 'types/position'
 import { DeprecatedButton, Flex, Text } from 'ui/src'
 import { nativeOnChain } from 'uniswap/src/constants/tokens'
 import Trace from 'uniswap/src/features/telemetry/Trace'
+import { useCurrencyInfo } from 'uniswap/src/features/tokens/useCurrencyInfo'
 import { useUSDCValue } from 'uniswap/src/features/transactions/swap/hooks/useUSDCPrice'
+import { currencyId } from 'uniswap/src/utils/currencyId'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 
 export default function PoolFinder() {
@@ -66,6 +68,9 @@ export default function PoolFinder() {
   const token0UsdValue = useUSDCValue(token0Deposited)
   const token1UsdValue = useUSDCValue(token1Deposited)
 
+  const currency0CurrencyInfo = useCurrencyInfo(currency0 ? currencyId(currency0) : undefined)
+  const currency1CurrencyInfo = useCurrencyInfo(currency1 ? currencyId(currency1) : undefined)
+
   const networkSupportsV2 = useNetworkSupportsV2()
   if (!networkSupportsV2) {
     return <V2Unsupported />
@@ -82,18 +87,18 @@ export default function PoolFinder() {
 
         <Text variant="heading2">{t('pool.import.positions.v2')}</Text>
 
-        <Flex mt="$spacing40" borderRadius="$rounded20" borderColor="$surface3" borderWidth={1} p="$spacing24">
+        <Flex mt="$spacing40" borderRadius="$rounded20" borderColor="$surface3" borderWidth="$spacing1" p="$spacing24">
           <Text variant="subheading1">{t('pool.selectPair')}</Text>
           <Text variant="body3" mt="$gap4">
             {t('pool.import.positions.v2.selectPair.description')}
           </Text>
           <Flex row gap="$gap16" $md={{ flexDirection: 'column' }} mt="$spacing12">
             <CurrencySelector
-              currency={currency0 ?? undefined}
+              currencyInfo={currency0CurrencyInfo}
               onPress={() => setCurrencySearchInputState(PositionField.TOKEN0)}
             />
             <CurrencySelector
-              currency={currency1 ?? undefined}
+              currencyInfo={currency1CurrencyInfo}
               onPress={() => setCurrencySearchInputState(PositionField.TOKEN1)}
             />
           </Flex>
@@ -157,7 +162,7 @@ export default function PoolFinder() {
             <DeprecatedButton
               theme="secondary"
               mt="$gap32"
-              disabled={!hasPosition || success}
+              isDisabled={!hasPosition || success}
               onPress={() => {
                 if (hasPosition && pair) {
                   addPair(pair)

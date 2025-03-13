@@ -7,6 +7,12 @@
  * * mocks can be overridden
  */
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: jest.fn().mockImplementation(() => ({})),
+  useSafeAreaFrame: jest.fn().mockImplementation(() => ({})),
+  SafeAreaProvider: jest.fn(({ children }) => children),
+}))
+
 jest.mock('ui/src/assets', () => {
   const assets = {
     ...jest.requireActual('ui/src/assets'),
@@ -17,4 +23,11 @@ jest.mock('ui/src/assets', () => {
   })
 
   return assets
+})
+
+jest.mock('react-native-webview', () => {
+  const { View } = require('react-native')
+  return {
+    WebView: View,
+  }
 })

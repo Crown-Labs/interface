@@ -20,10 +20,12 @@ import {
   USDC_BASE,
   USDC_BSC,
   USDC_CELO,
+  USDC_KITTYCORN,
   USDC_MAINNET,
   USDC_OPTIMISM,
   USDC_POLYGON,
   USDC_SEPOLIA,
+  USDC_UNICHAIN,
   USDC_WORLD_CHAIN,
   USDC_ZKSYNC,
   USDC_ZORA,
@@ -31,6 +33,7 @@ import {
   USDT_ARBITRUM_ONE,
   USDT_AVALANCHE,
   USDT_BSC,
+  USDT_KITTYCORN,
   USDT_MONAD_TESTNET,
   USDT_OPTIMISM,
   USDT_POLYGON,
@@ -39,15 +42,18 @@ import {
   WBTC_OPTIMISM,
   WBTC_POLYGON,
   WETH_AVALANCHE,
+  // kittycorn tokens
+  WETH_KITTYCORN,
   WETH_POLYGON,
   WRAPPED_NATIVE_CURRENCY,
+  // ---
   isCelo,
   nativeOnChain,
 } from 'uniswap/src/constants/tokens'
-import { SafetyLevel } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
+import { ProtectionResult, SafetyLevel } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
 import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
-import { CurrencyInfo } from 'uniswap/src/features/dataApi/types'
+import { CurrencyInfo, TokenList } from 'uniswap/src/features/dataApi/types'
 import { buildCurrencyInfo } from 'uniswap/src/features/dataApi/utils'
 import { isSameAddress } from 'utilities/src/addresses'
 
@@ -132,16 +138,27 @@ export const COMMON_BASES: ChainCurrencyList = {
 
   [UniverseChainId.Sepolia]: [
     nativeOnChain(UniverseChainId.Sepolia),
+
+    WETH_KITTYCORN,
+    USDC_KITTYCORN,
+    USDT_KITTYCORN,
+
     WRAPPED_NATIVE_CURRENCY[UniverseChainId.Sepolia] as Token,
     USDC_SEPOLIA,
     UNI[UniverseChainId.Sepolia],
+  ].map(buildPartialCurrencyInfo),
+
+  [UniverseChainId.Unichain]: [
+    nativeOnChain(UniverseChainId.Unichain),
+    WRAPPED_NATIVE_CURRENCY[UniverseChainId.Unichain] as Token,
+    USDC_UNICHAIN,
   ].map(buildPartialCurrencyInfo),
 
   [UniverseChainId.UnichainSepolia]: [
     nativeOnChain(UniverseChainId.UnichainSepolia),
     WRAPPED_NATIVE_CURRENCY[UniverseChainId.UnichainSepolia] as Token,
     // TODO(WEB-5160): re-add usdc sepolia
-    // USDC_ASTROCHAIN_SEPOLIA,
+    // USDC_UNICHAIN_SEPOLIA,
   ].map(buildPartialCurrencyInfo),
 
   [UniverseChainId.WorldChain]: [
@@ -161,6 +178,16 @@ export const COMMON_BASES: ChainCurrencyList = {
     WRAPPED_NATIVE_CURRENCY[UniverseChainId.Zora] as Token,
     USDC_ZORA,
   ].map(buildPartialCurrencyInfo),
+}
+
+export function getCommonBase(chainId?: number, isNative?: boolean, address?: string): CurrencyInfo | undefined {
+  if (!address || !chainId) {
+    return undefined
+  }
+  return COMMON_BASES[chainId]?.find(
+    (base) =>
+      (base.currency.isNative && isNative) || (base.currency.isToken && isSameAddress(base.currency.address, address)),
+  )
 }
 
 function getNativeLogoURI(chainId: UniverseChainId = UniverseChainId.Mainnet): ImageSourcePropType {
@@ -196,6 +223,10 @@ export function buildPartialCurrencyInfo(commonBase: Currency): CurrencyInfo {
     currency: commonBase,
     logoUrl,
     safetyLevel: SafetyLevel.Verified,
+    safetyInfo: {
+      tokenList: TokenList.Default,
+      protectionResult: ProtectionResult.Benign,
+    },
     isSpam: false,
   } as CurrencyInfo)
 }

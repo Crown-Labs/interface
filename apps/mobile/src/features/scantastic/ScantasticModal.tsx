@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { useBiometricAppSettings, useBiometricPrompt } from 'src/features/biometrics/hooks'
+import { useBiometricAppSettings } from 'src/features/biometrics/useBiometricAppSettings'
+import { useBiometricPrompt } from 'src/features/biometricsSettings/hooks'
 import { closeAllModals } from 'src/features/modals/modalSlice'
 import { selectModalState } from 'src/features/modals/selectModalState'
 import { getEncryptedMnemonic } from 'src/features/scantastic/ScantasticEncryption'
@@ -317,7 +318,7 @@ export function ScantasticModal(): JSX.Element | null {
           <Flex
             borderColor="$surface3"
             borderRadius="$rounded20"
-            borderWidth={1}
+            borderWidth="$spacing1"
             gap="$spacing12"
             p="$spacing16"
             width="100%"

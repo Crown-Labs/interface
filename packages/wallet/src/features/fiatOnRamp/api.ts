@@ -4,12 +4,14 @@ import { FOR_API_HEADERS } from 'uniswap/src/features/fiatOnRamp/constants'
 import {
   FORTransactionDetails,
   FORTransactionResponse,
+  OffRampTransferDetailsRequest,
   OffRampTransferDetailsResponse,
 } from 'uniswap/src/features/fiatOnRamp/types'
-import { TransactionStatus, TransactionType } from 'uniswap/src/features/transactions/types/transactionDetails'
+import { TransactionStatus } from 'uniswap/src/features/transactions/types/transactionDetails'
 import { logger } from 'utilities/src/logger/logger'
 import { ONE_MINUTE_MS } from 'utilities/src/time/time'
 import { extractFORTransactionDetails } from 'wallet/src/features/transactions/history/conversion/extractFiatOnRampTransactionDetails'
+import { isOffRampTransaction } from 'wallet/src/features/transactions/utils'
 
 const FIAT_ONRAMP_STALE_TX_TIMEOUT = ONE_MINUTE_MS * 20
 const FIAT_ONRAMP_FORCE_FETCH_TX_TIMEOUT = ONE_MINUTE_MS * 5
@@ -22,7 +24,7 @@ export async function fetchFORTransaction(
   forceFetch: boolean,
   activeAccountAddress: Address | null,
 ): Promise<FORTransactionDetails | undefined> {
-  const isOffRamp = previousTransactionDetails.typeInfo.type === TransactionType.LocalOffRamp
+  const isOffRamp = isOffRampTransaction(previousTransactionDetails)
   const isRecent = dayjs(previousTransactionDetails.addedTime).isAfter(
     dayjs().subtract(FIAT_ONRAMP_FORCE_FETCH_TX_TIMEOUT, 'ms'),
   )
@@ -73,12 +75,28 @@ export async function fetchFORTransaction(
   return extractFORTransactionDetails(transaction, isOffRamp, activeAccountAddress)
 }
 
-export async function fetchOffRampTransferDetails(sessionId: string): Promise<OffRampTransferDetailsResponse> {
-  // TODO: support moonpay once backend is ready
-  const requestParams = {
-    meldDetails: {
-      sessionId,
-    },
+export async function fetchOffRampTransferDetails(
+  sessionId: string | null,
+  baseCurrencyCode: string | null,
+  baseCurrencyAmount: number | null,
+  depositWalletAddress: string | null,
+): Promise<OffRampTransferDetailsResponse> {
+  let requestParams: OffRampTransferDetailsRequest | undefined
+
+  if (baseCurrencyCode && baseCurrencyAmount && depositWalletAddress) {
+    requestParams = {
+      moonpayDetails: {
+        baseCurrencyCode,
+        baseCurrencyAmount,
+        depositWalletAddress,
+      },
+    }
+  } else if (sessionId) {
+    requestParams = {
+      meldDetails: {
+        sessionId,
+      },
+    }
   }
 
   const res = await fetch(`${uniswapUrls.forApiUrl}/OffRampTransferDetails`, {

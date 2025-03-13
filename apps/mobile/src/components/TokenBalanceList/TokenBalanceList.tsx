@@ -1,3 +1,4 @@
+import { NetworkStatus } from '@apollo/client'
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet'
 import { useFocusEffect } from '@react-navigation/core'
 import { ReactNavigationPerformanceView } from '@shopify/react-native-performance-navigation'
@@ -12,7 +13,7 @@ import { TAB_BAR_HEIGHT, TAB_VIEW_SCROLL_THROTTLE, TabProps } from 'src/componen
 import { Flex, Loader, useSporeColors } from 'ui/src'
 import { ShieldCheck } from 'ui/src/components/icons'
 import { AnimatedFlex } from 'ui/src/components/layout/AnimatedFlex'
-import { zIndices } from 'ui/src/theme'
+import { zIndexes } from 'ui/src/theme'
 import { BaseCard } from 'uniswap/src/components/BaseCard/BaseCard'
 import { InfoLinkModal } from 'uniswap/src/components/modals/InfoLinkModal'
 import { uniswapUrls } from 'uniswap/src/constants/urls'
@@ -21,6 +22,8 @@ import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
 import { useAppInsets } from 'uniswap/src/hooks/useAppInsets'
 import { CurrencyId } from 'uniswap/src/types/currency'
 import { MobileScreens } from 'uniswap/src/types/screens/mobile'
+import { DDRumManualTiming } from 'utilities/src/logger/datadogEvents'
+import { usePerformanceLogger } from 'utilities/src/logger/usePerformanceLogger'
 import { isAndroid } from 'utilities/src/platform'
 import { useValueAsRef } from 'utilities/src/react/useValueAsRef'
 import { InformationBanner } from 'wallet/src/components/banners/InformationBanner'
@@ -75,6 +78,8 @@ export const TokenBalanceListInner = forwardRef<FlatList<TokenBalanceListRow>, T
   ) {
     const colors = useSporeColors()
     const insets = useAppInsets()
+
+    usePerformanceLogger(DDRumManualTiming.RenderTokenBalanceList, [])
 
     const { rows, balancesById } = useTokenBalanceListContext()
 
@@ -145,7 +150,7 @@ export const TokenBalanceListInner = forwardRef<FlatList<TokenBalanceListRow>, T
     }, [])
 
     // add negative z index to prevent footer from covering hidden tokens row when minimized
-    const ListFooterComponentStyle = useMemo(() => ({ zIndex: zIndices.negative }), [])
+    const ListFooterComponentStyle = useMemo(() => ({ zIndex: zIndexes.negative }), [])
 
     const List = renderedInModal ? BottomSheetFlatList<TokenBalanceListRow> : Animated.FlatList<TokenBalanceListRow>
 
@@ -203,7 +208,7 @@ export const TokenBalanceListInner = forwardRef<FlatList<TokenBalanceListRow>, T
 const HeaderComponent = memo(function _HeaderComponent(): JSX.Element | null {
   const { t } = useTranslation()
   const { balancesById, networkStatus, refetch } = useTokenBalanceListContext()
-  const hasError = isError(networkStatus, !!balancesById)
+  const hasError = !!balancesById && networkStatus === NetworkStatus.error
 
   return hasError ? (
     <AnimatedFlex entering={FadeInDown} exiting={FadeOut} px="$spacing24" py="$spacing8">

@@ -6,7 +6,7 @@ import {
   Chain,
   PortfolioBalancesDocument,
 } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
-import { ALL_CHAIN_IDS } from 'uniswap/src/features/chains/types'
+import { ALL_CHAIN_IDS, UniverseChainId } from 'uniswap/src/features/chains/types'
 import { filterChainIdsByFeatureFlag, getEnabledChains } from 'uniswap/src/features/chains/utils'
 import {
   sortPortfolioBalances,
@@ -20,8 +20,8 @@ import {
   useTokenBalancesGroupedByVisibility,
 } from 'uniswap/src/features/dataApi/balances'
 import { PortfolioBalance } from 'uniswap/src/features/dataApi/types'
-import { FavoritesState, initialFavoritesState } from 'uniswap/src/features/favorites/slice'
 import { UserSettingsState, initialUserSettingsState } from 'uniswap/src/features/settings/slice'
+import { CurrencyIdToVisibility, VisibilityState, initialVisibilityState } from 'uniswap/src/features/visibility/slice'
 import {
   ARBITRUM_CURRENCY,
   BASE_CURRENCY,
@@ -70,10 +70,10 @@ describe(usePortfolioValueModifiers, () => {
     ...overrideSettings,
   })
 
-  const mockFavoritesState = (overrideTokensVisibility?: FavoritesState['tokensVisibility']): FavoritesState => ({
-    ...initialFavoritesState,
-    tokensVisibility: {
-      ...initialFavoritesState.tokensVisibility,
+  const mockVisibilityState = (overrideTokensVisibility?: CurrencyIdToVisibility): VisibilityState => ({
+    ...initialVisibilityState,
+    tokens: {
+      ...initialVisibilityState.tokens,
       ...overrideTokensVisibility,
     },
   })
@@ -150,7 +150,7 @@ describe(usePortfolioValueModifiers, () => {
   describe('token overrides', () => {
     it('does not include token overrides in the result if tokensVisibility does not contain addresses visibility settings', () => {
       const { result } = renderHook(() => usePortfolioValueModifiers(SAMPLE_SEED_ADDRESS_1), {
-        preloadedState: { favorites: mockFavoritesState() },
+        preloadedState: { visibility: mockVisibilityState() },
       })
 
       expect(result.current).toEqual([
@@ -170,7 +170,7 @@ describe(usePortfolioValueModifiers, () => {
             ...initialWalletState,
             accounts: { [SAMPLE_SEED_ADDRESS_1]: ACCOUNT, [SAMPLE_SEED_ADDRESS_2]: ACCOUNT2 },
           },
-          favorites: mockFavoritesState({
+          visibility: mockVisibilityState({
             [SAMPLE_CURRENCY_ID_1]: { isVisible: false },
             [SAMPLE_CURRENCY_ID_2]: { isVisible: true },
           }),
@@ -373,7 +373,7 @@ describe(usePortfolioTotalValue, () => {
     })
   })
 
-  it('retruns undefined when no balances for the specified address are found', async () => {
+  it('returns undefined when no balances for the specified address are found', async () => {
     const { resolvers } = queryResolvers({
       portfolios: () => [],
     })
@@ -667,7 +667,8 @@ describe(usePortfolioCacheUpdater, () => {
     const enabledChains = getEnabledChains({
       isTestnetModeEnabled: false,
       connectedWalletChainIds: ALL_CHAIN_IDS,
-      featureFlaggedChainIds: filterChainIdsByFeatureFlag({}),
+      // Doesn't include Unichain while feature flagged
+      featureFlaggedChainIds: filterChainIdsByFeatureFlag({ [UniverseChainId.Unichain]: false }),
     })
 
     cache.writeQuery({

@@ -1,6 +1,5 @@
 import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks'
-import { ButtonLight, ButtonPrimary } from 'components/Button/buttons'
 import { ConnectWalletButtonText } from 'components/NavBar/accountCTAsExperimentUtils'
 import Column from 'components/deprecated/Column'
 import { useAccount } from 'hooks/useAccount'
@@ -12,9 +11,10 @@ import { SendRecipientForm } from 'pages/Swap/Send/SendRecipientForm'
 import { SendReviewModal } from 'pages/Swap/Send/SendReviewModal'
 import { SmartContractSpeedBumpModal } from 'pages/Swap/Send/SmartContractSpeedBump'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Trans } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { SendContextProvider, useSendContext } from 'state/send/SendContext'
 import { CurrencyState } from 'state/swap/types'
+import { DeprecatedButton, Text } from 'ui/src'
 import Trace from 'uniswap/src/features/telemetry/Trace'
 import { InterfacePageNameLocal } from 'uniswap/src/features/telemetry/constants'
 import { useIsSmartContractAddress } from 'utils/transfer'
@@ -28,34 +28,35 @@ function useSendButtonState() {
   const { sendState, derivedSendInfo } = useSendContext()
   const { recipient } = sendState
   const { parsedTokenAmount, recipientData } = derivedSendInfo
+  const { t } = useTranslation()
 
   return useMemo(() => {
     if (recipient && !recipientData) {
       return {
-        label: <Trans i18nKey="common.invalidRecipient.error" />,
+        label: t('common.invalidRecipient.error'),
         disabled: true,
       }
     }
 
     if (!parsedTokenAmount) {
       return {
-        label: <Trans i18nKey="common.amountInput.placeholder" />,
+        label: t('common.noAmount.error'),
         disabled: true,
       }
     }
 
     if (!recipient && !recipientData) {
       return {
-        label: <Trans i18nKey="common.input.noRecipient.error" />,
+        label: t('common.input.noRecipient.error'),
         disabled: true,
       }
     }
 
     return {
-      label: <Trans i18nKey="common.send.button" />,
+      label: t('common.send.button'),
       disabled: false,
     }
-  }, [parsedTokenAmount, recipient, recipientData])
+  }, [t, parsedTokenAmount, recipient, recipientData])
 }
 
 enum SendFormModalState {
@@ -179,6 +180,8 @@ function SendFormInner({ disableTokenInputs = false, onCurrencyChange }: SendFor
       .catch(() => undefined)
   }, [handleModalState, sendCallback, setSendState])
 
+  const buttonDisabled = !!inputError || loadingSmartContractAddress || transfersLoading || sendButtonState.disabled
+
   return (
     <>
       <Column gap="xs">
@@ -190,35 +193,61 @@ function SendFormInner({ disableTokenInputs = false, onCurrencyChange }: SendFor
             eventOnTrigger={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
             element={InterfaceElementName.CONNECT_WALLET_BUTTON}
           >
-            <ButtonLight onClick={accountDrawer.open} fontWeight={535} $borderRadius="16px">
-              <ConnectWalletButtonText />
-            </ButtonLight>
+            <DeprecatedButton
+              animation="fast"
+              size="large"
+              borderRadius="$rounded16"
+              width="100%"
+              pressStyle={{ scale: 0.98 }}
+              opacity={1}
+              onPress={accountDrawer.open}
+              backgroundColor="$accent2"
+              hoverStyle={{
+                backgroundColor: '$accent2Hovered',
+              }}
+            >
+              <Text variant="buttonLabel1" color="$accent1">
+                <ConnectWalletButtonText />
+              </Text>
+            </DeprecatedButton>
           </Trace>
         ) : (
           <Trace logPress element={InterfaceElementName.SEND_BUTTON}>
-            <ButtonPrimary
-              fontWeight={535}
-              disabled={!!inputError || loadingSmartContractAddress || transfersLoading || sendButtonState.disabled}
-              onClick={() => handleSendButton()}
+            <DeprecatedButton
+              animation="fast"
+              size="large"
+              borderRadius="$rounded16"
+              width="100%"
+              pressStyle={{ scale: 0.98 }}
+              isDisabled={buttonDisabled}
+              opacity={1}
+              onPress={() => handleSendButton()}
+              backgroundColor={buttonDisabled ? '$surface2' : '$accent1'}
             >
-              {sendButtonState.label}
-            </ButtonPrimary>
+              <Text variant="buttonLabel1" color={buttonDisabled ? '$neutral2' : '$white'}>
+                {sendButtonState.label}
+              </Text>
+            </DeprecatedButton>
           </Trace>
         )}
       </Column>
-      {sendFormModalState === SendFormModalState.REVIEW ? (
-        <SendReviewModal onConfirm={handleSend} onDismiss={() => handleModalState(SendFormModalState.None)} />
-      ) : sendFormModalState === SendFormModalState.SMART_CONTRACT_SPEED_BUMP ? (
-        <SmartContractSpeedBumpModal
-          onCancel={handleCancelSmartContractSpeedBump}
-          onConfirm={handleConfirmSmartContractSpeedBump}
+      {sendFormModalState === SendFormModalState.REVIEW && (
+        <SendReviewModal
+          isOpen={true}
+          onConfirm={handleSend}
+          onDismiss={() => handleModalState(SendFormModalState.None)}
         />
-      ) : sendFormModalState === SendFormModalState.NEW_ADDRESS_SPEED_BUMP ? (
-        <NewAddressSpeedBumpModal
-          onCancel={handleCancelNewAddressSpeedBump}
-          onConfirm={handleConfirmNewAddressSpeedBump}
-        />
-      ) : null}
+      )}
+      <SmartContractSpeedBumpModal
+        isOpen={sendFormModalState === SendFormModalState.SMART_CONTRACT_SPEED_BUMP}
+        onConfirm={handleConfirmSmartContractSpeedBump}
+        onDismiss={handleCancelSmartContractSpeedBump}
+      />
+      <NewAddressSpeedBumpModal
+        isOpen={sendFormModalState === SendFormModalState.NEW_ADDRESS_SPEED_BUMP}
+        onConfirm={handleConfirmNewAddressSpeedBump}
+        onDismiss={handleCancelNewAddressSpeedBump}
+      />
     </>
   )
 }

@@ -6,15 +6,9 @@ import { CurrencyId } from 'uniswap/src/types/currency'
 import { currencyId as idFromCurrency } from 'uniswap/src/utils/currencyId'
 import { logger } from 'utilities/src/logger/logger'
 
-export type Visibility = { isVisible: boolean }
-export type CurrencyIdToVisibility = Record<CurrencyId, Visibility>
-export type NFTKeyToVisibility = Record<string, Visibility>
-
 export interface FavoritesState {
   tokens: CurrencyId[]
   watchedAddresses: Address[]
-  tokensVisibility: CurrencyIdToVisibility
-  nftsVisibility: NFTKeyToVisibility
 }
 
 // Default currency ids, need to be in lowercase to match slice add and remove behavior
@@ -24,8 +18,6 @@ const ETH_CURRENCY_ID = idFromCurrency(Ether.onChain(UniverseChainId.Mainnet)).t
 export const initialFavoritesState: FavoritesState = {
   tokens: [ETH_CURRENCY_ID, WBTC_CURRENCY_ID],
   watchedAddresses: [],
-  tokensVisibility: {},
-  nftsVisibility: {},
 }
 
 export const slice = createSlice({
@@ -78,27 +70,6 @@ export const slice = createSlice({
     setFavoriteWallets: (state, { payload: { addresses } }: PayloadAction<{ addresses: Address[] }>) => {
       state.watchedAddresses = addresses
     },
-    toggleTokenVisibility: (
-      state,
-      { payload: { currencyId, isSpam } }: PayloadAction<{ currencyId: string; isSpam?: boolean }>,
-    ) => {
-      const isVisible = state.tokensVisibility[currencyId]?.isVisible ?? isSpam === false
-      state.tokensVisibility[currencyId] = { isVisible: !isVisible }
-    },
-    toggleNftVisibility: (
-      state,
-      { payload: { nftKey, isSpam } }: PayloadAction<{ nftKey: string; isSpam?: boolean }>,
-    ) => {
-      if (state.nftsVisibility[nftKey] === undefined && isSpam) {
-        state.nftsVisibility[nftKey] = { isVisible: false }
-      } else {
-        const currentVisibility = state.nftsVisibility[nftKey]?.isVisible ?? true
-        state.nftsVisibility[nftKey] = {
-          ...state.nftsVisibility[nftKey],
-          isVisible: !currentVisibility,
-        }
-      }
-    },
   },
 })
 
@@ -108,8 +79,6 @@ export const {
   setFavoriteTokens,
   addWatchedAddress,
   removeWatchedAddress,
-  toggleNftVisibility,
-  toggleTokenVisibility,
   setFavoriteWallets,
 } = slice.actions
 export const { reducer: favoritesReducer } = slice

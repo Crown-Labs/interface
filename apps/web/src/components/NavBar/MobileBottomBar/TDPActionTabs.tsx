@@ -2,14 +2,13 @@ import { CreditCardIcon } from 'components/Icons/CreditCard'
 import { Sell } from 'components/Icons/Sell'
 import { Send } from 'components/Icons/Send'
 import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { useScreenSize } from 'hooks/screenSize/useScreenSize'
 import { useAccount } from 'hooks/useAccount'
 import { useSwitchChain } from 'hooks/useSwitchChain'
 import { useTDPContext } from 'pages/TokenDetails/TDPContext'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { DeprecatedButton, Flex, styled, Text } from 'ui/src'
+import { DeprecatedButton, Flex, styled, Text, useMedia } from 'ui/src'
 import { getContrastPassingTextColor } from 'uniswap/src/utils/colors'
 
 const TDPActionPill = styled(DeprecatedButton, {
@@ -39,7 +38,8 @@ export function TDPActionTabs() {
   const chainUrlParam = currencyChain.toLowerCase()
   const addressUrlParam = address === NATIVE_CHAIN_ID ? 'ETH' : address
   const textColor = tokenColor && getContrastPassingTextColor(tokenColor)
-  const { xs } = useScreenSize()
+  const media = useMedia()
+  const showIcons = !media.xs
 
   const toActionLink = useCallback(
     async (href: string) => {
@@ -79,12 +79,14 @@ export function TDPActionTabs() {
           pressStyle={{ backgroundColor: tokenColor }}
           color={textColor}
         >
-          <Text color={textColor}>
-            <Flex row gap="$spacing8" alignItems="center">
-              {xs && tab.icon}
-              {tab.label}
-            </Flex>
-          </Text>
+          <Flex row gap="$spacing8" alignItems="center">
+            {showIcons && (
+              <Text color={textColor} display="flex">
+                {tab.icon}
+              </Text>
+            )}
+            <Text color={textColor}>{tab.label}</Text>
+          </Flex>
         </TDPActionPill>
       ))}
     </Flex>

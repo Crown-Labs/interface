@@ -13,6 +13,7 @@ export type ChainIdToTxIdToDetails = Partial<Record<UniverseChainId, { [txId: st
 // Basic identifying info for a transaction
 export interface TransactionId {
   chainId: UniverseChainId
+  // For FOR transactions, this is the externalSessionId
   id: string
 }
 
@@ -71,7 +72,7 @@ export type GasFeeEstimates = {
 }
 
 export interface UniswapXOrderDetails extends BaseTransactionDetails {
-  routing: Routing.DUTCH_V2 | Routing.DUTCH_LIMIT | Routing.PRIORITY
+  routing: Routing.DUTCH_V3 | Routing.DUTCH_V2 | Routing.DUTCH_LIMIT | Routing.PRIORITY
 
   // Note: `orderHash` is an off-chain value used to track orders before they're filled on-chain.
   // UniswapX orders will also have a transaction `hash` if they become filled.
@@ -320,6 +321,7 @@ export interface LocalOffRampTransactionInfo extends BaseTransactionInfo {
 export interface OnRampTransactionInfo extends BaseTransactionInfo {
   type: TransactionType
   id: string
+  providerTransactionId?: string // surfaced to the user in the transaction details modal if they need to contact support
   destinationTokenSymbol: string
   destinationTokenAddress: string
   destinationTokenAmount?: number
@@ -386,7 +388,7 @@ export interface WCConfirmInfo extends BaseTransactionInfo {
 
 export interface DappInfoTransactionDetails {
   name?: string
-  address: string
+  address?: string
   icon?: string
 }
 

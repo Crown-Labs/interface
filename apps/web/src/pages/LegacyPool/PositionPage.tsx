@@ -3,7 +3,15 @@ import type { TransactionResponse } from '@ethersproject/providers'
 import { InterfacePageName, LiquidityEventName } from '@uniswap/analytics-events'
 // eslint-disable-next-line no-restricted-imports
 import { ProtocolVersion } from '@uniswap/client-pools/dist/pools/v1/types_pb'
-import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@uniswap/sdk-core'
+import {
+  Currency,
+  CurrencyAmount,
+  Fraction,
+  NONFUNGIBLE_POSITION_MANAGER_ADDRESSES,
+  Percent,
+  Price,
+  Token,
+} from '@uniswap/sdk-core'
 import { FeeAmount, NonfungiblePositionManager, Pool, Position, TICK_SPACINGS } from '@uniswap/v3-sdk'
 import Badge from 'components/Badge/Badge'
 import RangeBadge from 'components/Badge/RangeBadge'
@@ -31,7 +39,6 @@ import { PoolState, usePool } from 'hooks/usePools'
 import { usePositionTokenURI } from 'hooks/usePositionTokenURI'
 import { useV3PositionFees } from 'hooks/useV3PositionFees'
 import { useV3PositionFromTokenId } from 'hooks/useV3Positions'
-import { useSingleCallResult } from 'lib/hooks/multicall'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import styled, { useTheme } from 'lib/styled-components'
 import { LoadingRows } from 'pages/LegacyPool/styled'
@@ -59,6 +66,9 @@ import { currencyId } from 'utils/currencyId'
 import { WrongChainError } from 'utils/errors'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { unwrappedToken } from 'utils/unwrappedToken'
+import { assume0xAddress } from 'utils/wagmi'
+import { erc721Abi } from 'viem'
+import { useReadContract } from 'wagmi'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
@@ -74,12 +84,12 @@ const PageWrapper = styled.div`
   min-width: 800px;
   max-width: 960px;
 
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
     min-width: 100%;
     padding: 16px;
   }
 
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     min-width: 100%;
     padding: 16px;
   }
@@ -123,7 +133,7 @@ const DoubleArrow = styled.span`
   margin: 0 1rem;
 `
 const ResponsiveRow = styled(RowBetween)`
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     flex-direction: column;
     align-items: flex-start;
     row-gap: 16px;
@@ -135,7 +145,7 @@ const ActionButtonResponsiveRow = styled(ResponsiveRow)`
   width: 50%;
   justify-content: flex-end;
 
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     width: 100%;
     flex-direction: row;
     * {
@@ -150,11 +160,11 @@ const ResponsiveButtonConfirmed = styled(ButtonConfirmed)`
   width: fit-content;
   font-size: 16px;
 
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
     width: fit-content;
   }
 
-  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     width: fit-content;
   }
 `
@@ -427,23 +437,25 @@ function PositionPageContent() {
   const { price: price0 } = useUSDCPrice(token0 ?? undefined)
   const { price: price1 } = useUSDCPrice(token1 ?? undefined)
 
-  const fiatValueOfFees: CurrencyAmount<Currency> | null = useMemo(() => {
-    if (!price0 || !price1 || !feeValue0 || !feeValue1) {
+  const feeValue0Usd = useMemo(() => {
+    if (!price0 || !feeValue0) {
       return null
     }
-
     // we wrap because it doesn't matter, the quote returns a USDC amount
-    const feeValue0Wrapped = feeValue0?.wrapped
-    const feeValue1Wrapped = feeValue1?.wrapped
+    const feeValue0Wrapped = feeValue0.wrapped
+    return price0.quote(feeValue0Wrapped)
+  }, [price0, feeValue0])
 
-    if (!feeValue0Wrapped || !feeValue1Wrapped) {
+  const feeValue1Usd = useMemo(() => {
+    if (!price1 || !feeValue1) {
       return null
     }
+    // we wrap because it doesn't matter, the quote returns a USDC amount
+    const feeValue1Wrapped = feeValue1.wrapped
+    return price1.quote(feeValue1Wrapped)
+  }, [price1, feeValue1])
 
-    const amount0 = price0.quote(feeValue0Wrapped)
-    const amount1 = price1.quote(feeValue1Wrapped)
-    return amount0.add(amount1)
-  }, [price0, price1, feeValue0, feeValue1])
+  const fiatValueOfTotalFees = feeValue0Usd && feeValue1Usd ? feeValue0Usd.add(feeValue1Usd) : null
 
   const fiatValueOfLiquidity: CurrencyAmount<Currency> | null = useMemo(() => {
     if (!price0 || !price1 || !position) {
@@ -511,9 +523,8 @@ function PositionPageContent() {
               currency1: currency1ForFeeCollectionPurposes,
               version: ProtocolVersion.V3,
               poolId: poolAddress,
-              chainId: account.chainId,
-              currency0AmountUsd: feeValue0 ?? CurrencyAmount.fromRawAmount(currency0ForFeeCollectionPurposes, 0),
-              currency1AmountUsd: feeValue1 ?? CurrencyAmount.fromRawAmount(currency1ForFeeCollectionPurposes, 0),
+              currency0AmountUsd: feeValue0Usd,
+              currency1AmountUsd: feeValue1Usd,
             }),
           })
 
@@ -553,10 +564,19 @@ function PositionPageContent() {
     trace,
     feeAmount,
     poolAddress,
+    feeValue0Usd,
+    feeValue1Usd,
     addTransaction,
   ])
 
-  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  const { data: owner } = useReadContract({
+    address: assume0xAddress(NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[account.chainId ?? UniverseChainId.Mainnet]),
+    abi: erc721Abi,
+    functionName: 'ownerOf',
+    args: tokenId ? [tokenId.toBigInt()] : undefined,
+    query: { enabled: !!tokenId },
+  })
+
   const ownsNFT = owner === account.address || positionDetails?.operator === account.address
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1
@@ -821,9 +841,9 @@ function PositionPageContent() {
                           <Label>
                             <Trans i18nKey="pool.uncollectedFees" />
                           </Label>
-                          {fiatValueOfFees?.greaterThan(new Fraction(1, 100)) ? (
+                          {fiatValueOfTotalFees?.greaterThan(new Fraction(1, 100)) ? (
                             <ThemedText.DeprecatedLargeHeader color={theme.success} fontSize="36px" fontWeight={535}>
-                              {formatCurrencyAmount({ amount: fiatValueOfFees, type: NumberType.FiatTokenPrice })}
+                              {formatCurrencyAmount({ amount: fiatValueOfTotalFees, type: NumberType.FiatTokenPrice })}
                             </ThemedText.DeprecatedLargeHeader>
                           ) : (
                             <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>

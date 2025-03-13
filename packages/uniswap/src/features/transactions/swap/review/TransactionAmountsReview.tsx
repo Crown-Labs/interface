@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { DeprecatedButton, Flex, Loader, Text, isWeb, useSporeColors } from 'ui/src'
+import { Flex, isWeb, Loader, ModalCloseIcon, Text, useMedia, useSporeColors } from 'ui/src'
 import { ArrowDown } from 'ui/src/components/icons/ArrowDown'
-import { X } from 'ui/src/components/icons/X'
 import { iconSizes, validColor } from 'ui/src/theme'
 import { CurrencyLogo } from 'uniswap/src/components/CurrencyLogo/CurrencyLogo'
 import { NetworkLogo } from 'uniswap/src/components/CurrencyLogo/NetworkLogo'
@@ -96,23 +95,16 @@ export function TransactionAmountsReview({
   }
 
   return (
-    <Flex $short={{ gap: '$spacing8' }} gap="$spacing16" ml="$spacing12" mr="$spacing12">
+    <Flex $short={{ gap: '$spacing8' }} gap="$spacing16">
       <Flex row alignItems="center">
         <Flex fill>
-          <Text color="$neutral2" variant="body2">
+          <Text color="$kty_neutral5" variant="body1" fontWeight={500}>
             {t('swap.review.summary')}
           </Text>
         </Flex>
         {isWeb && (
           <Flex row centered gap="$spacing12">
-            <DeprecatedButton
-              backgroundColor="$transparent"
-              color="$neutral2"
-              icon={<X size="$icon.20" />}
-              p="$none"
-              theme="secondary"
-              onPress={onClose}
-            />
+            <ModalCloseIcon size="$icon.20" onClose={onClose} />
           </Flex>
         )}
       </Flex>
@@ -130,7 +122,7 @@ export function TransactionAmountsReview({
         />
       )}
 
-      <ArrowDown color={colors.neutral3.get()} size={20} />
+      <ArrowDown color={colors.kty_neutral2.get()} size={20} />
 
       {!currencyOutInfo ? (
         <CurrencyValueWithIconSkeleton />
@@ -149,7 +141,7 @@ export function TransactionAmountsReview({
 }
 
 function CurrencyValueWithIconSkeleton(): JSX.Element {
-  return <Loader.Box height={60} />
+  return <Loader.Box height={70} />
 }
 
 function CurrencyValueWithIcon({
@@ -168,31 +160,32 @@ function CurrencyValueWithIcon({
   isBridgeTrade: boolean
 }): JSX.Element {
   const { defaultChainId } = useEnabledChains()
-  const amountColor = indicative ? '$neutral2' : shouldDim ? '$neutral3' : '$neutral1'
+  const amountColor = indicative ? '$neutral2' : shouldDim ? '$kty_neutral5' : '$neutral1'
   const fiatColor = indicative || shouldDim ? '$neutral3' : '$neutral2'
 
   const chainId = toSupportedChainId(currencyInfo.currency.chainId) ?? defaultChainId
   const networkColors = useNetworkColors(chainId)
   const networkLabel = getChainLabel(chainId)
   const networkColor = validColor(networkColors.foreground)
+  const media = useMedia()
 
   // If you modify this UI, make sure to also modify the height of `CurrencyValueWithIconSkeleton`.
   return (
     <Flex centered grow row>
       <Flex grow gap="$spacing4">
         {isBridgeTrade && (
-          <Flex row gap="$spacing4" alignItems="center">
+          <Flex row mt={media.sm ? '$spacing8' : undefined} gap="$spacing4" alignItems="center">
             <NetworkLogo chainId={currencyInfo.currency.chainId} size={iconSizes.icon16} />
             <Text color={networkColor} variant="buttonLabel3">
               {networkLabel}
             </Text>
           </Flex>
         )}
-        <Text color={amountColor} variant="heading3">
+        <Text color={amountColor} fontSize={32} fontWeight={500}>
           {formattedTokenAmount} {getSymbolDisplayText(currencyInfo.currency.symbol)}
         </Text>
 
-        <Text color={fiatColor} variant="body2">
+        <Text color={fiatColor} variant="body3" fontWeight={500} pt="$spacing4">
           {formattedFiatAmount}
         </Text>
       </Flex>

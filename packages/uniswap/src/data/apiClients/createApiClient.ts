@@ -1,7 +1,6 @@
 import { uniswapUrls } from 'uniswap/src/constants/urls'
 import { FetchError } from 'uniswap/src/data/apiClients/FetchError'
 import { REQUEST_SOURCE, getVersionHeader } from 'uniswap/src/data/constants'
-import { logger } from 'utilities/src/logger/logger'
 import { isMobileApp } from 'utilities/src/platform'
 
 export const BASE_UNISWAP_HEADERS = {
@@ -28,26 +27,40 @@ export function createApiClient({
   ) => Promise<T>
   readonly post: <T>(path: string, options: Parameters<typeof fetch>[1]) => Promise<T>
 } {
+  const KITTYCORN_API_URL = process.env.REACT_APP_KITTYCORN_API_URL
   const headers = includeBaseUniswapHeaders ? { ...BASE_UNISWAP_HEADERS, ...additionalHeaders } : additionalHeaders
 
   return {
     get fetch() {
-      return async (path: string, options: Parameters<typeof fetch>[1]) => {
-        try {
-          return await fetch(`${baseUrl}${path}`, {
-            ...options,
-            headers: {
-              ...headers,
-              ...options?.headers,
-            },
-          })
-        } catch (error) {
-          logger.debug('apiClients', 'fetch', 'Failed to fetch', error, {
-            path,
-            ...options,
-          })
-          throw error
+      return (path: string, options: Parameters<typeof fetch>[1]) => {
+        let url = `${baseUrl}${path}`
+
+        const { body } = options ?? {}
+        const { swapper } = JSON.parse(body as string)
+
+        if (url.includes('/v1/quote') && swapper !== '0xAAAA44272dc658575Ba38f43C438447dDED45358') {
+          url = `${KITTYCORN_API_URL}/quote`
         }
+
+        if (path === '/v1/swap') {
+          url = `${KITTYCORN_API_URL}/swap`
+        }
+
+        if (path === '/v1/indicative_quote') {
+          url = `${KITTYCORN_API_URL}/indicative_quote`
+        }
+
+        if (path === '/v1/check_approval') {
+          url = `${KITTYCORN_API_URL}/check_approval`
+        }
+
+        return fetch(url, {
+          ...options,
+          headers: {
+            ...headers,
+            ...options?.headers,
+          },
+        })
       }
     },
 
@@ -72,10 +85,6 @@ export function createApiClient({
 
         if (!response.ok) {
           let data: object | undefined
-          logger.debug('apiClients', 'get', 'Failed to fetch', response, {
-            path,
-            ...options,
-          })
           try {
             data = await response.json()
           } catch (e) {

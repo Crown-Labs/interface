@@ -26,6 +26,26 @@ import { nativeOnChain } from 'uniswap/src/constants/tokens'
 import { ProtocolItems } from 'uniswap/src/data/tradingApi/__generated__'
 import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { CurrencyInfo } from 'uniswap/src/features/dataApi/types'
+
+export function hasLPFoTTransferError(
+  currencyInfo: Maybe<CurrencyInfo>,
+  protocolVersion: ProtocolVersion | undefined,
+): CurrencyInfo | undefined {
+  const currency = currencyInfo?.currency
+
+  // FoT is only an issue for v3 + v4
+  if (!protocolVersion || protocolVersion === ProtocolVersion.V2 || !currency || currency?.isNative) {
+    return undefined
+  }
+
+  return currency?.wrapped.buyFeeBps?.gt(0) ||
+    (currencyInfo?.safetyInfo?.blockaidFees?.buyFeePercent ?? 0) > 0 ||
+    currency?.wrapped.sellFeeBps?.gt(0) ||
+    (currencyInfo?.safetyInfo?.blockaidFees?.sellFeePercent ?? 0) > 0
+    ? currencyInfo
+    : undefined
+}
 
 export function getProtocolVersionLabel(version: ProtocolVersion): string | undefined {
   switch (version) {
@@ -35,8 +55,9 @@ export function getProtocolVersionLabel(version: ProtocolVersion): string | unde
       return 'v3'
     case ProtocolVersion.V4:
       return 'v4'
+    default:
+      return undefined
   }
-  return undefined
 }
 
 export function getProtocolItems(version: ProtocolVersion | undefined): ProtocolItems | undefined {
@@ -251,6 +272,7 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
       v4hook: undefined,
       feeTier: undefined,
       owner: undefined,
+      isHidden: position.isHidden,
     }
   } else if (position?.position.case === 'v3Position') {
     const v3Position = position.position.value
@@ -291,6 +313,7 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
       apr: v3Position.apr,
       v4hook: undefined,
       owner: v3Position.owner,
+      isHidden: position.isHidden,
     }
   } else if (position?.position.case === 'v4Position') {
     const v4Position = position.position.value.poolPosition
@@ -332,6 +355,7 @@ export function parseRestPosition(position?: RestPosition): PositionInfo | undef
       liquidity: v4Position.liquidity,
       apr: v4Position.apr,
       owner: v4Position.owner,
+      isHidden: position.isHidden,
     }
   } else {
     return undefined
@@ -365,7 +389,7 @@ export function calculateInvertedValues({
 }
 
 export function calculateTickSpacingFromFeeAmount(feeAmount: number): number {
-  return (2 * feeAmount) / 100
+  return Math.max((2 * feeAmount) / 100, 1)
 }
 
 export enum HookFlag {
@@ -446,9 +470,17 @@ export function getFlagWarning(flag: HookFlag, t: AppTFunction): FlagWarning | u
     case HookFlag.AfterRemoveLiquidity:
       return {
         Icon: Flag,
-        name: t('common.flag'),
+        name: t('common.warning'),
         info: t('position.hook.removeWarning'),
         dangerous: true,
+      }
+    case HookFlag.BeforeDonate:
+    case HookFlag.AfterDonate:
+      return {
+        Icon: Flag,
+        name: t('common.donate'),
+        info: t('position.hook.donateWarning'),
+        dangerous: false,
       }
     default:
       return undefined
@@ -479,10 +511,17 @@ export function mergeFeeTiers(
 }
 
 function getDefaultFeeTiersForChain(
-  chainId?: UniverseChainId,
+  chainId: UniverseChainId | undefined,
+  protocolVersion: ProtocolVersion,
 ): Record<FeeAmount, { feeAmount: FeeAmount; tickSpacing: number }> {
   const feeData = Object.values(defaultFeeTiers)
-    .filter((feeTier) => !feeTier.supportedChainIds || (chainId && feeTier.supportedChainIds.includes(chainId)))
+    .filter((feeTier) => {
+      // Only filter by chain support if we're on V3
+      if (protocolVersion === ProtocolVersion.V3) {
+        return !feeTier.supportedChainIds || (chainId && feeTier.supportedChainIds.includes(chainId))
+      }
+      return !feeTier.supportedChainIds
+    })
     .map((feeTier) => feeTier.feeData)
 
   return feeData.reduce(
@@ -497,27 +536,32 @@ function getDefaultFeeTiersForChain(
 export function getDefaultFeeTiersForChainWithDynamicFeeTier({
   chainId,
   dynamicFeeTierEnabled,
+  protocolVersion,
 }: {
   chainId?: UniverseChainId
   dynamicFeeTierEnabled: boolean
+  protocolVersion: ProtocolVersion
 }) {
+  const feeTiers = getDefaultFeeTiersForChain(chainId, protocolVersion)
   if (!dynamicFeeTierEnabled) {
-    return getDefaultFeeTiersForChain(chainId)
+    return feeTiers
   }
 
-  return { ...getDefaultFeeTiersForChain(chainId), [DYNAMIC_FEE_DATA.feeAmount]: DYNAMIC_FEE_DATA }
+  return { ...feeTiers, [DYNAMIC_FEE_DATA.feeAmount]: DYNAMIC_FEE_DATA }
 }
 
 export function getDefaultFeeTiersWithData({
   chainId,
   feeTierData,
+  protocolVersion,
   t,
 }: {
   chainId?: UniverseChainId
   feeTierData: Record<number, FeeTierData>
+  protocolVersion: ProtocolVersion
   t: AppTFunction
 }) {
-  const defaultFeeTiersForChain = getDefaultFeeTiersForChain(chainId)
+  const defaultFeeTiersForChain = getDefaultFeeTiersForChain(chainId, protocolVersion)
 
   const feeTiers = [
     {
@@ -571,7 +615,9 @@ export function getDefaultFeeTiersWithData({
     },
   ] as const
 
-  return feeTiers.filter((feeTier) => Object.keys(feeTierData).includes(feeTier.tier.toString()))
+  return feeTiers.filter(
+    (feeTier) => feeTier.value !== undefined && Object.keys(feeTierData).includes(feeTier.tier.toString()),
+  )
 }
 
 export function isDynamicFeeTier(feeData: FeeData): feeData is DynamicFeeData {

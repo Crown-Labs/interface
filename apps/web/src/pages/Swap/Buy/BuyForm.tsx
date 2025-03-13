@@ -152,8 +152,6 @@ function BuyFormInner({ disabled }: BuyFormProps) {
               disabled={disabled}
               iconSize={18}
               chevronDirection="down"
-              backgroundColor="$surface1"
-              amountReady={Boolean(amountOut)}
               loading={amountOutLoading && inputAmount !== ''}
               testID={TestID.ChooseInputToken}
             />
@@ -206,10 +204,13 @@ function BuyFormInner({ disabled }: BuyFormProps) {
           selectedCountry={selectedCountry}
         />
       )}
-      <ChooseProviderModal
-        isOpen={providerModalOpen}
-        closeModal={() => setBuyFormState((prev) => ({ ...prev, providerModalOpen: false }))}
-      />
+      {/* This modal must be conditionally rendered or page will crash on mweb */}
+      {providerModalOpen && (
+        <ChooseProviderModal
+          isOpen={true}
+          closeModal={() => setBuyFormState((prev) => ({ ...prev, providerModalOpen: false }))}
+        />
+      )}
     </Trace>
   )
 }

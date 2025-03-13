@@ -8,6 +8,7 @@ export const spacing = {
   spacing4: 4,
   spacing6: 6,
   spacing8: 8,
+  spacing10: 10,
   spacing12: 12,
   spacing16: 16,
   spacing18: 18,
@@ -28,6 +29,7 @@ export const spacing = {
 export const padding = {
   padding6: spacing.spacing6,
   padding8: spacing.spacing8,
+  padding10: spacing.spacing10,
   padding12: spacing.spacing12,
   padding16: spacing.spacing16,
   padding20: spacing.spacing20,
@@ -37,6 +39,7 @@ export const padding = {
 export const gap = {
   gap4: spacing.spacing4,
   gap8: spacing.spacing8,
+  gap10: spacing.spacing10,
   gap12: spacing.spacing12,
   gap16: spacing.spacing16,
   gap20: spacing.spacing20,

@@ -1,6 +1,6 @@
 import { LiquidityPositionInfoBadges } from 'components/Liquidity/LiquidityPositionInfoBadges'
 import { LoadingRows } from 'components/Loader/styled'
-import { DoubleCurrencyAndChainLogo } from 'components/Logo/DoubleLogo'
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
 import { PoolSortFields } from 'graphql/data/pools/useTopPools'
 import { OrderDirection, gqlToCurrency, supportedChainIdFromGQLChain, unwrapToken } from 'graphql/data/util'
 import { ExternalArrowLink, LoadingRow } from 'pages/Pool/Positions/shared'
@@ -8,7 +8,6 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useTopPools } from 'state/explore/topPools'
 import { PoolStat } from 'state/explore/types'
-import { ClickableTamaguiStyle } from 'theme/components'
 import { Flex, Text } from 'ui/src'
 import { Chain } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
 import { ALL_NETWORKS_ARG } from 'uniswap/src/data/rest/base'
@@ -33,13 +32,13 @@ function TopPoolCard({ pool }: { pool: PoolStat }) {
       p="$padding16"
       borderRadius="$rounded20"
       borderColor="$surface3"
-      borderWidth={1}
+      borderWidth="$spacing1"
       justifyContent="space-between"
-      {...ClickableTamaguiStyle}
+      hoverStyle={{ backgroundColor: '$surface1Hovered', borderColor: '$surface3Hovered' }}
       onPress={() => navigate(`/explore/pools/${toGraphQLChain(chainId ?? defaultChainId).toLowerCase()}/${pool.id}`)}
     >
       <Flex row gap="$gap16">
-        <DoubleCurrencyAndChainLogo chainId={chainId} currencies={[token0, token1]} size={44} />
+        <DoubleCurrencyLogo currencies={[token0, token1]} size={44} />
         <Flex gap="$gap4">
           <Text variant="subheading2">
             {token0?.symbol} / {token1?.symbol}

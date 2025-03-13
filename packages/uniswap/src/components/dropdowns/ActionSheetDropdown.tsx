@@ -5,7 +5,7 @@ import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native
 import { AnimatePresence, Flex, FlexProps, Portal, TouchableArea, isWeb, styled, useIsDarkMode } from 'ui/src'
 import { RotatableChevron } from 'ui/src/components/icons/RotatableChevron'
 import { useDeviceDimensions } from 'ui/src/hooks/useDeviceDimensions'
-import { iconSizes, spacing, zIndices } from 'ui/src/theme'
+import { iconSizes, spacing, zIndexes } from 'ui/src/theme'
 import { BaseCard } from 'uniswap/src/components/BaseCard/BaseCard'
 import { Scrollbar } from 'uniswap/src/components/misc/Scrollbar'
 import { MenuItemProp } from 'uniswap/src/components/modals/ActionSheetModal'
@@ -191,7 +191,7 @@ const ActionSheetBackdropWithContent = memo(function ActionSheetBackdropWithCont
   }
 
   return (
-    <Portal zIndex={styles?.dropdownZIndex || zIndices.popover}>
+    <Portal zIndex={styles?.dropdownZIndex || zIndexes.popover}>
       <AnimatePresence custom={{ isOpen }}>
         {isOpen && toggleMeasurements && (
           <>
@@ -341,7 +341,7 @@ function DropdownContent({
         animation="fast"
         backgroundColor="$surface1"
         borderColor="$surface3"
-        borderWidth={1}
+        borderWidth="$spacing1"
         enterStyle={{ y: -20, opacity: 0 }}
         exitStyle={{ y: -10, opacity: 0 }}
         overflow="hidden"

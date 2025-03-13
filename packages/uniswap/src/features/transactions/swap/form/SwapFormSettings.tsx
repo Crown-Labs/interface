@@ -75,8 +75,11 @@ export function SwapFormSettings({
 
   const isViewOnlyWallet = account?.type === AccountType.Readonly
 
-  const topAlignment = adjustTopAlignment ? (isInterface ? -38 : 6) : 0
-  const rightAlignment = adjustRightAlignment ? (isMobileApp ? 24 : 4) : 0
+  const topAlignment = adjustTopAlignment ? (isInterface ? 14 : 6) : 0
+  const rightAlignment = adjustRightAlignment ? (isMobileApp ? 24 : 12) : 0
+  const popoverOffset = isInterface
+    ? { crossAxis: adjustRightAlignment ? 0 : 8, mainAxis: adjustTopAlignment ? 0 : 8 }
+    : undefined
 
   const showCustomSlippage = customSlippageTolerance && !isBridgeTrade
 
@@ -110,6 +113,7 @@ export function SwapFormSettings({
 
       {!isViewOnlyWallet && (
         <Popover
+          offset={popoverOffset}
           placement="bottom-end"
           open={showTransactionSettingsModal}
           onOpenChange={(open: boolean) => {

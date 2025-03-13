@@ -1,16 +1,7 @@
 /* eslint-disable complexity */
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  ColorTokens,
-  DeprecatedButton,
-  Flex,
-  SpinningLoader,
-  Text,
-  getHoverCssFilter,
-  useIsDarkMode,
-  useIsShortMobileDevice,
-} from 'ui/src'
+import { ColorTokens, Flex, SpinningLoader, Text, ThreeDButton, useIsDarkMode, useIsShortMobileDevice } from 'ui/src'
 import { opacify, validColor } from 'ui/src/theme'
 import { iconSizes } from 'ui/src/theme/iconSizes'
 import { useAccountMeta, useUniswapContext } from 'uniswap/src/contexts/UniswapContext'
@@ -271,16 +262,20 @@ export function SwapFormButton({
   const buttonProps: {
     backgroundColor: ColorTokens
     hoverBackgroundColor: ColorTokens
+    shadowColor: ColorTokens
     buttonTextColor: ColorTokens
     buttonText: string
     opacity: number | undefined
   } = {
     backgroundColor:
       !activeAccount || isSubmitting
-        ? lightTokenColor ?? '$accent2'
+        ? lightTokenColor ?? !activeAccount
+          ? '$kty_surface1'
+          : '$kty_surface2'
         : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
-          ? '$surface2'
-          : validTokenColor ?? '$accent1',
+          ? '$kty_surface2'
+          : validTokenColor ?? '$kty_surface1',
+    // hoverBackgroundColor is not use for the ThreeDButton
     hoverBackgroundColor:
       !activeAccount || isSubmitting
         ? hoveredLightTokenColor ?? '$accent2Hovered'
@@ -288,22 +283,26 @@ export function SwapFormButton({
           ? '$surface2'
           : validTokenColor ?? '$accent1Hovered',
     buttonTextColor: !activeAccount
-      ? validTokenColor ?? '$accent1'
+      ? validTokenColor ?? '$white'
       : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
-        ? '$neutral2'
+        ? '$kty_neutral3'
         : tokenColorText ?? '$white',
     buttonText: getButtonText(),
     opacity: getButtonOpacity(),
+    shadowColor: !activeAccount
+      ? validTokenColor ?? '$kty_surface3'
+      : (isBlockingWithCustomMessage || disabled) && !swapRedirectCallback
+        ? '$kty_surface4'
+        : tokenColorText ?? '$kty_surface3',
   }
-
-  const filter =
-    buttonProps.hoverBackgroundColor === validTokenColor && buttonProps.backgroundColor === validTokenColor
-      ? getHoverCssFilter(isDarkMode)
-      : undefined
 
   return (
     <Flex alignItems="center" gap={isShortMobileDevice ? '$spacing8' : '$spacing16'}>
-      <Trace logPress element={ElementName.SwapReview}>
+      <Trace
+        logPress
+        element={ElementName.SwapReview}
+        properties={{ chainId, tokenAmount: exactAmountToken, fiatAmount: exactAmountFiat }}
+      >
         <LowNativeBalanceModal
           isOpen={showMaxNativeTransferModal}
           onClose={() => setShowMaxNativeTransferModal(false)}
@@ -316,14 +315,14 @@ export function SwapFormButton({
             })
           }}
         />
-        <DeprecatedButton
+        <ThreeDButton
           animation="fast"
           // Custom styles are matched with our theme hover opacities - can remove this when we implement full theme support in DeprecatedButton
-          pressStyle={{ backgroundColor: buttonProps.backgroundColor, scale: 0.98 }}
-          hoverStyle={{ backgroundColor: buttonProps.hoverBackgroundColor, filter }}
+          shadowColor={buttonProps.shadowColor}
+          pressStyle={{ backgroundColor: buttonProps.backgroundColor }}
           icon={indicative ? <SpinningLoader color="$neutral2" size={iconSizes.icon20} /> : undefined}
           backgroundColor={buttonProps.backgroundColor}
-          disabled={disabled}
+          isDisabled={disabled}
           opacity={buttonProps.opacity}
           size={isShortMobileDevice ? 'small' : 'large'}
           testID={TestID.ReviewSwap}
@@ -339,7 +338,7 @@ export function SwapFormButton({
           <Text color={buttonProps.buttonTextColor} variant={SWAP_BUTTON_TEXT_VARIANT}>
             {buttonProps.buttonText}
           </Text>
-        </DeprecatedButton>
+        </ThreeDButton>
       </Trace>
       <ViewOnlyModal isOpen={showViewOnlyModal} onDismiss={(): void => setShowViewOnlyModal(false)} />
       <BridgingModal

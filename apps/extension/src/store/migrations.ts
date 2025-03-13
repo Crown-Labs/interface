@@ -12,9 +12,11 @@ import {
   deleteDefaultFavoritesFromFavoritesState,
   deleteExtensionOnboardingState,
   deleteHoldToSwapBehaviorHistory,
+  deleteWelcomeWalletCardBehaviorHistory,
   moveCurrencySetting,
   moveDismissedTokenWarnings,
   moveLanguageSetting,
+  moveTokenAndNFTVisibility,
   moveUserSettings,
   removeCreatedOnboardingRedesignAccountBehaviorHistory,
   removeUniconV2BehaviorState,
@@ -44,6 +46,8 @@ export const migrations = {
   16: updateExploreOrderByType,
   17: removeCreatedOnboardingRedesignAccountBehaviorHistory,
   18: unchecksumDismissedTokenWarningKeys,
+  19: deleteWelcomeWalletCardBehaviorHistory,
+  20: moveTokenAndNFTVisibility,
 }
 
-export const EXTENSION_STATE_VERSION = 18
+export const EXTENSION_STATE_VERSION = 20

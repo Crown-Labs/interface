@@ -11,6 +11,7 @@ import { PriceChartType } from 'components/Charts/utils'
 import { DropdownSelector } from 'components/DropdownSelector'
 import { useDensityChartData } from 'components/LiquidityChartRangeInput/hooks'
 import { DataQuality } from 'components/Tokens/TokenDetails/ChartSection/util'
+import { ZERO_ADDRESS } from 'constants/misc'
 import { usePoolPriceChartData } from 'hooks/usePoolPriceChartData'
 import {
   getCurrencyAddressWithWrap,
@@ -31,6 +32,8 @@ import { HistoryDuration } from 'uniswap/src/data/graphql/uniswap-data-api/__gen
 import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
 import { isMobileWeb } from 'utilities/src/platform'
 
+const MIN_DATA_POINTS = 5
+
 /**
  * Chart input for selecting the min/max prices for a liquidity position.
  * Note that the min value can be negative.
@@ -42,6 +45,7 @@ export function LiquidityRangeInput({
   tickSpacing,
   protocolVersion,
   poolId,
+  hook,
   minPrice,
   maxPrice,
   setMinPrice,
@@ -53,6 +57,7 @@ export function LiquidityRangeInput({
   feeTier: number | string
   tickSpacing?: number
   protocolVersion: ProtocolVersion
+  hook?: string
   poolId: string
   minPrice?: number
   maxPrice?: number
@@ -87,7 +92,7 @@ export function LiquidityRangeInput({
   )
 
   // Set via a callback from the LiquidityPositionRangeChart, which is important when the price axis is auto-scaled.
-  // This is also used to set the bounds of the ActiveLiquiditChart, so it's necessary to keep separate from the zooming state.
+  // This is also used to set the bounds of the ActiveLiquidityChart, so it's necessary to keep separate from the zooming state.
   const [boundaryPrices, setBoundaryPrices] = useState<[number, number]>()
 
   const [zoomFactor, setZoomFactor] = useState(1)
@@ -171,6 +176,7 @@ export function LiquidityRangeInput({
     version: protocolVersion,
     feeAmount: Number(feeTier),
     tickSpacing,
+    hooks: hook ?? ZERO_ADDRESS,
   })
 
   const sortedFormattedData = useMemo(() => {
@@ -213,7 +219,9 @@ export function LiquidityRangeInput({
   const [createDropdownOpen, setCreateDropdownOpen] = useState(false)
 
   const showChartErrorView =
-    (!priceData.loading && priceData.entries.length === 0) || (!liquidityDataLoading && !sortedFormattedData)
+    (!priceData.loading && priceData.entries.length < MIN_DATA_POINTS) ||
+    (!liquidityDataLoading && !sortedFormattedData) ||
+    (!liquidityDataLoading && sortedFormattedData && sortedFormattedData.length < MIN_DATA_POINTS)
 
   useEffect(() => {
     const container = containerRef.current
@@ -270,6 +278,7 @@ export function LiquidityRangeInput({
           width={showChartErrorView ? sizes.chartContainerWidth : sizes.loadedPriceChartWidth}
           height={sizes.chartHeight + sizes.bottomAxisHeight}
           overflow="hidden"
+          zIndex={1}
         >
           {(priceData.loading || showChartErrorView) && (!priceData.entries || priceData.entries.length === 0) && (
             <Shine height={sizes.chartHeight} disabled={showChartErrorView} zIndex={0}>
@@ -294,6 +303,7 @@ export function LiquidityRangeInput({
           right={0}
           top={0}
           pointerEvents="none"
+          zIndex={2}
         >
           {(liquidityDataLoading || priceData.loading) && (
             <Shine
@@ -308,48 +318,48 @@ export function LiquidityRangeInput({
               <HorizontalDensityChart color="$neutral2" size={sizes.chartHeight} />
             </Shine>
           )}
-          {sortedFormattedData && !liquidityDataLoading && !priceData.loading && boundaryPrices && (
-            <ActiveLiquidityChart2
-              data={{
-                series: sortedFormattedData,
-                current: priceData.entries[priceData.entries.length - 1]?.value,
-                min: boundaryPrices[0],
-                max: boundaryPrices[1],
-              }}
-              disableBrushInteraction={disableBrushInteraction}
-              showDiffIndicators={showDiffIndicators}
-              brushDomain={minPrice && maxPrice ? [minPrice, maxPrice] : undefined}
-              dimensions={{
-                width: sizes.chartContainerWidth,
-                height: sizes.chartHeight,
-                contentWidth: sizes.liquidityChartWidth,
-                axisLabelPaneWidth: sizes.rightAxisWidth,
-              }}
-              onBrushDomainChange={function (domain: [number, number], mode?: string): void {
-                // You can zoom out far enough to set an invalid range, so we prevent that here.
-                if (domain[0] < 0) {
-                  return
-                }
-                // While scrolling we receive updates to the range because the yScale changes,
-                // but we can filter them out because they have an undefined "mode".
-                // The initial range suggestion also comes with an undefined "mode", so we allow that here.
-                const hasValidRange =
-                  minPrice !== undefined &&
-                  maxPrice !== undefined &&
-                  minPrice < maxPrice &&
-                  minPrice >= 0 &&
-                  maxPrice >= 0
-                if (!mode && hasValidRange) {
-                  return
-                }
-                setMinPrice(domain[0])
-                setMaxPrice(domain[1])
-              }}
-              currency0={currency0}
-              currency1={currency1}
-              isMobile={isMobileWeb}
-            />
-          )}
+          {sortedFormattedData &&
+            !liquidityDataLoading &&
+            !priceData.loading &&
+            boundaryPrices &&
+            !showChartErrorView && (
+              <ActiveLiquidityChart2
+                data={{
+                  series: sortedFormattedData,
+                  current: priceData.entries[priceData.entries.length - 1]?.value,
+                  min: boundaryPrices[0],
+                  max: boundaryPrices[1],
+                }}
+                disableBrushInteraction={disableBrushInteraction}
+                showDiffIndicators={showDiffIndicators}
+                brushDomain={minPrice && maxPrice ? [minPrice, maxPrice] : undefined}
+                dimensions={{
+                  width: sizes.chartContainerWidth,
+                  height: sizes.chartHeight,
+                  contentWidth: sizes.liquidityChartWidth,
+                  axisLabelPaneWidth: sizes.rightAxisWidth,
+                }}
+                onBrushDomainChange={function (domain: [number, number], mode?: string): void {
+                  // You can zoom out far enough to set an invalid range, so we prevent that here.
+                  if (domain[0] < 0) {
+                    return
+                  }
+                  // While scrolling we receive updates to the range because the yScale changes,
+                  // but we can filter them out because they have an undefined "mode".
+                  // The initial range suggestion also comes with an undefined "mode", so we allow that here.
+                  const rejectAutoRangeSuggestion =
+                    minPrice !== undefined && maxPrice !== undefined && minPrice >= 0 && maxPrice >= 0
+                  if (!mode && rejectAutoRangeSuggestion) {
+                    return
+                  }
+                  setMinPrice(domain[0])
+                  setMaxPrice(domain[1])
+                }}
+                currency0={currency0}
+                currency1={currency1}
+                isMobile={isMobileWeb}
+              />
+            )}
         </Flex>
       </Flex>
       <Flex row alignItems="center" gap="$gap8" $lg={{ justifyContent: 'space-between' }}>
@@ -366,7 +376,7 @@ export function LiquidityRangeInput({
                   p="$padding8"
                   pl="$padding12"
                   borderColor="$surface3"
-                  borderWidth={1}
+                  borderWidth="$spacing1"
                   gap="$gap6"
                   {...ClickableTamaguiStyle}
                 >
@@ -429,7 +439,7 @@ export function LiquidityRangeInput({
               alignItems="center"
               justifyContent="center"
               borderColor="$surface3"
-              borderWidth={1}
+              borderWidth="$spacing1"
               borderTopLeftRadius="$roundedFull"
               borderBottomLeftRadius="$roundedFull"
               p="$spacing8"
@@ -447,7 +457,7 @@ export function LiquidityRangeInput({
               alignItems="center"
               justifyContent="center"
               borderColor="$surface3"
-              borderWidth={1}
+              borderWidth="$spacing1"
               borderTopRightRadius="$roundedFull"
               borderBottomRightRadius="$roundedFull"
               p="$spacing8"
@@ -463,7 +473,7 @@ export function LiquidityRangeInput({
           height={32}
           backgroundColor="$transparent"
           borderColor="$surface3"
-          borderWidth={1}
+          borderWidth="$spacing1"
           hoverStyle={{ backgroundColor: '$transparent', opacity: 0.8 }}
           pressStyle={{ backgroundColor: '$surface3', opacity: 0.8 }}
           onPress={() => {

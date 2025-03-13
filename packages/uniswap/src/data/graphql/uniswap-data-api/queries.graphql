@@ -483,6 +483,7 @@ query TokenProjectDescription(
   $includeFrench: Boolean = false
   $includeJapanese: Boolean = false
   $includePortuguese: Boolean = false
+  $includeVietnamese: Boolean = false
   $includeChineseSimplified: Boolean = false
   $includeChineseTraditional: Boolean = false
 ) {
@@ -497,6 +498,7 @@ query TokenProjectDescription(
         descriptionFrFr @include(if: $includeFrench)
         descriptionJaJp @include(if: $includeJapanese)
         descriptionPtPt @include(if: $includePortuguese)
+        descriptionViVn @include(if: $includeVietnamese)
         descriptionZhHans @include(if: $includeChineseSimplified)
         descriptionZhHant @include(if: $includeChineseTraditional)
       }
@@ -828,8 +830,9 @@ query SearchTokens($searchQuery: String!, $chains: [Chain!]!) {
 query ExploreSearch(
   $searchQuery: String!
   $nftCollectionsFilter: NftCollectionsFilterInput!
+  $chains: [Chain!]
 ) {
-  searchTokens(searchQuery: $searchQuery) {
+  searchTokens(searchQuery: $searchQuery, chains: $chains) {
     chain
     address
     decimals
@@ -939,6 +942,9 @@ fragment TokenProjectMarketsParts on Token {
       priceLow52W: priceHighLow(duration: YEAR, highLow: LOW) {
         value
       }
+      pricePercentChange24h {
+        value
+      }
     }
   }
 }
@@ -1009,61 +1015,6 @@ fragment TopTokenParts on Token {
   }
 }
 
-query ExploreTokensTab($topTokensOrderBy: TokenSortableField!, $chain: Chain!, $pageSize: Int!) {
-  topTokens(
-    chain: $chain
-    page: 1
-    pageSize: $pageSize
-    orderBy: $topTokensOrderBy
-  ) {
-    ...TopTokenParts
-  }
-  # `topTokens` returns WETH rather than ETH
-  # here we retrieve ETH information to swap out in the UI
-  eth: token(address: null, chain: $chain) {
-    ...TopTokenParts
-  }
-}
-
-fragment AITopTokenParts on Token {
-  symbol
-  chain
-  address
-  market {
-    totalValueLocked {
-      value
-    }
-    volume(duration: DAY) {
-      value
-    }
-  }
-  name
-  project {
-    markets(currencies: [USD]) {
-      price {
-        value
-      }
-      pricePercentChange24h {
-        value
-      }
-      marketCap {
-        value
-      }
-    }
-  }
-}
-
-query AITopTokens($topTokensOrderBy: TokenSortableField!, $chain: Chain!, $pageSize: Int!) {
-  topTokens(
-    chain: $chain
-    page: 1
-    pageSize: $pageSize
-    orderBy: $topTokensOrderBy
-  ) {
-    ...AITopTokenParts
-  }
-}
-
 fragment HomeScreenTokenParts on Token {
   ...TokenBasicInfoParts
   project {
@@ -1094,6 +1045,7 @@ query FavoriteTokenCard($chain: Chain!, $address: String) {
   token(chain: $chain, address: $address) {
     ...TokenBasicInfoParts
     ...TokenBasicProjectParts
+    ...TokenProjectMarketsParts
     market(currency: USD) {
       id
       price {
@@ -1107,12 +1059,18 @@ query FavoriteTokenCard($chain: Chain!, $address: String) {
 }
 
 # Currently used in Swift code only.
-query Tokens($contracts: [ContractInput!]!) {
+query WidgetTokens($contracts: [ContractInput!]!) {
   tokens(contracts: $contracts) {
     symbol
     chain
     address
     name
+  }
+}
+
+query Tokens($contracts: [ContractInput!]!) {
+  tokens(contracts: $contracts) {
+    ...TokenParts
   }
 }
 

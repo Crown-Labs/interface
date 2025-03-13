@@ -2,7 +2,6 @@ import TokenDetails from 'components/Tokens/TokenDetails'
 import { useCreateTDPChartState } from 'components/Tokens/TokenDetails/ChartSection'
 import InvalidTokenDetails from 'components/Tokens/TokenDetails/InvalidTokenDetails'
 import { TokenDetailsPageSkeleton } from 'components/Tokens/TokenDetails/Skeleton'
-import { useTokenWarning } from 'constants/deprecatedTokenSafety'
 import { NATIVE_CHAIN_ID, UNKNOWN_TOKEN_SYMBOL } from 'constants/tokens'
 import { useTokenBalancesQuery } from 'graphql/data/apollo/AdaptiveTokenBalancesProvider'
 import { gqlToCurrency } from 'graphql/data/util'
@@ -22,6 +21,7 @@ import { ThemeProvider } from 'theme'
 import { nativeOnChain } from 'uniswap/src/constants/tokens'
 import { useTokenWebQuery } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
 import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
+import { useIsSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
 import { isAddress } from 'utilities/src/addresses'
 import { useChainIdFromUrlParam } from 'utils/chainParams'
@@ -117,8 +117,6 @@ function useCreateTDPContext(): PendingTDPContext | LoadedTDPContext {
     isNative,
   )
 
-  const warning = useTokenWarning(tokenAddress, currencyChainInfo.id)
-
   // Extract color for page usage
   const theme = useTheme()
   const { preloadedLogoSrc } = (useLocation().state as { preloadedLogoSrc?: string }) ?? {}
@@ -140,7 +138,6 @@ function useCreateTDPContext(): PendingTDPContext | LoadedTDPContext {
       currencyWasFetchedOnChain,
       tokenQuery,
       chartState,
-      warning,
       multiChainMap,
       tokenColor,
     }
@@ -152,7 +149,6 @@ function useCreateTDPContext(): PendingTDPContext | LoadedTDPContext {
     currencyWasFetchedOnChain,
     tokenQuery,
     chartState,
-    warning,
     multiChainMap,
     tokenColor,
   ])
@@ -164,6 +160,7 @@ export default function TokenDetailsPage() {
   const pageChainId = account.chainId ?? UniverseChainId.Mainnet
   const contextValue = useCreateTDPContext()
   const { tokenColor, address, currency, currencyChain, currencyChainId, tokenQuery } = contextValue
+  const isSupportedChain = useIsSupportedChainId(currencyChainId)
 
   const tokenQueryData = tokenQuery.data?.token
   const metatagProperties = useMemo(() => {
@@ -190,7 +187,7 @@ export default function TokenDetailsPage() {
         ))}
       </Helmet>
       {(() => {
-        if (currency) {
+        if (currency && isSupportedChain) {
           return (
             <TDPProvider contextValue={contextValue}>
               <TokenDetails />

@@ -7,13 +7,12 @@ import { Pool as V4Pool } from '@uniswap/v4-sdk'
 import { DepositInfo, DepositState } from 'components/Liquidity/types'
 import { getPoolFromRest } from 'components/Liquidity/utils'
 import { ConnectWalletButtonText } from 'components/NavBar/accountCTAsExperimentUtils'
-import { checkIsNative, useCurrency, useCurrencyInfo } from 'hooks/Tokens'
+import { ZERO_ADDRESS } from 'constants/misc'
+import { checkIsNative, useCurrency } from 'hooks/Tokens'
 import { useAccount } from 'hooks/useAccount'
 import { useIsPoolOutOfSync } from 'hooks/useIsPoolOutOfSync'
 import { PoolState, usePool } from 'hooks/usePools'
-import { useSwapTaxes } from 'hooks/useSwapTaxes'
 import { PairState, useV2Pair } from 'hooks/useV2Pairs'
-import { useCurrencyBalances } from 'lib/hooks/useCurrencyBalance'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useCreatePositionContext, usePriceRangeContext } from 'pages/Pool/Positions/create/CreatePositionContext'
 import {
@@ -40,9 +39,9 @@ import {
   getV4PriceRangeInfo,
   pairEnabledProtocolVersion,
   poolEnabledProtocolVersion,
-  protocolShouldCalculateTaxes,
   validateCurrencyInput,
 } from 'pages/Pool/Positions/create/utils'
+import { ParsedQs } from 'qs'
 import { useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useMultichainContext } from 'state/multichain/useMultichainContext'
@@ -53,7 +52,10 @@ import { useUrlContext } from 'uniswap/src/contexts/UrlContext'
 import { useGetPoolsByTokens } from 'uniswap/src/data/rest/getPools'
 import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
 import { useSupportedChainId } from 'uniswap/src/features/chains/hooks/useSupportedChainId'
+import { useMaxAmountSpend } from 'uniswap/src/features/gas/useMaxAmountSpend'
+import { useOnChainCurrencyBalance } from 'uniswap/src/features/portfolio/api'
 import { useUSDCValue } from 'uniswap/src/features/transactions/swap/hooks/useUSDCPrice'
+import { getValidAddress } from 'uniswap/src/utils/addresses'
 import { getParsedChainId } from 'utils/chainParams'
 
 /**
@@ -67,10 +69,8 @@ export function useDerivedPositionInfo(state: PositionState): CreatePositionInfo
     protocolVersion,
   } = state
 
-  const inputCurrencyInfo = useCurrencyInfo(token0Input)
-  const outputCurrencyInfo = useCurrencyInfo(token1Input)
-  const TOKEN0 = inputCurrencyInfo?.currency
-  const TOKEN1 = outputCurrencyInfo?.currency
+  const TOKEN0 = token0Input
+  const TOKEN1 = token1Input
 
   const sortedCurrencies = getSortedCurrenciesTuple(TOKEN0, TOKEN1)
   const validCurrencyInput = validateCurrencyInput(sortedCurrencies)
@@ -80,14 +80,18 @@ export function useDerivedPositionInfo(state: PositionState): CreatePositionInfo
   )
 
   const poolsQueryEnabled = poolEnabledProtocolVersion(protocolVersion) && validCurrencyInput
-  const { data: poolData, isLoading: poolIsLoading } = useGetPoolsByTokens(
+  const {
+    data: poolData,
+    isLoading: poolIsLoading,
+    refetch: refetchPoolData,
+  } = useGetPoolsByTokens(
     {
       fee: state.fee.feeAmount,
       chainId,
       protocolVersions: [protocolVersion],
       token0: getCurrencyAddressWithWrap(sortedCurrencies?.[0], protocolVersion),
       token1: getCurrencyAddressWithWrap(sortedCurrencies?.[1], protocolVersion),
-      hooks: state.hook?.toLowerCase(), // BE does not accept checksummed addresses
+      hooks: state.hook?.toLowerCase() ?? ZERO_ADDRESS, // BE does not accept checksummed addresses
     },
     poolsQueryEnabled,
   )
@@ -161,6 +165,7 @@ export function useDerivedPositionInfo(state: PositionState): CreatePositionInfo
         currencies,
         protocolVersion: ProtocolVersion.V4,
         isPoolOutOfSync: false,
+        refetchPoolData: () => undefined,
       }
     }
 
@@ -172,6 +177,7 @@ export function useDerivedPositionInfo(state: PositionState): CreatePositionInfo
         creatingPoolOrPair,
         poolOrPairLoading: pairIsLoading,
         isPoolOutOfSync,
+        refetchPoolData,
       } satisfies CreateV2PositionInfo
     }
 
@@ -184,6 +190,7 @@ export function useDerivedPositionInfo(state: PositionState): CreatePositionInfo
         poolOrPairLoading: poolIsLoading,
         isPoolOutOfSync,
         poolId: pool?.poolId,
+        refetchPoolData,
       } satisfies CreateV3PositionInfo
     }
 
@@ -195,6 +202,7 @@ export function useDerivedPositionInfo(state: PositionState): CreatePositionInfo
       poolOrPairLoading: poolIsLoading,
       isPoolOutOfSync,
       poolId: pool?.poolId,
+      refetchPoolData,
     } satisfies CreateV4PositionInfo
   }, [
     TOKEN0,
@@ -208,23 +216,12 @@ export function useDerivedPositionInfo(state: PositionState): CreatePositionInfo
     pair,
     pairIsLoading,
     v3Pool,
+    refetchPoolData,
   ])
 }
 
 export function useDerivedPriceRangeInfo(state: PriceRangeState): PriceRangeInfo {
   const { positionState, derivedPositionInfo } = useCreatePositionContext()
-  const { chainId } = useMultichainContext()
-
-  const shouldUseTaxes = protocolShouldCalculateTaxes(derivedPositionInfo.protocolVersion)
-  const { inputTax: currencyATax, outputTax: currencyBTax } = useSwapTaxes(
-    shouldUseTaxes
-      ? getCurrencyAddressWithWrap(derivedPositionInfo.currencies[0], derivedPositionInfo.protocolVersion)
-      : undefined,
-    shouldUseTaxes
-      ? getCurrencyAddressWithWrap(derivedPositionInfo.currencies[1], derivedPositionInfo.protocolVersion)
-      : undefined,
-    chainId,
-  )
 
   const priceRangeInfo = useMemo(() => {
     if (derivedPositionInfo.protocolVersion === ProtocolVersion.V2) {
@@ -232,12 +229,11 @@ export function useDerivedPriceRangeInfo(state: PriceRangeState): PriceRangeInfo
     }
 
     if (derivedPositionInfo.protocolVersion === ProtocolVersion.V3) {
-      const isTaxed = currencyATax.greaterThan(0) || currencyBTax.greaterThan(0)
-      return getV3PriceRangeInfo({ state, positionState, derivedPositionInfo, isTaxed })
+      return getV3PriceRangeInfo({ state, positionState, derivedPositionInfo })
     }
 
     return getV4PriceRangeInfo({ state, positionState, derivedPositionInfo })
-  }, [derivedPositionInfo, state, positionState, currencyATax, currencyBTax])
+  }, [derivedPositionInfo, state, positionState])
 
   return priceRangeInfo
 }
@@ -341,7 +337,10 @@ export function useDepositInfo(state: UseDepositInfoProps): DepositInfo {
   const { protocolVersion, address, token0, token1, exactField, exactAmounts, deposit0Disabled, deposit1Disabled } =
     state
 
-  const [token0Balance, token1Balance] = useCurrencyBalances(address, [token0, token1])
+  const { balance: token0Balance } = useOnChainCurrencyBalance(token0, address)
+  const { balance: token1Balance } = useOnChainCurrencyBalance(token1, address)
+  const token0MaxAmount = useMaxAmountSpend({ currencyAmount: token0Balance })
+  const token1MaxAmount = useMaxAmountSpend({ currencyAmount: token1Balance })
 
   const [independentToken, dependentToken] = exactField === PositionField.TOKEN0 ? [token0, token1] : [token1, token0]
   const independentAmount = tryParseCurrencyAmount(exactAmounts[exactField], independentToken)
@@ -416,8 +415,8 @@ export function useDepositInfo(state: UseDepositInfoProps): DepositInfo {
       return t('common.noAmount.error')
     }
 
-    const insufficientToken0Balance = currency0Amount && token0Balance?.lessThan(currency0Amount)
-    const insufficientToken1Balance = currency1Amount && token1Balance?.lessThan(currency1Amount)
+    const insufficientToken0Balance = currency0Amount && token0MaxAmount?.lessThan(currency0Amount)
+    const insufficientToken1Balance = currency1Amount && token1MaxAmount?.lessThan(currency1Amount)
 
     if (insufficientToken0Balance && insufficientToken1Balance) {
       return <Trans i18nKey="common.insufficientBalance.error" />
@@ -452,9 +451,9 @@ export function useDepositInfo(state: UseDepositInfoProps): DepositInfo {
     deposit0Disabled,
     deposit1Disabled,
     currency0Amount,
-    token0Balance,
+    token0MaxAmount,
     currency1Amount,
-    token1Balance,
+    token1MaxAmount,
     t,
     token0?.symbol,
     token1?.symbol,
@@ -483,13 +482,23 @@ export function useDepositInfo(state: UseDepositInfoProps): DepositInfo {
   )
 }
 
+function getParsedHookAddrParam(params: ParsedQs): string | undefined {
+  const hookAddr = params?.hook
+  if (!hookAddr || typeof hookAddr !== 'string') {
+    return undefined
+  }
+  const validAddress = getValidAddress(hookAddr)
+  return validAddress || undefined
+}
+
 // Prefill currency inputs from URL search params ?currencyA=ETH&currencyB=0x123...&chain=base
-export function useInitialCurrencyInputs() {
+export function useInitialPoolInputs() {
   const { defaultChainId } = useEnabledChains()
   const defaultInitialToken = nativeOnChain(defaultChainId)
 
   const { useParsedQueryString } = useUrlContext()
   const parsedQs = useParsedQueryString()
+  const hookAddress = getParsedHookAddrParam(parsedQs)
   const parsedChainId = getParsedChainId(parsedQs)
   const supportedChainId = useSupportedChainId(parsedChainId) ?? defaultChainId
 
@@ -517,6 +526,7 @@ export function useInitialCurrencyInputs() {
     return {
       [PositionField.TOKEN0]: currencyA ?? currencyB ?? defaultInitialToken,
       [PositionField.TOKEN1]: currencyA && currencyB ? currencyB : undefined,
+      hook: hookAddress,
     }
-  }, [currencyA, currencyB, defaultInitialToken])
+  }, [currencyA, currencyB, hookAddress, defaultInitialToken])
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimatePresence, DeprecatedButton, Flex, SpinningLoader, Text, isWeb, useIsShortMobileDevice } from 'ui/src'
+import { AnimatePresence, Flex, SpinningLoader, Text, ThreeDButton, isWeb, useIsShortMobileDevice } from 'ui/src'
 import { AppTFunction } from 'ui/src/i18n/types'
 import { iconSizes } from 'ui/src/theme'
 import { Warning, WarningSeverity } from 'uniswap/src/components/modals/WarningModal/types'
@@ -49,11 +49,11 @@ export function SubmitSwapButton({
   switch (true) {
     case indicative: {
       return (
-        <DeprecatedButton
-          fill
+        <ThreeDButton
           animation="fast"
+          fill
+          isDisabled
           backgroundColor="$surface2"
-          disabled={true}
           pressStyle={{ scale: 0.98 }}
           icon={<SpinningLoader color="$neutral2" size={isWeb ? iconSizes.icon20 : iconSizes.icon24} />}
           opacity={1} // For indicative loading UI, opacity should be full despite disabled state
@@ -62,53 +62,51 @@ export function SubmitSwapButton({
           <Text color="$neutral2" flex={1} textAlign="center" variant={SWAP_BUTTON_TEXT_VARIANT}>
             {t('swap.finalizingQuote')}
           </Text>
-        </DeprecatedButton>
+        </ThreeDButton>
       )
     }
     case showUniswapXSubmittingUI: {
       return (
-        <DeprecatedButton
-          fill
+        <ThreeDButton
           animation="fast"
-          backgroundColor="$accent2"
-          color="$accent1"
-          disabled={true}
-          pressStyle={{ scale: 0.98 }}
-          hoverStyle={{ opacity: 1 }}
-          icon={<SpinningLoader color="$accent1" size={isWeb ? iconSizes.icon20 : iconSizes.icon24} />}
+          fill
+          isDisabled
+          backgroundColor="$kty_surface2"
+          shadowColor="$kty_surface4"
+          color="$kty_neutral3"
+          icon={<SpinningLoader color="$kty_neutral3" size={isWeb ? iconSizes.icon20 : iconSizes.icon24} />}
           opacity={1} // For UniswapX submitting UI, opacity should be full despite disabled state
           size={size}
         >
           <UniswapXSubmittingText />
-        </DeprecatedButton>
+        </ThreeDButton>
       )
     }
     case isInterface && isSubmitting: {
       return (
-        <DeprecatedButton
-          fill
-          disabled
+        <ThreeDButton
           animation="fast"
-          backgroundColor="$surface2"
-          color="$neutral2"
-          pressStyle={{ scale: 0.98 }}
-          hoverStyle={{ opacity: 1 }}
-          icon={<SpinningLoader color="$neutral2" size={isWeb ? iconSizes.icon20 : iconSizes.icon24} />}
+          fill
+          isDisabled
+          backgroundColor="$kty_surface2"
+          shadowColor="$kty_surface4"
+          color="$kty_neutral3"
+          icon={<SpinningLoader color="$kty_neutral3" size={isWeb ? iconSizes.icon20 : iconSizes.icon24} />}
           opacity={1} // For UniswapX submitting UI, opacity should be full despite disabled state
           size={size}
         >
           <ConfirmInWalletText />
-        </DeprecatedButton>
+        </ThreeDButton>
       )
     }
     case warning?.severity === WarningSeverity.High: {
       return (
-        <DeprecatedButton
-          fill
+        <ThreeDButton
           animation="fast"
+          fill
           backgroundColor="$statusCritical"
           color="$accent1"
-          disabled={disabled}
+          isDisabled={disabled}
           pressStyle={{ scale: 0.98 }}
           hoverStyle={{ opacity: 1, backgroundColor: '$statusCritical' }}
           opacity={disabled ? 0.5 : 0.9}
@@ -120,23 +118,22 @@ export function SubmitSwapButton({
           <Text color="$white" variant={SWAP_BUTTON_TEXT_VARIANT}>
             {actionText}
           </Text>
-        </DeprecatedButton>
+        </ThreeDButton>
       )
     }
     default: {
-      const backgroundColor = disabled ? '$surface2' : '$accent1'
-      const textColor = disabled ? '$neutral2' : '$white'
+      const backgroundColor = disabled ? '$kty_surface2' : '$kty_surface1'
+      const shadowColor = disabled ? '$kty_neutral3' : '$kty_surface3'
+      const textColor = disabled ? '$kty_neutral3' : '$white'
       const biometricIcon = renderBiometricsIcon?.({ color: disabled ? '$neutral2' : '$white' })
 
       return (
-        <DeprecatedButton
-          fill
+        <ThreeDButton
           animation="fast"
+          fill
           backgroundColor={backgroundColor}
-          disabled={disabled}
-          pressStyle={{ scale: 0.98 }}
-          hoverStyle={{ opacity: 1 }}
-          opacity={0.9}
+          shadowColor={shadowColor}
+          isDisabled={disabled}
           icon={biometricIcon}
           size={size}
           testID={TestID.Swap}
@@ -145,7 +142,7 @@ export function SubmitSwapButton({
           <Text color={textColor} variant={SWAP_BUTTON_TEXT_VARIANT}>
             {actionText}
           </Text>
-        </DeprecatedButton>
+        </ThreeDButton>
       )
     }
   }
@@ -202,7 +199,7 @@ function ConfirmInWalletText(): JSX.Element {
   return (
     <AnimatePresence>
       <Flex animateEnterExit="fadeInDownOutDown" animation="quicker">
-        <Text color="$neutral2" flex={1} textAlign="center" variant={SWAP_BUTTON_TEXT_VARIANT}>
+        <Text color="$kty_neutral3" flex={1} textAlign="center" variant={SWAP_BUTTON_TEXT_VARIANT}>
           {t('common.confirmWallet')}
         </Text>
       </Flex>

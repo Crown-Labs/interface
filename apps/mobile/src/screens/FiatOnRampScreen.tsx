@@ -22,7 +22,6 @@ import { HandleBar } from 'uniswap/src/components/modals/HandleBar'
 import { PillMultiToggle } from 'uniswap/src/components/pill/PillMultiToggle'
 import { MAX_FIAT_INPUT_DECIMALS } from 'uniswap/src/constants/transactions'
 import { usePortfolioBalances } from 'uniswap/src/features/dataApi/balances'
-import { useLocalFiatToUSDConverter } from 'uniswap/src/features/fiatCurrency/hooks'
 import { FiatOnRampCountryPicker } from 'uniswap/src/features/fiatOnRamp/FiatOnRampCountryPicker'
 import { TokenSelectorBalanceDisplay } from 'uniswap/src/features/fiatOnRamp/TokenSelectorBalanceDisplay'
 import UnsupportedTokenModal from 'uniswap/src/features/fiatOnRamp/UnsupportedTokenModal'
@@ -74,6 +73,7 @@ type Props = NativeStackScreenProps<FiatOnRampStackParamList, FiatOnRampScreens.
 
 const ON_SELECTION_CHANGE_WAIT_TIME_MS = 500
 const MAX_TOKEN_DECIMALS = 9 // limited for design purposes
+const MAX_INPUT_LENGTH = MAX_TOKEN_DECIMALS + 2
 
 function preloadServiceProviderLogos(serviceProviders: FORServiceProvider[], isDarkMode: boolean): void {
   FastImage.preload(
@@ -82,6 +82,7 @@ function preloadServiceProviderLogos(serviceProviders: FORServiceProvider[], isD
 }
 
 const PREDEFINED_AMOUNTS_SUPPORTED_CURRENCIES = ['usd', 'eur', 'gbp', 'aud', 'cad', 'sgd']
+const US_STATES_WITH_RESTRICTIONS = 'US-NY'
 
 export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
   const isOffRampEnabled = useFeatureFlag(FeatureFlags.FiatOffRamp)
@@ -269,8 +270,6 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
     setCountryCode(country.countryCode)
   }
 
-  const fiatToUSDConverter = useLocalFiatToUSDConverter()
-
   const onChangeValue = (
     newAmount: string,
     source: FORAmountEnteredProperties['source'],
@@ -281,7 +280,11 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
       isOffRamp ? FiatOffRampEventName.FiatOffRampAmountEntered : FiatOnRampEventName.FiatOnRampAmountEntered,
       {
         source,
-        amountUSD: fiatToUSDConverter(parseFloat(newAmount)),
+        amount: parseFloat(newAmount),
+        cryptoCurrency: quoteCurrency.currencyInfo?.currency.symbol,
+        fiatCurrency: meldSupportedFiatCurrency.code,
+        chainId: quoteCurrency.currencyInfo?.currency.chainId,
+        isTokenInputMode,
       },
     )
 
@@ -327,9 +330,14 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
     const tokenAmountFromQuote = isOffRamp ? sourceAmount : destinationAmount
     const newAmount = (isTokenInputMode ? fiatAmountFromQuote : tokenAmountFromQuote)?.toString() ?? ''
 
+    const truncatedNewAmount = truncateToMaxDecimals({
+      value: newAmount,
+      maxDecimals: isTokenInputMode ? MAX_FIAT_INPUT_DECIMALS : MAX_TOKEN_DECIMALS,
+    })
+
     // update values
-    valueRef.current = newAmount
-    setValue(newAmount)
+    valueRef.current = truncatedNewAmount
+    setValue(truncatedNewAmount)
 
     // update cursor position and decimal pad disabled keys
     resetSelection({ start: valueRef.current.length, end: valueRef.current.length })
@@ -380,6 +388,7 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
         {
           token: currency.currencyInfo.currency.symbol.toLowerCase(),
           isUnsupported: !isSupportedFORCurrency(currency),
+          chainId: currency.currencyInfo?.currency.chainId,
         },
       )
     }
@@ -390,13 +399,18 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
     meldSupportedFiatCurrency.code.toLowerCase(),
   )
 
-  const notAvailableInThisRegion = supportedFiatCurrencies?.length === 0
+  const notAvailableInThisRegion =
+    supportedFiatCurrencies?.length === 0 ||
+    (!supportedTokensLoading && supportedTokensList?.length === 0) ||
+    (US_STATES_WITH_RESTRICTIONS.includes(countryState || '') && quotes?.length === 0)
 
-  const { errorText } = useParseFiatOnRampError(
-    !notAvailableInThisRegion && quotesError,
-    meldSupportedFiatCurrency.code,
-    exceedsBalanceError,
-  )
+  const { errorText } = useParseFiatOnRampError({
+    error: !notAvailableInThisRegion && quotesError,
+    currencyCode: meldSupportedFiatCurrency.code,
+    tokenCode: quoteCurrency.currencyInfo?.currency.symbol,
+    balanceError: exceedsBalanceError,
+    noQuotesReturned: quotes?.length === 0,
+  })
 
   const onSelectionChange = useCallback(
     (start: number, end: number) => {
@@ -419,6 +433,10 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
     setShowUnsupportedTokenModal(false)
 
     if (unsupportedCurrency?.currencyInfo) {
+      sendAnalyticsEvent(FiatOffRampEventName.FiatOffRampUnsupportedTokenSwap, {
+        token: unsupportedCurrency.currencyInfo.currency.symbol,
+      })
+
       navigateToSwapFlow({
         currencyField: CurrencyField.INPUT,
         currencyAddress: currencyIdToAddress(unsupportedCurrency.currencyInfo?.currencyId),
@@ -566,6 +584,10 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
                   resetSelection={resetSelection}
                   selectionRef={selectionRef}
                   setValue={(newValue: string): void => {
+                    if (newValue.length > MAX_INPUT_LENGTH) {
+                      onDecimalPadTriggerInputShake()
+                      return
+                    }
                     onChangeValue(newValue, 'textInput')
                   }}
                   valueRef={valueRef}
@@ -613,6 +635,9 @@ export function FiatOnRampScreen({ navigation }: Props): JSX.Element {
           onBack={(): void => {
             setShowUnsupportedTokenModal(false)
             setShowTokenSelector(true)
+            sendAnalyticsEvent(FiatOffRampEventName.FiatOffRampUnsupportedTokenBack, {
+              token: unsupportedCurrency?.currencyInfo?.currency.symbol,
+            })
           }}
           onClose={(): void => {
             setShowUnsupportedTokenModal(false)

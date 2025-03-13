@@ -10,15 +10,17 @@ import {
   UniversalImageResizeMode,
   useSporeColors,
 } from 'ui/src'
-import { ALL_NETWORKS_LOGO } from 'ui/src/assets'
+import { ALL_NETWORKS_LOGO, ALL_NETWORKS_LOGO_UNICHAIN } from 'ui/src/assets'
 import { GlobeFilled } from 'ui/src/components/icons/GlobeFilled'
 import { X } from 'ui/src/components/icons/X'
-import { borderRadii, iconSizes, zIndices } from 'ui/src/theme'
+import { borderRadii, iconSizes, zIndexes } from 'ui/src/theme'
 import { Modal } from 'uniswap/src/components/modals/Modal'
 import { LearnMoreLink } from 'uniswap/src/components/text/LearnMoreLink'
 import { uniswapUrls } from 'uniswap/src/constants/urls'
 import { getChainInfo } from 'uniswap/src/features/chains/chainInfo'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { FeatureFlags } from 'uniswap/src/features/gating/flags'
+import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
 import { ModalName } from 'uniswap/src/features/telemetry/constants'
 import { isInterface } from 'utilities/src/platform'
 
@@ -29,6 +31,7 @@ export type NetworkLogosProps = {
 export function NetworkLogos({ chains }: NetworkLogosProps): JSX.Element {
   const { t } = useTranslation()
   const colors = useSporeColors()
+  const unichainPromoEnabled = useFeatureFlag(FeatureFlags.UnichainPromo)
 
   const [isShowingModal, setIsShowingModal] = useState(false)
   const closeModal = useCallback(() => setIsShowingModal(false), [])
@@ -73,6 +76,8 @@ export function NetworkLogos({ chains }: NetworkLogosProps): JSX.Element {
     [chains],
   )
 
+  const logo = unichainPromoEnabled ? ALL_NETWORKS_LOGO_UNICHAIN : ALL_NETWORKS_LOGO
+
   return (
     <>
       {/* TRIGGER BUTTON */}
@@ -89,7 +94,7 @@ export function NetworkLogos({ chains }: NetworkLogosProps): JSX.Element {
       >
         <UniversalImage
           allowLocalUri
-          uri={ALL_NETWORKS_LOGO}
+          uri={logo}
           size={{
             width: iconSizes.icon20,
             height: iconSizes.icon20,
@@ -105,7 +110,7 @@ export function NetworkLogos({ chains }: NetworkLogosProps): JSX.Element {
         <Flex gap="$spacing12" px="$padding16" pb="$spacing4" alignItems="center" mt="$gap12">
           {/* X BUTTON */}
           {isInterface && (
-            <TouchableArea alignSelf="flex-end" zIndex={zIndices.default} onPress={closeModal}>
+            <TouchableArea alignSelf="flex-end" zIndex={zIndexes.default} onPress={closeModal}>
               <X color="$neutral2" size="$icon.24" />
             </TouchableArea>
           )}

@@ -10,9 +10,9 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { serializeSwapStateToURLParameters } from 'state/swap/hooks'
 import { Flex, Text, useMedia } from 'ui/src'
-import { UniverseChainId } from 'uniswap/src/features/chains/types'
+import { INTERFACE_NAV_HEIGHT } from 'ui/src/theme'
+import { useEnabledChains } from 'uniswap/src/features/chains/hooks/useEnabledChains'
 import { SwapRedirectFn } from 'uniswap/src/features/transactions/TransactionModal/TransactionModalContext'
-import { INTERFACE_NAV_HEIGHT } from 'uniswap/src/theme/heights'
 
 interface HeroProps {
   scrollToRef: () => void
@@ -22,7 +22,8 @@ interface HeroProps {
 export function Hero({ scrollToRef, transition }: HeroProps) {
   const media = useMedia()
   const { height: scrollPosition } = useScroll({ enabled: !media.sm })
-  const initialInputCurrency = useCurrency('ETH', UniverseChainId.Mainnet)
+  const { defaultChainId } = useEnabledChains()
+  const initialInputCurrency = useCurrency('ETH', defaultChainId)
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { translateY, opacityY } = useMemo(
@@ -47,6 +48,23 @@ export function Hero({ scrollToRef, transition }: HeroProps) {
     },
     [navigate],
   )
+
+  const renderRiseInText = useMemo(() => {
+    return t('hero.swap.title')
+      .split(/(<br\/>)|\s+/)
+      .filter(Boolean) // splits the string by spaces but also captures "<br/>" as a separate element in the array
+      .map((word, index) => {
+        if (word === '<br/>') {
+          return <br key={`${index}-${word}-br`} />
+        } else {
+          return (
+            <Fragment key={`${index}-${word}`}>
+              <RiseInText delay={index * 0.1}>{word}</RiseInText>{' '}
+            </Fragment>
+          )
+        }
+      })
+  }, [t])
 
   return (
     <Flex
@@ -87,20 +105,7 @@ export function Hero({ scrollToRef, transition }: HeroProps) {
             $sm={{ variant: 'heading2', fontSize: 36 }}
             $short={{ variant: 'heading2', fontSize: 36 }}
           >
-            {t('hero.swap.title')
-              .split(/(<br\/>)|\s+/)
-              .filter(Boolean) // splits the string by spaces but also captures "<br/>" as a separate element in the array
-              .map((word, index) => {
-                if (word === '<br/>') {
-                  return <br key={word} />
-                } else {
-                  return (
-                    <Fragment key={word}>
-                      <RiseInText delay={index * 0.1}>{word}</RiseInText>{' '}
-                    </Fragment>
-                  )
-                }
-              })}
+            {renderRiseInText}
           </Text>
         </Flex>
 
@@ -117,7 +122,7 @@ export function Hero({ scrollToRef, transition }: HeroProps) {
               hideHeader
               hideFooter
               syncTabToUrl={false}
-              chainId={UniverseChainId.Mainnet}
+              chainId={defaultChainId}
               initialInputCurrency={initialInputCurrency}
               swapRedirectCallback={swapRedirectCallback}
             />

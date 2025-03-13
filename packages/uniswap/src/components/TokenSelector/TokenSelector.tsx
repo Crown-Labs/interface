@@ -3,10 +3,9 @@ import { Currency } from '@uniswap/sdk-core'
 import { hasStringAsync } from 'expo-clipboard'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Flex, Text, TouchableArea, isWeb, useMedia, useScrollbarStyles, useSporeColors } from 'ui/src'
+import { Flex, ModalCloseIcon, Text, isWeb, useMedia, useScrollbarStyles, useSporeColors } from 'ui/src'
 import { InfoCircleFilled } from 'ui/src/components/icons/InfoCircleFilled'
-import { X } from 'ui/src/components/icons/X'
-import { zIndices } from 'ui/src/theme'
+import { zIndexes } from 'ui/src/theme'
 import { useFilterCallbacks } from 'uniswap/src/components/TokenSelector/hooks/useFilterCallbacks'
 import { TokenSelectorEmptySearchList } from 'uniswap/src/components/TokenSelector/lists/TokenSelectorEmptySearchList'
 import { TokenSelectorSearchResultsList } from 'uniswap/src/components/TokenSelector/lists/TokenSelectorSearchResultsList'
@@ -29,6 +28,7 @@ import { SearchTextInput } from 'uniswap/src/features/search/SearchTextInput'
 import Trace from 'uniswap/src/features/telemetry/Trace'
 import { ElementName, ModalName, SectionName, UniswapEventName } from 'uniswap/src/features/telemetry/constants'
 import { sendAnalyticsEvent } from 'uniswap/src/features/telemetry/send'
+import { useUnichainTooltipVisibility } from 'uniswap/src/features/unichain/hooks/useUnichainTooltipVisibility'
 import useIsKeyboardOpen from 'uniswap/src/hooks/useIsKeyboardOpen'
 import { CurrencyField } from 'uniswap/src/types/currency'
 import { getClipboard } from 'uniswap/src/utils/clipboard'
@@ -87,6 +87,7 @@ export function TokenSelectorContent({
   const scrollbarStyles = useScrollbarStyles()
   const isKeyboardOpen = useIsKeyboardOpen()
   const { navigateToBuyOrReceiveWithEmptyWallet } = useUniswapContext()
+  const { shouldShowUnichainNetworkSelectorTooltip } = useUnichainTooltipVisibility()
 
   const media = useMedia()
   const isSmallScreen = (media.sm && isInterface) || isMobileApp || isMobileWeb
@@ -184,8 +185,8 @@ export function TokenSelectorContent({
     if (searchInFocus && !searchFilter && !isTestnetModeEnabled) {
       return (
         <TokenSelectorEmptySearchList
+          activeAccountAddress={activeAccountAddress}
           chainFilter={chainFilter}
-          isKeyboardOpen={isKeyboardOpen}
           onSelectCurrency={onSelectCurrencyCallback}
         />
       )
@@ -238,9 +239,9 @@ export function TokenSelectorContent({
             onSelectCurrency={onSelectCurrencyCallback}
           />
         )
+      default:
+        return undefined
     }
-
-    return undefined
   }, [
     searchInFocus,
     searchFilter,
@@ -268,9 +269,7 @@ export function TokenSelectorContent({
           {!isSmallScreen && (
             <Flex row justifyContent="space-between" pt="$spacing16" px="$spacing16">
               <Text variant="subheading1">{t('common.selectToken.label')}</Text>
-              <TouchableArea onPress={onClose}>
-                <X color="$neutral1" size="$icon.24" />
-              </TouchableArea>
+              <ModalCloseIcon onClose={onClose} />
             </Flex>
           )}
           <Flex px="$spacing16" py="$spacing4">
@@ -279,12 +278,14 @@ export function TokenSelectorContent({
               backgroundColor="$surface2"
               endAdornment={
                 <Flex row alignItems="center">
-                  {hasClipboardString && <PasteButton inline textVariant="buttonLabel3" onPress={handlePaste} />}
+                  {hasClipboardString && !shouldShowUnichainNetworkSelectorTooltip && (
+                    <PasteButton inline textVariant="buttonLabel3" onPress={handlePaste} />
+                  )}
                   <NetworkFilter
                     includeAllNetworks={!isTestnetModeEnabled}
                     chainIds={chainIds || enabledChains}
                     selectedChain={chainFilter}
-                    styles={isExtension ? { dropdownZIndex: zIndices.overlay } : undefined}
+                    styles={isExtension ? { dropdownZIndex: zIndexes.overlay } : undefined}
                     onDismiss={dismissNativeKeyboard}
                     onPressChain={(newChainId) => {
                       onChangeChainFilter(newChainId)
@@ -311,7 +312,7 @@ export function TokenSelectorContent({
               mx="$spacing8"
               p="$spacing12"
             >
-              <InfoCircleFilled color="$neutral2" size="$icon.20" />
+              <InfoCircleFilled color="$kty_neutral2" size="$icon.20" />
               <Text variant="body3">{t('limits.form.disclaimer.mainnet.short')}</Text>
             </Flex>
           )}
@@ -354,6 +355,7 @@ function _TokenSelectorModal(props: TokenSelectorProps): JSX.Element {
       name={ModalName.TokenSelector}
       padding="$none"
       snapPoints={['65%', '100%']}
+      height={isInterface ? '100vh' : undefined}
       onClose={onClose}
     >
       <TokenSelectorModalContent {...props} />

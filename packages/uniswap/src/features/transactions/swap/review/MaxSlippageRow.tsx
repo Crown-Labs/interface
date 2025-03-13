@@ -72,8 +72,8 @@ export function MaxSlippageRow({
       <IndicativeLoadingWrapper loading={showLoadingState}>
         <Flex centered row gap="$spacing8">
           {!customSlippageTolerance ? (
-            <Flex centered backgroundColor="$surface3" borderRadius="$roundedFull" px="$spacing4" py="$spacing2">
-              <Text color="$neutral2" variant="buttonLabel3">
+            <Flex centered backgroundColor="$kty_surface6" borderRadius="$roundedFull" px="$spacing10" py="$spacing1">
+              <Text color="$kty_neutral4" fontSize={12} fontWeight={500}>
                 {t('swap.settings.slippage.control.auto')}
               </Text>
             </Flex>

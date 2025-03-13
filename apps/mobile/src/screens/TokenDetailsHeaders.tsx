@@ -65,7 +65,7 @@ const TokenPrice = memo(function _TokenPrice(): JSX.Element {
   const onChainMarket = useTokenMarketPartsFragment({ currencyId }).data.market
   const offChainMarkets = useTokenProjectMarketsPartsFragment({ currencyId }).data?.project?.markets
 
-  const price = offChainMarkets?.[0]?.price?.value ?? onChainMarket?.price?.value
+  const price = offChainMarkets?.[0]?.price?.value || onChainMarket?.price?.value || undefined
 
   return (
     <Text color="$neutral1" variant="body1">
@@ -73,6 +73,8 @@ const TokenPrice = memo(function _TokenPrice(): JSX.Element {
     </Text>
   )
 })
+
+const EXCLUDED_ACTIONS = [TokenMenuActionType.Swap, TokenMenuActionType.Send, TokenMenuActionType.Receive]
 
 export const HeaderRightElement = memo(function HeaderRightElement(): JSX.Element {
   const colors = useSporeColors()
@@ -88,12 +90,10 @@ export const HeaderRightElement = memo(function HeaderRightElement(): JSX.Elemen
   const safetyLevel = project?.safetyLevel
   const isBlocked = safetyLevel === SafetyLevel.Blocked || currencyInfo?.safetyInfo?.tokenList === TokenList.Blocked
 
-  const excludedActions = [TokenMenuActionType.Swap, TokenMenuActionType.Send, TokenMenuActionType.Receive]
-
   const { menuActions, onContextMenuPress } = useTokenContextMenu({
     currencyId,
     isBlocked,
-    excludedActions,
+    excludedActions: EXCLUDED_ACTIONS,
     tokenSymbolForNotification: token?.symbol,
     portfolioBalance: currentChainBalance,
   })

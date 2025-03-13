@@ -3,6 +3,32 @@ import { Currency, NativeCurrency, Token, UNI_ADDRESSES, WETH9 } from '@uniswap/
 import invariant from 'tiny-invariant'
 import { UniverseChainId } from 'uniswap/src/features/chains/types'
 
+// Kittycorn tokens config
+export const WETH_KITTYCORN = new Token(
+  UniverseChainId.Sepolia,
+  '0xC558DBdd856501FCd9aaF1E62eae57A9F0629a3c',
+  18,
+  'WETH',
+  'Wrapped Ether',
+)
+
+export const USDC_KITTYCORN = new Token(
+  UniverseChainId.Sepolia,
+  '0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8',
+  6,
+  'USDC',
+  'USD//C Kittycorn',
+)
+
+export const USDT_KITTYCORN = new Token(
+  UniverseChainId.Sepolia,
+  '0xaA8E23Fb1079EA71e0a56F48a2aA51851D8433D0',
+  6,
+  'USDT',
+  'Tether USD Kittycorn',
+)
+// -------------------
+
 export const USDT_MONAD_TESTNET = new Token(
   UniverseChainId.MonadTestnet,
   '0xfBC2D240A5eD44231AcA3A9e9066bc4b33f01149',
@@ -14,6 +40,14 @@ export const USDT_MONAD_TESTNET = new Token(
 export const USDC_SEPOLIA = new Token(
   UniverseChainId.Sepolia,
   '0x1c7d4b196cb0c7b01d743fbc6116a902379c7238',
+  6,
+  'USDC',
+  'USD//C',
+)
+
+export const USDC_UNICHAIN = new Token(
+  UniverseChainId.Unichain,
+  '0x078D782b760474a361dDA0AF3839290b0EF57AD6',
   6,
   'USDC',
   'USD//C',
@@ -417,10 +451,10 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token } = {
   ),
   [UniverseChainId.MonadTestnet]: new Token(
     UniverseChainId.MonadTestnet,
-    '0x93EACdB111FF98dE9a8Ac5823d357BBc4842aE63',
+    '0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701',
     18,
     'WMON',
-    'Wrapped MON',
+    'Wrapped Monad',
   ),
   [UniverseChainId.Optimism]: new Token(
     UniverseChainId.Optimism,
@@ -439,6 +473,13 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token } = {
   [UniverseChainId.Sepolia]: new Token(
     UniverseChainId.Sepolia,
     '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
+    18,
+    'WETH',
+    'Wrapped Ether',
+  ),
+  [UniverseChainId.Unichain]: new Token(
+    UniverseChainId.Unichain,
+    '0x4200000000000000000000000000000000000006',
     18,
     'WETH',
     'Wrapped Ether',

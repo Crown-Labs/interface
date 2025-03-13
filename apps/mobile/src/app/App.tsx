@@ -11,11 +11,13 @@ import appsFlyer from 'react-native-appsflyer'
 import DeviceInfo from 'react-native-device-info'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { MMKV } from 'react-native-mmkv'
+import OneSignal from 'react-native-onesignal'
+import { configureReanimatedLogger } from 'react-native-reanimated'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { enableFreeze } from 'react-native-screens'
 import { useDispatch, useSelector } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
-import { DatadogProviderWrapper } from 'src/app/DatadogProviderWrapper'
+import { DatadogProviderWrapper, MOBILE_DEFAULT_DATADOG_SESSION_SAMPLE_RATE } from 'src/app/DatadogProviderWrapper'
 import { MobileWalletNavigationProvider } from 'src/app/MobileWalletNavigationProvider'
 import { AppModals } from 'src/app/modals/AppModals'
 import { NavigationContainer } from 'src/app/navigation/NavigationContainer'
@@ -25,12 +27,10 @@ import { persistor, store } from 'src/app/store'
 import { TraceUserProperties } from 'src/components/Trace/TraceUserProperties'
 import { OfflineBanner } from 'src/components/banners/OfflineBanner'
 import { initAppsFlyer } from 'src/features/analytics/appsflyer'
-import { LockScreenContextProvider } from 'src/features/authentication/lockScreenContext'
-import { BiometricContextProvider } from 'src/features/biometrics/context'
 import { NotificationToastWrapper } from 'src/features/notifications/NotificationToastWrapper'
 import { initOneSignal } from 'src/features/notifications/Onesignal'
-import { AIAssistantScreen } from 'src/features/openai/AIAssistantScreen'
-import { OpenAIContextProvider } from 'src/features/openai/OpenAIContext'
+import { OneSignalUserTagField } from 'src/features/notifications/constants'
+import { DevAIAssistantScreen, DevOpenAIProvider } from 'src/features/openai/DevAIGate'
 import { shouldLogScreen } from 'src/features/telemetry/directLogScreens'
 import { selectCustomEndpoint } from 'src/features/tweaks/selectors'
 import {
@@ -43,14 +43,20 @@ import { useAppStateTrigger } from 'src/utils/useAppStateTrigger'
 import { getStatsigEnvironmentTier } from 'src/utils/version'
 import { flexStyles, useIsDarkMode } from 'ui/src'
 import { TestnetModeBanner } from 'uniswap/src/components/banners/TestnetModeBanner'
+import { config } from 'uniswap/src/config'
 import { uniswapUrls } from 'uniswap/src/constants/urls'
 import { BlankUrlProvider } from 'uniswap/src/contexts/UrlContext'
 import { selectFavoriteTokens } from 'uniswap/src/features/favorites/selectors'
 import { useAppFiatCurrencyInfo } from 'uniswap/src/features/fiatCurrency/hooks'
-import { DUMMY_STATSIG_SDK_KEY, StatsigCustomAppValue } from 'uniswap/src/features/gating/constants'
+import {
+  DatadogSessionSampleRateKey,
+  DatadogSessionSampleRateValType,
+  DynamicConfigs,
+} from 'uniswap/src/features/gating/configs'
+import { StatsigCustomAppValue } from 'uniswap/src/features/gating/constants'
 import { Experiments } from 'uniswap/src/features/gating/experiments'
 import { FeatureFlags, WALLET_FEATURE_FLAG_NAMES } from 'uniswap/src/features/gating/flags'
-import { useFeatureFlag } from 'uniswap/src/features/gating/hooks'
+import { getDynamicConfigValue, getFeatureFlag } from 'uniswap/src/features/gating/hooks'
 import { loadStatsigOverrides } from 'uniswap/src/features/gating/overrides/customPersistedOverrides'
 import { Statsig, StatsigOptions, StatsigProvider, StatsigUser } from 'uniswap/src/features/gating/sdk/statsig'
 import { LocalizationContextProvider } from 'uniswap/src/features/language/LocalizationContext'
@@ -64,10 +70,13 @@ import { UnitagUpdaterContextProvider } from 'uniswap/src/features/unitags/conte
 import i18n from 'uniswap/src/i18n'
 import { CurrencyId } from 'uniswap/src/types/currency'
 import { getUniqueId } from 'utilities/src/device/getUniqueId'
-import { datadogEnabled, isDetoxBuild } from 'utilities/src/environment/constants'
+import { datadogEnabled, isE2EMode } from 'utilities/src/environment/constants'
+import { isTestEnv } from 'utilities/src/environment/env'
 import { attachUnhandledRejectionHandler, setAttributesToDatadog } from 'utilities/src/logger/Datadog'
 import { registerConsoleOverrides } from 'utilities/src/logger/console'
+import { DDRumAction, DDRumTiming } from 'utilities/src/logger/datadogEvents'
 import { logger } from 'utilities/src/logger/logger'
+import { isIOS } from 'utilities/src/platform'
 import { useAsyncData } from 'utilities/src/react/hooks'
 import { AnalyticsNavigationContextProvider } from 'utilities/src/telemetry/trace/AnalyticsNavigationContext'
 import { ErrorBoundary } from 'wallet/src/components/ErrorBoundary/ErrorBoundary'
@@ -86,15 +95,20 @@ import { SharedWalletProvider } from 'wallet/src/providers/SharedWalletProvider'
 
 enableFreeze(true)
 
-if (__DEV__) {
+if (__DEV__ && !isTestEnv()) {
   registerConsoleOverrides()
+  // TODO(WALL-5780): Fix "Reading from `value` during component render." warnings while
+  // mainly switching between screens.
+  configureReanimatedLogger({
+    strict: false,
+  })
   loadDevMessages()
   loadErrorMessages()
 }
 
-// Log boxes on simulators can block detox tap event when they cover buttons placed at
+// Log boxes on simulators can block e2e tap event when they cover buttons placed at
 // the bottom of the screen and cause tests to fail.
-if (isDetoxBuild) {
+if (isE2EMode) {
   LogBox.ignoreAllLogs()
 }
 
@@ -104,7 +118,7 @@ initFirebaseAppCheck()
 
 function App(): JSX.Element | null {
   useEffect(() => {
-    if (!__DEV__ && !isDetoxBuild) {
+    if (!__DEV__ && !isE2EMode) {
       attachUnhandledRejectionHandler()
       setAttributesToDatadog({ buildNumber: DeviceInfo.getBuildNumber() }).catch(() => undefined)
     }
@@ -121,6 +135,8 @@ function App(): JSX.Element | null {
 
   const deviceId = useAsyncData(fetchAndSetDeviceId).data
 
+  const [datadogSessionSampleRate, setDatadogSessionSampleRate] = React.useState<number | undefined>(undefined)
+
   const statSigOptions: {
     user: StatsigUser
     options: StatsigOptions
@@ -134,9 +150,24 @@ function App(): JSX.Element | null {
       api: uniswapUrls.statsigProxyUrl,
       disableAutoMetricsLogging: true,
       disableErrorLogging: true,
-      initCompletionCallback: loadStatsigOverrides,
+      initCompletionCallback: () => {
+        loadStatsigOverrides()
+        // we should move this logic inside DatadogProviderWrapper once we migrate to @statsig/js-client
+        // https://docs.statsig.com/client/javascript-sdk/migrating-from-statsig-js/#initcompletioncallback
+        setDatadogSessionSampleRate(
+          getDynamicConfigValue<
+            DynamicConfigs.DatadogSessionSampleRate,
+            DatadogSessionSampleRateKey,
+            DatadogSessionSampleRateValType
+          >(
+            DynamicConfigs.DatadogSessionSampleRate,
+            DatadogSessionSampleRateKey.Rate,
+            MOBILE_DEFAULT_DATADOG_SESSION_SAMPLE_RATE,
+          ),
+        )
+      },
     },
-    sdkKey: DUMMY_STATSIG_SDK_KEY,
+    sdkKey: config.statsigApiKey,
     user: {
       ...(deviceId ? { userID: deviceId } : {}),
       custom: {
@@ -148,7 +179,7 @@ function App(): JSX.Element | null {
 
   return (
     <StatsigProvider {...statSigOptions}>
-      <DatadogProviderWrapper>
+      <DatadogProviderWrapper sessionSampleRate={datadogSessionSampleRate}>
         <Trace>
           <StrictMode>
             <I18nextProvider i18n={i18n}>
@@ -183,6 +214,11 @@ function AppOuter(): JSX.Element | null {
   })
   const jsBundleLoadedRef = useRef(false)
 
+  useEffect(() => {
+    // Dynamically load polyfills so that we save on bundle size and improve app startup time
+    import('src/polyfills/intl-delayed')
+  }, [])
+
   /**
    * Function called by the @shopify/react-native-performance PerformanceProfiler that returns a
    * RenderPassReport. We then forward this report to Datadog, Amplitude, etc.
@@ -191,13 +227,13 @@ function AppOuter(): JSX.Element | null {
     if (datadogEnabled) {
       const shouldLogJsBundleLoaded = report.timeToBootJsMillis && !jsBundleLoadedRef.current
       if (shouldLogJsBundleLoaded) {
-        await DdRum.addAction(RumActionType.CUSTOM, 'application_start_js', {
+        await DdRum.addAction(RumActionType.CUSTOM, DDRumAction.ApplicationStartJs, {
           loading_time: report.timeToBootJsMillis,
         })
         jsBundleLoadedRef.current = true
       }
       if (report.interactive) {
-        await DdRum.addTiming('screenInteractive')
+        await DdRum.addTiming(DDRumTiming.ScreenInteractive)
       }
     }
 
@@ -222,6 +258,17 @@ function AppOuter(): JSX.Element | null {
         Statsig.getExperimentWithExposureLoggingDisabled(experiment).getGroupName(),
       ).catch(() => undefined)
     }
+
+    // Used in case we aren't able to resolve notification filtering issues on iOS
+    if (isIOS) {
+      const notificationsPriceAlertsEnabled = getFeatureFlag(FeatureFlags.NotificationPriceAlertsIOS)
+      const notificationsUnfundedWalletEnabled = getFeatureFlag(FeatureFlags.NotificationUnfundedWalletsIOS)
+
+      OneSignal.sendTags({
+        [OneSignalUserTagField.GatingPriceAlertsEnabled]: notificationsPriceAlertsEnabled ? 'true' : 'false',
+        [OneSignalUserTagField.GatingUnfundedWalletsEnabled]: notificationsUnfundedWalletEnabled ? 'true' : 'false',
+      })
+    }
   }, [])
 
   if (!client) {
@@ -237,26 +284,22 @@ function AppOuter(): JSX.Element | null {
               <GestureHandlerRootView style={flexStyles.fill}>
                 <WalletContextProvider>
                   <UnitagUpdaterContextProvider>
-                    <BiometricContextProvider>
-                      <LockScreenContextProvider>
-                        <DataUpdaters />
-                        <NavigationContainer>
-                          <MobileWalletNavigationProvider>
-                            <OpenAIContextProvider>
-                              <WalletUniswapProvider>
-                                <BottomSheetModalProvider>
-                                  <AppModals />
-                                  <PerformanceProfiler onReportPrepared={onReportPrepared}>
-                                    <AppInner />
-                                  </PerformanceProfiler>
-                                </BottomSheetModalProvider>
-                              </WalletUniswapProvider>
-                              <NotificationToastWrapper />
-                            </OpenAIContextProvider>
-                          </MobileWalletNavigationProvider>
-                        </NavigationContainer>
-                      </LockScreenContextProvider>
-                    </BiometricContextProvider>
+                    <DataUpdaters />
+                    <NavigationContainer>
+                      <MobileWalletNavigationProvider>
+                        <DevOpenAIProvider>
+                          <WalletUniswapProvider>
+                            <BottomSheetModalProvider>
+                              <AppModals />
+                              <PerformanceProfiler onReportPrepared={onReportPrepared}>
+                                <AppInner />
+                              </PerformanceProfiler>
+                            </BottomSheetModalProvider>
+                          </WalletUniswapProvider>
+                          <NotificationToastWrapper />
+                        </DevOpenAIProvider>
+                      </MobileWalletNavigationProvider>
+                    </NavigationContainer>
                   </UnitagUpdaterContextProvider>
                 </WalletContextProvider>
               </GestureHandlerRootView>
@@ -303,11 +346,9 @@ function AppInner(): JSX.Element {
     NativeModules.ThemeModule.setColorScheme(themeSetting)
   }, [themeSetting])
 
-  const openAIAssistantEnabled = useFeatureFlag(FeatureFlags.OpenAIAssistant)
-
   return (
     <>
-      {openAIAssistantEnabled && <AIAssistantScreen />}
+      <DevAIAssistantScreen />
       <OfflineBanner />
       <TestnetModeBanner />
       <AppStackNavigator />

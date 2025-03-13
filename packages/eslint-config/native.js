@@ -65,7 +65,7 @@ const noRestrictedImports = [
   {
     name: 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks',
     importNames: ['useAccountListQuery'],
-    message: 'Use `useAccountList` instead.',
+    message: 'Use `useAccountListData` instead.',
   },
   {
     name: '@gorhom/bottom-sheet',
@@ -111,7 +111,6 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
   ],
   plugins: [
-    'detox',
     'jest',
     'no-relative-import-paths',
     'no-unsanitized',
@@ -289,7 +288,6 @@ module.exports = {
     {
       files: ['*.e2e.js'],
       env: {
-        'detox/detox': true,
         jest: true,
         'jest/globals': true,
       },

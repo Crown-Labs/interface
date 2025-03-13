@@ -5,7 +5,7 @@ import {
 } from 'components/Liquidity/LiquidityPositionStatusIndicator'
 import { PositionInfo } from 'components/Liquidity/types'
 import { getProtocolVersionLabel } from 'components/Liquidity/utils'
-import { DoubleCurrencyAndChainLogo } from 'components/Logo/DoubleLogo'
+import { DoubleCurrencyLogo } from 'components/Logo/DoubleLogo'
 import { TextLoader } from 'pages/Pool/Positions/shared'
 import { Circle, Flex, Text } from 'ui/src'
 
@@ -13,6 +13,7 @@ interface LiquidityPositionInfoProps {
   positionInfo: PositionInfo
   currencyLogoSize?: number
   hideStatusIndicator?: boolean
+  isMiniVersion?: boolean
 }
 
 export function LiquidityPositionInfoLoader({ hideStatus }: { hideStatus?: boolean }) {
@@ -33,27 +34,29 @@ export function LiquidityPositionInfo({
   positionInfo,
   currencyLogoSize = 44,
   hideStatusIndicator = false,
+  isMiniVersion = false,
 }: LiquidityPositionInfoProps) {
   const { currency0Amount, currency1Amount, status, feeTier, v4hook, version } = positionInfo
   const versionLabel = getProtocolVersionLabel(version)
   return (
-    <Flex row gap="$gap16" $md={{ width: '100%' }}>
-      <DoubleCurrencyAndChainLogo
-        chainId={currency0Amount?.currency.chainId}
-        currencies={[currency0Amount?.currency, currency1Amount?.currency]}
-        size={currencyLogoSize}
-      />
-      <Flex grow $md={{ row: true, justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Flex row gap="$gap16" $md={{ row: false, gap: '$gap4' }}>
+    <Flex row gap="$gap16" $md={{ width: '100%' }} alignItems={isMiniVersion ? 'center' : 'flex-start'}>
+      <DoubleCurrencyLogo currencies={[currency0Amount?.currency, currency1Amount?.currency]} size={currencyLogoSize} />
+      <Flex
+        flexDirection={isMiniVersion ? 'column' : 'row'}
+        gap={isMiniVersion ? '$gap0' : '$gap16'}
+        $md={{ row: false, gap: isMiniVersion ? '$gap0' : '$gap4' }}
+        alignItems="flex-start"
+      >
+        <Flex $md={{ row: true, gap: '$gap16' }}>
           <Text variant="subheading1">
             {currency0Amount?.currency.symbol} / {currency1Amount?.currency.symbol}
           </Text>
-
-          <Flex row gap={2} alignItems="center">
-            <LiquidityPositionInfoBadges size="small" versionLabel={versionLabel} v4hook={v4hook} feeTier={feeTier} />
-          </Flex>
+          {!hideStatusIndicator && <LiquidityPositionStatusIndicator status={status} />}
         </Flex>
-        {!hideStatusIndicator && <LiquidityPositionStatusIndicator status={status} />}
+
+        <Flex row gap={2} alignItems="center" mt="$spacing4">
+          <LiquidityPositionInfoBadges size="small" versionLabel={versionLabel} v4hook={v4hook} feeTier={feeTier} />
+        </Flex>
       </Flex>
     </Flex>
   )
