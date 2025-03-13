@@ -47,7 +47,7 @@ jobs:
           REACT_APP_IS_UNISWAP_INTERFACE=true
           REACT_APP_STATSIG_API_KEY="client-zdC7XY3i3v1wVBEXMOcfZPebmVD7oxp9993jDLuPX3X"
           REACT_APP_STAGING=true
-          REACT_APP_KITTYCORN_API_URL="https://develop-web.kittycorn.io"
+          REACT_APP_KITTYCORN_API_URL="https://develop-api.kittycorn.io"
           EOF
 
       - name: Deploy Develop to S3
